@@ -27,7 +27,6 @@
 // }
 
 
-"use client";
 
 import Navbar from "../common/Navbar";
 import HeroSection from "./HeroSection";

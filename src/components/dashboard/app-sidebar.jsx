@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -26,37 +26,37 @@ const allItems = [
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["ADMIN", "USER"], // Available to both roles
+    roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
   },
   {
     title: "Audits",
     url: "/dashboard/audits",
     icon: ClipboardList,
-    roles: ["ADMIN", "USER"], // Available to both roles
+    roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
   },
   {
     title: "Responses",
     url: "/dashboard/responses",
     icon: FileText,
-    roles: ["ADMIN", "USER"], // Available to both roles
+    roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
   },
   {
     title: "Stores",
     url: "/dashboard/stores",
     icon: Store,
-    roles: ["ADMIN"], // Only available to ADMIN
+    roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
   },
   {
     title: "Company",
     url: "/dashboard/company",
     icon: Home,
-    roles: ["ADMIN"], // Only available to ADMIN
+    roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
   },
   {
     title: "User",
     url: "/dashboard/staff",
     icon: Users,
-    roles: ["ADMIN"], // Only available to ADMIN
+    roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
   },
 ];
 
@@ -65,7 +65,7 @@ export function AppSidebar() {
   // console.log("The profile from sidebar component is ", profile);
 
   // Filter items based on user role
-  const filteredItems = allItems.filter(item => 
+  const filteredItems = allItems.filter((item) =>
     item.roles.includes(profile?.role)
   );
 
@@ -76,9 +76,7 @@ export function AppSidebar() {
         <div className="text-center relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-20"></div>
           <div className="relative bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-            <h1 className="text-2xl font-bold text-white">
-              AuditPro
-            </h1>
+            <h1 className="text-2xl font-bold text-white">AuditPro</h1>
             <p className="text-xs text-blue-300/80 mt-1 font-medium">
               {profile?.role === "ADMIN" ? "Admin Dashboard" : "User Dashboard"}
             </p>
@@ -122,7 +120,7 @@ export function AppSidebar() {
           <div className="h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"></div>
           <div className="mt-4 text-center">
             <p className="text-xs text-blue-500/60">
-              Version 2.0 • {profile?.role || 'Guest'}
+              Version 2.0 • {profile?.role || "Guest"}
             </p>
           </div>
         </div>

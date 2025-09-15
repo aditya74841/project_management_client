@@ -1,4 +1,3 @@
-
 "use client";
 
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
@@ -16,7 +15,7 @@ import storage from "redux-persist/lib/storage"; // defaults to localStorage
 
 // Import all your slices
 import authReducer from "../redux/slices/authSlice";
-import companyReducer from "../app/dashboard/company/store"
+import companyReducer from "../redux/slices/companySlice";
 import storeReducer from "../app/dashboard/stores/store";
 import staffReducer from "../app/dashboard/staff/store";
 import auditReducer from "../app/dashboard/audits/store";

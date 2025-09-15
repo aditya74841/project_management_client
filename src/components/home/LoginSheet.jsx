@@ -1,38 +1,52 @@
-
 "use client";
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, Sparkles, ArrowRight, User, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Sparkles,
+  ArrowRight,
+  User,
+  AlertCircle,
+} from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/validations/auth";
 
 const buttonVariants = {
-  hover: { 
-    scale: 1.02, 
+  hover: {
+    scale: 1.02,
     boxShadow: "0 8px 25px rgba(59, 130, 246, 0.4)",
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
   },
   tap: { scale: 0.98 },
 };
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { duration: 0.4, staggerChildren: 0.1 }
-  }
+    transition: { duration: 0.4, staggerChildren: 0.1 },
+  },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 15 },
-  visible: { opacity: 1, y: 0 }
+  visible: { opacity: 1, y: 0 },
 };
 
 export default function LoginSheet({
@@ -43,6 +57,7 @@ export default function LoginSheet({
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
+  console.log("Tge is Loading is ", isLoading);
   const {
     register,
     handleSubmit,
@@ -75,7 +90,10 @@ export default function LoginSheet({
     }
   };
 
-  const isFormValid = watchedValues.emailOrPhone && watchedValues.password && Object.keys(errors).length === 0;
+  const isFormValid =
+    watchedValues.emailOrPhone &&
+    watchedValues.password &&
+    Object.keys(errors).length === 0;
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -94,7 +112,7 @@ export default function LoginSheet({
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
         </motion.button>
       </SheetTrigger>
-      
+
       <SheetContent className="sm:max-w-lg w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/40 border-0 shadow-2xl">
         <motion.div
           variants={containerVariants}
@@ -104,7 +122,10 @@ export default function LoginSheet({
         >
           {/* Header Section */}
           <SheetHeader className="space-y-6 pt-8 pb-8 text-center">
-            <motion.div variants={itemVariants} className="flex flex-col items-center gap-4">
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col items-center gap-4"
+            >
               <div className="relative">
                 <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20 animate-pulse"></div>
                 <div className="relative p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl">
@@ -115,13 +136,18 @@ export default function LoginSheet({
                 <SheetTitle className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   Welcome Back
                 </SheetTitle>
-                <p className="text-slate-500 text-lg">Sign in to your Audit Pro account</p>
+                <p className="text-slate-500 text-lg">
+                  Sign in to your Audit Pro account
+                </p>
               </div>
             </motion.div>
           </SheetHeader>
 
           {/* Form Content */}
-          <form onSubmit={handleSubmit(onSubmit)} className="flex-1 px-2 space-y-8">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex-1 px-2 space-y-8"
+          >
             <motion.div variants={itemVariants} className="space-y-3">
               <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
                 <Mail className="w-4 h-4 text-blue-500" />
@@ -132,12 +158,14 @@ export default function LoginSheet({
                   {...register("emailOrPhone")}
                   placeholder="Enter your email or phone number"
                   className={`h-14 pl-6 pr-6 text-base border-2 rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm group-hover:shadow-md ${
-                    errors.emailOrPhone 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-slate-200 focus:border-blue-500'
+                    errors.emailOrPhone
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-slate-200 focus:border-blue-500"
                   }`}
                   aria-invalid={!!errors.emailOrPhone}
-                  aria-describedby={errors.emailOrPhone ? "emailOrPhone-error" : undefined}
+                  aria-describedby={
+                    errors.emailOrPhone ? "emailOrPhone-error" : undefined
+                  }
                 />
                 {errors.emailOrPhone && (
                   <motion.div
@@ -173,19 +201,25 @@ export default function LoginSheet({
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className={`h-14 pl-6 pr-16 text-base border-2 rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm group-hover:shadow-md ${
-                    errors.password 
-                      ? 'border-red-500 focus:border-red-500' 
-                      : 'border-slate-200 focus:border-blue-500'
+                    errors.password
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-slate-200 focus:border-blue-500"
                   }`}
                   aria-invalid={!!errors.password}
-                  aria-describedby={errors.password ? "password-error" : undefined}
+                  aria-describedby={
+                    errors.password ? "password-error" : undefined
+                  }
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
                 {errors.password && (
                   <motion.div
@@ -231,7 +265,7 @@ export default function LoginSheet({
                   className="w-full h-14 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
                   <AnimatePresence mode="wait">
-                    {(isSubmitting || isLoading) ? (
+                    {isSubmitting || isLoading ? (
                       <motion.div
                         key="loading"
                         initial={{ opacity: 0 }}
@@ -272,12 +306,6 @@ export default function LoginSheet({
   );
 }
 
-
-
-
-
-
-
 // "use client";
 
 // import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -289,8 +317,8 @@ export default function LoginSheet({
 // import { useState } from "react";
 
 // const buttonVariants = {
-//   hover: { 
-//     scale: 1.02, 
+//   hover: {
+//     scale: 1.02,
 //     boxShadow: "0 8px 25px rgba(59, 130, 246, 0.4)",
 //     transition: { duration: 0.2 }
 //   },
@@ -299,8 +327,8 @@ export default function LoginSheet({
 
 // const containerVariants = {
 //   hidden: { opacity: 0, y: 20 },
-//   visible: { 
-//     opacity: 1, 
+//   visible: {
+//     opacity: 1,
 //     y: 0,
 //     transition: { duration: 0.4, staggerChildren: 0.1 }
 //   }
@@ -352,7 +380,7 @@ export default function LoginSheet({
 //           <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
 //         </motion.button>
 //       </SheetTrigger>
-      
+
 //       <SheetContent className="sm:max-w-lg w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/40 border-0 shadow-2xl">
 //         <motion.div
 //           variants={containerVariants}

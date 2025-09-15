@@ -35,7 +35,8 @@ export const userLogin = createAsyncThunk(
       const res = await api.post("/login", payload);
       return res.data;
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Login failed";
+      const message =
+        err.response?.data?.message || err.message || "Login failed";
       return rejectWithValue(message);
     }
   }
@@ -48,21 +49,22 @@ export const userProfile = createAsyncThunk(
       // Get token from current state
       const { auth } = getState();
       const token = auth.accessToken;
-      
+
       const res = await api.get("/current-user", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      
+
       // console.log("The user profile is", res);
       return res.data;
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to fetch profile";
-      
+      const message =
+        err.response?.data?.message || err.message || "Failed to fetch profile";
+
       // Check if it's a token-related error
       if (err.response?.status === 401) {
         return rejectWithValue({ message, shouldLogout: true }); // Changed to true for now
       }
-      
+
       return rejectWithValue({ message, shouldLogout: true });
     }
   }
@@ -74,11 +76,13 @@ export const refreshAccessToken = createAsyncThunk(
     try {
       const { auth } = getState();
       const res = await api.post("/refresh-token", {
-        refreshToken: auth.refreshToken
+        refreshToken: auth.refreshToken,
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Token refresh failed");
+      return rejectWithValue(
+        err.response?.data?.message || "Token refresh failed"
+      );
     }
   }
 );
@@ -89,14 +93,39 @@ export const handleLogout = createAsyncThunk(
     try {
       const { auth } = getState();
       const token = auth.accessToken;
-      
-      const res = await api.post("/logout", {}, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+
+      const res = await api.post(
+        "/logout",
+        {},
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
       return res.data;
     } catch (err) {
       return { message: "Logged out successfully" };
     }
+  }
+);
+
+export const validateAuthOnStart = createAsyncThunk(
+  "auth/validateOnStart",
+  async (_, { getState, dispatch, rejectWithValue }) => {
+    const { auth } = getState();
+
+    // If user appears logged in, validate with server
+    if (auth.isLoggedIn && auth.accessToken) {
+      try {
+        const result = await dispatch(userProfile()).unwrap();
+        return result;
+      } catch (error) {
+        // Token invalid, clear everything
+        dispatch(resetAuth());
+        return rejectWithValue("Session expired");
+      }
+    }
+
+    return null; // Not logged in, nothing to validate
   }
 );
 
@@ -160,7 +189,7 @@ const authSlice = createSlice({
     // Profile - Fixed error handling
     builder
       .addCase(userProfile.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
         state.error = null;
       })
       .addCase(userProfile.fulfilled, (state, action) => {
@@ -171,7 +200,7 @@ const authSlice = createSlice({
       })
       .addCase(userProfile.rejected, (state, action) => {
         state.loading = false;
-        
+
         // FIXED: Proper logic for shouldLogout
         if (action.payload?.shouldLogout === false) {
           // Keep user logged in, just show error
@@ -193,7 +222,8 @@ const authSlice = createSlice({
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
         state.tokenRefreshing = false;
         state.accessToken = action.payload?.data?.accessToken || "";
-        state.refreshToken = action.payload?.data?.refreshToken || state.refreshToken;
+        state.refreshToken =
+          action.payload?.data?.refreshToken || state.refreshToken;
         state.message = "Session refreshed";
         state.error = null;
       })
@@ -230,20 +260,39 @@ const authSlice = createSlice({
         state.error = null;
         state.lastLoginTime = null;
       });
+
+    builder.addCase(validateAuthOnStart.rejected, (state) => {
+      // Reset state if validation fails
+      state.isLoggedIn = false;
+      state.accessToken = "";
+      state.refreshToken = "";
+      state.profile = null;
+    });
   },
 });
 
-export const { clearMessages, clearError, setLoading, resetAuth, setTokenRefreshing } = authSlice.actions;
+export const {
+  clearMessages,
+  clearError,
+  setLoading,
+  resetAuth,
+  setTokenRefreshing,
+} = authSlice.actions;
 
 const persistConfig = {
   key: "auth",
   storage,
-  whitelist: ["accessToken", "refreshToken", "isLoggedIn", "profile", "lastLoginTime"],
+  whitelist: [
+    "accessToken",
+    "refreshToken",
+    "isLoggedIn",
+    "profile",
+    "lastLoginTime",
+  ],
   blacklist: ["loading", "error", "message", "tokenRefreshing"],
 };
 
 export default persistReducer(persistConfig, authSlice.reducer);
-
 
 // import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import axios from "axios";
@@ -263,7 +312,7 @@ export default persistReducer(persistConfig, authSlice.reducer);
 //     // Get token from Redux store if available
 //     const state = store?.getState?.();
 //     const token = state?.auth?.accessToken;
-    
+
 //     if (token) {
 //       config.headers.Authorization = `Bearer ${token}`;
 //     }
@@ -277,34 +326,34 @@ export default persistReducer(persistConfig, authSlice.reducer);
 //   (response) => response,
 //   async (error) => {
 //     const originalRequest = error.config;
-    
+
 //     if (error.response?.status === 401 && !originalRequest._retry) {
 //       originalRequest._retry = true;
-      
+
 //       try {
 //         // Try to refresh the token
 //         const state = store?.getState?.();
 //         const refreshToken = state?.auth?.refreshToken;
-        
+
 //         if (refreshToken) {
 //           const refreshResponse = await axios.post(
 //             `${process.env.USER_SERVER_URL}/refresh-token`,
 //             { refreshToken },
 //             { withCredentials: true }
 //           );
-          
+
 //           const newAccessToken = refreshResponse.data?.data?.accessToken;
-          
+
 //           if (newAccessToken) {
 //             // Update the original request with new token
 //             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            
+
 //             // Dispatch action to update tokens in Redux
 //             store.dispatch({
 //               type: 'auth/refreshAccessToken/fulfilled',
 //               payload: refreshResponse.data
 //             });
-            
+
 //             // Retry the original request
 //             return api(originalRequest);
 //           }
@@ -316,7 +365,7 @@ export default persistReducer(persistConfig, authSlice.reducer);
 //         return Promise.reject(refreshError);
 //       }
 //     }
-    
+
 //     return Promise.reject(error);
 //   }
 // );
@@ -346,13 +395,13 @@ export default persistReducer(persistConfig, authSlice.reducer);
 //       return res.data;
 //     } catch (err) {
 //       const message = err.response?.data?.message || err.message || "Failed to fetch profile";
-      
+
 //       // Check if it's a token-related error
 //       if (err.response?.status === 401) {
 //         // Don't immediately log out, let interceptor handle token refresh
 //         return rejectWithValue({ message, shouldLogout: false });
 //       }
-      
+
 //       return rejectWithValue({ message, shouldLogout: true });
 //     }
 //   }
@@ -457,7 +506,7 @@ export default persistReducer(persistConfig, authSlice.reducer);
 //       })
 //       .addCase(userProfile.rejected, (state, action) => {
 //         state.loading = false;
-        
+
 //         // Check if we should log out the user
 //         if (action.payload?.shouldLogout !== false) {
 //           state.isLoggedIn = false;

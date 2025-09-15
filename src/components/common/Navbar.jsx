@@ -7,6 +7,7 @@ import {
   userLogin,
   userProfile,
   clearMessages,
+  validateAuthOnStart,
 } from "@/redux/slices/authSlice";
 import { useState, useEffect } from "react";
 import LoginSheet from "../home/LoginSheet";
@@ -17,9 +18,11 @@ export default function Navbar() {
     (state) => state.auth
   );
 
-
   // console.log("The is Logged In is",isLoggedIn)
 
+  useEffect(() => {
+    dispatch(userProfile());
+  }, []);
 
   const [isLoginDrawerOpen, setLoginDrawerOpen] = useState(false);
 
@@ -28,11 +31,14 @@ export default function Navbar() {
     if (message && !loading) {
       showMessage(message, "success");
       dispatch(clearMessages());
+      // dispatch(validateAuthOnStart());
     }
   }, [message, loading, dispatch]);
 
   useEffect(() => {
     if (error && !loading) {
+      // dispatch(userProfile());
+
       showMessage(error, "error");
       dispatch(clearMessages());
     }
@@ -101,29 +107,29 @@ export default function Navbar() {
               onLogin={handleLogin}
               isLoading={loading}
             />
-           ) : (
-             <Link
-               href="/dashboard"
-               className="group relative overflow-hidden rounded-full bg-gradient-to-r from-green-600 to-green-700 px-8 py-3 text-white font-semibold shadow-lg hover:from-green-700 hover:to-green-800 transition-all duration-200"
-             >
-               <span className="relative z-10 flex items-center gap-2">
-                 Dashboard
-                 <svg
-                   className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                   fill="none"
-                   stroke="currentColor"
-                   viewBox="0 0 24 24"
-                 >
-                   <path
-                     strokeLinecap="round"
-                     strokeLinejoin="round"
-                     strokeWidth={2}
-                     d="M13 7l5 5m0 0l-5 5m5-5H6"
-                   />
-                 </svg>
-               </span>
-             </Link>
-           )}
+          ) : (
+            <Link
+              href="/dashboard"
+              className="group relative overflow-hidden rounded-full bg-gradient-to-r from-green-600 to-green-700 px-8 py-3 text-white font-semibold shadow-lg hover:from-green-700 hover:to-green-800 transition-all duration-200"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Dashboard
+                <svg
+                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </nav>

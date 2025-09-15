@@ -1,12 +1,15 @@
 "use client";
 
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { Toaster } from "react-hot-toast";
 import { store, persistor } from "../redux/store";
 import { AuthErrorHandler } from "@/components/AuthErrorBoundary";
+import { validateAuthOnStart } from "@/redux/slices/authSlice";
+import { useEffect } from "react";
 
 export function Providers({ children }) {
+
   return (
     <Provider store={store}>
       <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
