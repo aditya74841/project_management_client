@@ -1,7 +1,7 @@
 // app/dashboard/companies/components/CompanyTable.jsx
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Building, Mail, Globe } from 'lucide-react';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Edit, Trash2, Building, Mail, Globe } from "lucide-react";
 
 const CompanyTable = ({ companies, onEdit, onDelete, loading }) => {
   return (
@@ -53,17 +53,35 @@ const CompanyTable = ({ companies, onEdit, onDelete, loading }) => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center text-sm text-gray-900">
                     <Globe className="h-4 w-4 text-gray-400 mr-2" />
-                    {company.domain || 'Not provided'}
+                    {company.domain || "Not provided"}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 text-xs font-semibold rounded-full ${
-                    company.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {company.status || 'Active'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        company.status === "active"
+                          ? "bg-green-500"
+                          : company.status === "suspended"
+                          ? "bg-red-500"
+                          : "bg-gray-400"
+                      }`}
+                    ></div>
+                    <span
+                      className={`inline-flex px-2 text-xs font-semibold rounded-full ${
+                        company.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : company.status === "suspended"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {company.status
+                        ? company.status.charAt(0).toUpperCase() +
+                          company.status.slice(1)
+                        : "Active"}
+                    </span>
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex justify-end gap-2">

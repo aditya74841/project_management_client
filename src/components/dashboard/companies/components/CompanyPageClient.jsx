@@ -79,6 +79,7 @@ const CompanyPageClient = ({ initialData }) => {
       name: company.name || "",
       email: company.email || "",
       domain: company.domain || "",
+      status: company.status || "active", // Add status
     });
     setEditingCompany(company);
     setSheetOpen(true);
