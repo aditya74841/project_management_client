@@ -54,7 +54,7 @@ const allItems = [
   },
   {
     title: "User",
-    url: "/dashboard/staff",
+    url: "/dashboard/users",
     icon: Users,
     roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
   },

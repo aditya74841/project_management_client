@@ -57,7 +57,7 @@ export default function LoginSheet({
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
-  console.log("Tge is Loading is ", isLoading);
+  // console.log("Tge is Loading is ", isLoading);
   const {
     register,
     handleSubmit,
@@ -78,6 +78,11 @@ export default function LoginSheet({
   const handleDemoAutoFill = () => {
     setValue("emailOrPhone", "aditya@gmail.com");
     setValue("password", "aditya90060");
+  };
+
+  const handleDemoAdminAutoFill = () => {
+    setValue("emailOrPhone", "email1@gmail.com");
+    setValue("password", "changethepassword");
   };
 
   const onSubmit = async (data) => {
@@ -252,9 +257,21 @@ export default function LoginSheet({
                 onClick={handleDemoAutoFill}
               >
                 <Sparkles className="w-5 h-5 mr-3 text-amber-500" />
-                Try Demo Account
+                Try Demo Account SUperADMIN
               </Button>
             </motion.div>
+            <motion.div variants={itemVariants} className="pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-12 border-2 border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300 rounded-2xl text-slate-600 hover:text-blue-600 font-medium"
+                onClick={handleDemoAdminAutoFill}
+              >
+                <Sparkles className="w-5 h-5 mr-3 text-amber-500" />
+                Try Demo Account ADMIN
+              </Button>
+            </motion.div>
+
 
             {/* Submit Button */}
             <div className="pt-8 pb-6 px-2 space-y-6">

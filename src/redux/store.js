@@ -20,11 +20,13 @@ import storeReducer from "../app/dashboard/stores/store";
 import staffReducer from "../app/dashboard/staff/store";
 import auditReducer from "../app/dashboard/audits/store";
 import responseReducer from "../app/dashboard/responses/store";
+import userReducer from "../redux/slices/userClientSlice";
 
 // Combine all reducers
 const rootReducer = combineReducers({
   auth: authReducer,
   company: companyReducer,
+  userClient:userReducer,
   store: storeReducer,
   staff: staffReducer,
   audit: auditReducer,

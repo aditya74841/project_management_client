@@ -62,8 +62,12 @@ const StorePage = () => {
     label: "",
     value: "",
   });
+  // const { profile, } = useSelector((state) => state.auth);
 
+
+  
   const { profile, isLoggedIn } = useSelector((state) => state.auth);
+  console.log("The selected profile is ",profile)
 
   useEffect(() => {
     dispatch(fetchCompaniesName());
