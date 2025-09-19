@@ -58,6 +58,12 @@ const allItems = [
     icon: Users,
     roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
   },
+  {
+    title: "Projects",
+    url: "/dashboard/projects",
+    icon: Users,
+    roles: ["USER","ADMIN", "SUPERADMIN"], // Only available to ADMIN
+  },
 ];
 
 export function AppSidebar() {

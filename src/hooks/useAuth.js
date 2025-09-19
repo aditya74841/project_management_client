@@ -9,7 +9,6 @@ export const useAuth = () => {
     (state) => state.auth
   );
 
-  console.log("The Profile data is ",profile)
 
   useEffect(() => {
     // Only fetch profile if logged in but no profile data
