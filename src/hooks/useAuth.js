@@ -24,7 +24,7 @@ export const useAuth = () => {
   };
 
   const handleRefreshToken = () => {
-    // dispatch(refreshAccessToken());
+    dispatch(refreshAccessToken());
   };
 
   return {

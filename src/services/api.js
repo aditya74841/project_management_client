@@ -184,8 +184,8 @@ api.interceptors.response.use(
         processQueue(err, null);
         
         // Clear auth data on refresh failure
-        localStorage.removeItem('persist:auth');
-        window.location.href = '/';
+        // localStorage.removeItem('persist:auth');
+        // window.location.href = '/';
         
         return Promise.reject(err);
       } finally {

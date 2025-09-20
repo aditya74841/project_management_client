@@ -31,8 +31,8 @@ export const userLogin = createAsyncThunk(
   "auth/login",
   async (payload, { rejectWithValue }) => {
     try {
-      console.log("The payload of login is", payload);
-      const res = await api.post("/login", payload);
+      // console.log("The payload of login is", payload);
+      const res = await api.post("/login", payload, { withCredentials: true });
       return res.data;
     } catch (err) {
       const message =
@@ -41,6 +41,20 @@ export const userLogin = createAsyncThunk(
     }
   }
 );
+
+// export const userLogin = createAsyncThunk(
+//   "auth/login",
+//   async (payload, { rejectWithValue }) => {
+//     try {
+//       const res = await api.post("/login", payload, { withCredentials: true });
+//       // Server sets httpOnly cookies for accessToken & refreshToken
+//       return res.data; // contains user object & optionally accessToken if server sends it
+//     } catch (err) {
+//       const message = err.response?.data?.message || err.message || "Login failed";
+//       return rejectWithValue(message);
+//     }
+//   }
+// );
 
 export const userProfile = createAsyncThunk(
   "auth/profile",
@@ -72,17 +86,16 @@ export const userProfile = createAsyncThunk(
 
 export const refreshAccessToken = createAsyncThunk(
   "auth/refreshToken",
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const res = await api.post("/refresh-token", {
-        refreshToken: auth.refreshToken,
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Token refresh failed"
+      const res = await api.post(
+        "/refresh-token",
+        {},
+        { withCredentials: true }
       );
+      return res.data; // server returns new accessToken if refresh valid
+    } catch (err) {
+      return rejectWithValue("Session expired. Please login again.");
     }
   }
 );
@@ -94,11 +107,12 @@ export const handleLogout = createAsyncThunk(
       const { auth } = getState();
       const token = auth.accessToken;
 
-      const res = await api.post(
+      const res = await api.get(
         "/logout",
         {},
         {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          // headers: token ? { Authorization: `Bearer ${token}` } : {},
+          // withCredentials:true
         }
       );
       return res.data;
@@ -107,6 +121,20 @@ export const handleLogout = createAsyncThunk(
     }
   }
 );
+
+// export const handleLogout = createAsyncThunk(
+//   "auth/logout",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       // await api.post("/logout", {});
+//       await axios.get("/logout", { withCredentials: true });
+
+//       return { message: "Logged out successfully" };
+//     } catch (err) {
+//       return rejectWithValue({ message: "Logged out successfully" });
+//     }
+//   }
+// );
 
 export const validateAuthOnStart = createAsyncThunk(
   "auth/validateOnStart",
@@ -242,6 +270,8 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(handleLogout.fulfilled, (state, action) => {
+        console.log("The logout action is", action);
+
         state.loading = false;
         state.isLoggedIn = false;
         state.accessToken = "";
@@ -261,13 +291,13 @@ const authSlice = createSlice({
         state.lastLoginTime = null;
       });
 
-    builder.addCase(validateAuthOnStart.rejected, (state) => {
-      // Reset state if validation fails
-      state.isLoggedIn = false;
-      state.accessToken = "";
-      state.refreshToken = "";
-      state.profile = null;
-    });
+    // builder.addCase(validateAuthOnStart.rejected, (state) => {
+    //   // Reset state if validation fails
+    //   state.isLoggedIn = false;
+    //   state.accessToken = "";
+    //   state.refreshToken = "";
+    //   state.profile = null;
+    // });
   },
 });
 

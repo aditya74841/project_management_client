@@ -1,4 +1,4 @@
-import LoadingState from "@/components/dashboard/companies/components/LoadingState";
+import LoadingState from "@/components/dashboard/LoadingState";
 import ProjectPageClient from "@/components/dashboard/projects/components/ProjectPageClient";
 import { Suspense } from "react";
 

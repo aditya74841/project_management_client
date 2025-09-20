@@ -136,8 +136,6 @@ import Swal from "sweetalert2";
 import ProjectHeader from "./ProjectHeader";
 import ProjectTable from "./ProjectTable";
 import ProjectSheet from "./ProjectSheet";
-import LoadingState from "../../companies/components/LoadingState";
-import EmptyState from "../../companies/components/EmptyState";
 
 import { useProjectForm } from "../hooks/useProjectForm";
 import {
@@ -155,6 +153,8 @@ import {
 } from "../../../../redux/slices/projectSlice";
 
 import { showMessage } from "@/app/utils/showMessage";
+import EmptyState from "../../EmptyState";
+import LoadingState from "../../LoadingState";
 
 const ProjectPageClient = () => {
   const dispatch = useDispatch();
@@ -167,7 +167,6 @@ const ProjectPageClient = () => {
   const deleting = useSelector(selectProjectDeleting);
   const error = useSelector(selectProjectError);
   const message = useSelector(selectProjectMessage);
-
 
   /* Local state */
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -245,7 +244,7 @@ const ProjectPageClient = () => {
     }
   };
 
-  if (loading && !projects.length) return <LoadingState />;
+  if (loading && !projects.length) return <LoadingState  name="project"/>;
 
   return (
     <div className="space-y-6">
@@ -260,7 +259,11 @@ const ProjectPageClient = () => {
           loading={deleting}
         />
       ) : (
-        <EmptyState onAddCompany={handleAdd} />
+        <EmptyState
+          onAddCompany={handleAdd}
+          pageName="Project"
+          name="project"
+        />
       )}
 
       <ProjectSheet

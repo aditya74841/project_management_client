@@ -1,8 +1,8 @@
 // app/dashboard/companies/page.js (Server Component)
 import { Suspense } from 'react';
 import CompanyPageClient from '../../../components/dashboard/companies/components/CompanyPageClient';
+import LoadingState from '@/components/dashboard/LoadingState';
 // import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import LoadingState from '@/components/dashboard/companies/components/LoadingState';
 
 // Server-side data fetching (optional)
 async function getInitialCompanies() {

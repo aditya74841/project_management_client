@@ -47,7 +47,6 @@ export const getProjects = createAsyncThunk(
       const headers = getAuthHeaders(getState);
       const res = await api.get("/projects", { headers }); // GET same path
 
-
       return res.data; // { projects, message }
     } catch (err) {
       const msg =
@@ -80,10 +79,11 @@ export const updateProject = createAsyncThunk(
   "project/update",
   async ({ projectId, ...payload }, { rejectWithValue, getState }) => {
     try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.patch(`/projects/${projectId}`, payload, {
-        headers,
-      });
+      // const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/projects/${projectId}`, payload);
+      // const res = await api.patch(`/projects/${projectId}`, payload, {
+      //   headers,
+      // });
       return res.data; // { project, message }
     } catch (err) {
       const msg =

@@ -8,8 +8,6 @@ import Swal from "sweetalert2";
 import CompanyHeader from "./CompanyHeader";
 import CompanyTable from "./CompanyTable";
 import CompanySheet from "./CompanySheet";
-import LoadingState from "./LoadingState";
-import EmptyState from "./EmptyState";
 import { useCompanyForm } from "../hooks/useCompanyForm";
 
 import {
@@ -18,21 +16,16 @@ import {
   clearMessages,
 } from "../../../../redux/slices/companySlice";
 import { showMessage } from "@/app/utils/showMessage";
+import EmptyState from "../../EmptyState";
+import LoadingState from "../../LoadingState";
 
 const CompanyPageClient = ({ initialData }) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
 
   const dispatch = useDispatch();
-  const { 
-    companies, 
-    loading, 
-    creating, 
-    updating, 
-    deleting, 
-    error, 
-    message 
-  } = useSelector((state) => state.company);
+  const { companies, loading, creating, updating, deleting, error, message } =
+    useSelector((state) => state.company);
 
   const {
     formData,
@@ -56,13 +49,13 @@ const CompanyPageClient = ({ initialData }) => {
   // Handle success/error messages
   useEffect(() => {
     if (message) {
-    //   Swal.fire("Success", message, "success");
-      showMessage("Success")
+      //   Swal.fire("Success", message, "success");
+      showMessage("Success");
       dispatch(clearMessages());
     }
     if (error) {
-    //   Swal.fire("Error", error, "error");
-      showMessage(error,"error")
+      //   Swal.fire("Error", error, "error");
+      showMessage(error, "error");
 
       dispatch(clearMessages());
     }
@@ -115,13 +108,13 @@ const CompanyPageClient = ({ initialData }) => {
   };
 
   if (loading && !companies?.length) {
-    return <LoadingState />;
+    return <LoadingState name="companie" />;
   }
 
   return (
     <div className="space-y-6">
       <CompanyHeader onAddCompany={handleAddCompany} />
-      
+
       {companies?.length > 0 ? (
         <CompanyTable
           companies={companies}
@@ -130,7 +123,11 @@ const CompanyPageClient = ({ initialData }) => {
           loading={deleting}
         />
       ) : (
-        <EmptyState onAddCompany={handleAddCompany} />
+        <EmptyState
+          onAddCompany={handleAddCompany}
+          pageName="Company"
+          name="company"
+        />
       )}
 
       <CompanySheet

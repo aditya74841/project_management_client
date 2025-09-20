@@ -1,13 +1,13 @@
 // app/dashboard/users/page.js
-import { Suspense } from 'react';
-import UserPageClient from '../../../components/dashboard/users/componenets/UserPageClient';
-import LoadingState from '@/components/dashboard/companies/components/LoadingState'; // same spinner
+import { Suspense } from "react";
+import UserPageClient from "../../../components/dashboard/users/componenets/UserPageClient";
+import LoadingState from "@/components/dashboard/LoadingState";
 
 async function getInitialUsers() {
   try {
-    return null;                   // let the client fetch
+    return null; // let the client fetch
   } catch (err) {
-    console.error('Server-side user fetch error:', err);
+    console.error("Server-side user fetch error:", err);
     return null;
   }
 }
@@ -19,7 +19,9 @@ export default async function UsersPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-        <p className="text-gray-600 mt-2">Manage company users and their roles</p>
+        <p className="text-gray-600 mt-2">
+          Manage company users and their roles
+        </p>
       </div>
 
       <Suspense fallback={<LoadingState />}>
@@ -30,11 +32,9 @@ export default async function UsersPage() {
 }
 
 export const metadata = {
-  title: 'Users | Audit Pro',
-  description: 'Manage company users and their roles',
+  title: "Users | Audit Pro",
+  description: "Manage company users and their roles",
 };
-
-
 
 // "use client";
 

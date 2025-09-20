@@ -19,28 +19,27 @@ import {
 import UserHeader from "./UserHeader";
 import UserTable from "./UserTable";
 import UserSheet from "./UserSheet";
-import LoadingState from "../../companies/components/LoadingState";
-import EmptyState from "../../companies/components/EmptyState";
-import { useUserForm } from "../hooks/useUserForm";          // you’ll create similar to useCompanyForm
+// import LoadingState from "../../companies/components/LoadingState";
+// import EmptyState from "../../companies/components/EmptyState";
+import { useUserForm } from "../hooks/useUserForm";
 import { showMessage } from "@/app/utils/showMessage";
+import EmptyState from "../../EmptyState";
+import LoadingState from "../../LoadingState";
 
 const UserPageClient = ({ initialData }) => {
   const dispatch = useDispatch();
 
-  const users          = useSelector(selectUsers);
-  const loading        = useSelector(selectUserClientLoading);
-  const creating       = useSelector(selectUserClientCreating);
-  const updating       = useSelector(selectUserClientUpdating);
-  const error          = useSelector(selectUserClientError);
-  const message        = useSelector(selectUserClientMessage);
+  const users = useSelector(selectUsers);
+  const loading = useSelector(selectUserClientLoading);
+  const creating = useSelector(selectUserClientCreating);
+  const updating = useSelector(selectUserClientUpdating);
+  const error = useSelector(selectUserClientError);
+  const message = useSelector(selectUserClientMessage);
 
+  // console.log("The user is ",users)
 
-  console.log("The user is ",users)
-
-
-
-  const [sheetOpen, setSheetOpen]       = useState(false);
-  const [editingUser, setEditingUser]   = useState(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
 
   const {
     formData,
@@ -80,10 +79,10 @@ const UserPageClient = ({ initialData }) => {
 
   const handleEditUser = (user) => {
     setFormData({
-      name:     user.name     || "",
-      email:    user.email    || "",
+      name: user.name || "",
+      email: user.email || "",
       username: user.username || "",
-      role:     user.role     || "USER",
+      role: user.role || "USER",
       password: "",
     });
     setEditingUser(user);
@@ -107,7 +106,7 @@ const UserPageClient = ({ initialData }) => {
     }
   };
 
-  if (loading && !users?.length) return <LoadingState />;
+  if (loading && !users?.length) return <LoadingState name="user" />;
 
   return (
     <div className="space-y-6">
@@ -123,6 +122,8 @@ const UserPageClient = ({ initialData }) => {
       ) : (
         <EmptyState
           onAddCompany={handleAddUser}
+          pageName="User"
+          page="user"
           // component is generic; button text still ok
         />
       )}

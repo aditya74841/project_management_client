@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 
 import { SidebarTrigger } from "../ui/sidebar";
-import { handleLogout, userProfile } from "../HomePage/store";
 import { useEffect } from "react";
 import { showMessage } from "@/app/utils/showMessage";
+import { handleLogout } from "@/redux/slices/authSlice";
 
 export default function TopNavbar() {
   const dispatch = useDispatch();
@@ -22,15 +22,7 @@ export default function TopNavbar() {
     } catch (error) {}
   };
 
-  // useEffect(() => {
-  //   dispatch(
-  //     userProfile((error) => {
-  //       if (error && error.response?.status !== 401) {
-  //         showMessage(error.response?.data?.message || error.message, "error");
-  //       }
-  //     })
-  //   );
-  // }, [dispatch]);
+
 
   return (
     <header className="w-full h-16 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-2xl border-b border-white/10 flex items-center justify-between px-6 z-10 backdrop-blur-sm">
