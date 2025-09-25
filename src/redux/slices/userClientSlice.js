@@ -39,6 +39,29 @@ export const createUser = createAsyncThunk(
   }
 );
 
+
+// Create User By Super Admin
+export const createUserBySuperAdmin = createAsyncThunk(
+  "userClient/createUserBySuperAdmin",
+  async (payload, { rejectWithValue, getState }) => {
+    try {
+      // console.log("The getSate is ",getState())
+
+      const headers = getAuthHeaders(getState);
+
+      const res = await api.post("/companies/create-user-superadmin", payload, {
+        headers,
+      });
+      return res.data;
+    } catch (err) {
+      const message =
+        err.response?.data?.message || err.message || "Failed to create user";
+      return rejectWithValue(message);
+    }
+  }
+);
+
+
 // Get All Users
 export const getUsers = createAsyncThunk(
   "userClient/getUsers",
@@ -47,7 +70,7 @@ export const getUsers = createAsyncThunk(
       const headers = getAuthHeaders(getState);
       const res = await api.get("/companies/get-users", { headers });
 
-      console.log("getSate", getState());
+      // console.log("getSate", getState());
 
       return res.data.data;
     } catch (err) {
@@ -132,6 +155,30 @@ const userClientSlice = createSlice({
         state.message = null;
       });
 
+    // Create User By Super Admin
+
+      builder
+      .addCase(createUserBySuperAdmin.pending, (state) => {
+        state.creating = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(createUserBySuperAdmin.fulfilled, (state, action) => {
+        state.creating = false;
+        // Add new user to users array if it exists
+        if (action.payload?.data?.user) {
+          state.users.push(action.payload.data.user);
+        }
+        state.message = action.payload?.message || "User created successfully";
+        state.error = null;
+      })
+      .addCase(createUserBySuperAdmin.rejected, (state, action) => {
+        state.creating = false;
+        state.error = action.payload;
+        state.message = null;
+      });
+
+
     // Get Users
     builder
       .addCase(getUsers.pending, (state) => {
@@ -142,7 +189,7 @@ const userClientSlice = createSlice({
         state.loading = false;
         const data = action.payload;
 
-        console.log("The dataaa is ",data?.users)
+        // console.log("The dataaa is ",data?.users)
 
         state.users = data?.users || [];
         state.company = data?.company || null;

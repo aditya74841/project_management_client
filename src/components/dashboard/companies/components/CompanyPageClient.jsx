@@ -69,6 +69,7 @@ const CompanyPageClient = ({ initialData }) => {
 
   const handleEditCompany = (company) => {
     setFormData({
+      id: company._id,
       name: company.name || "",
       email: company.email || "",
       domain: company.domain || "",

@@ -210,7 +210,9 @@ const ProjectPageClient = () => {
   };
 
   const handleEdit = (p) => {
+    // console.log("The p is", p);
     setFormData({
+      id: p._id,
       name: p.name || "",
       description: p.description || "",
       deadline: p.deadline ? p.deadline.split("T")[0] : "",
@@ -236,6 +238,7 @@ const ProjectPageClient = () => {
   const handleToggle = (id) => dispatch(toggleProjectVisibility(id));
 
   const onSubmit = async (data) => {
+    // console.log("The data is ", data);
     const ok = await handleSubmit(data, editing?._id);
     if (ok) {
       setSheetOpen(false);
@@ -244,7 +247,7 @@ const ProjectPageClient = () => {
     }
   };
 
-  if (loading && !projects.length) return <LoadingState  name="project"/>;
+  if (loading && !projects.length) return <LoadingState name="project" />;
 
   return (
     <div className="space-y-6">

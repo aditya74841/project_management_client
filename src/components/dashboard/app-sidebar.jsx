@@ -28,24 +28,24 @@ const allItems = [
     icon: LayoutDashboard,
     roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
   },
-  {
-    title: "Audits",
-    url: "/dashboard/audits",
-    icon: ClipboardList,
-    roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
-  },
-  {
-    title: "Responses",
-    url: "/dashboard/responses",
-    icon: FileText,
-    roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
-  },
-  {
-    title: "Stores",
-    url: "/dashboard/stores",
-    icon: Store,
-    roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
-  },
+  // {
+  //   title: "Audits",
+  //   url: "/dashboard/audits",
+  //   icon: ClipboardList,
+  //   roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
+  // },
+  // {
+  //   title: "Responses",
+  //   url: "/dashboard/responses",
+  //   icon: FileText,
+  //   roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
+  // },
+  // {
+  //   title: "Stores",
+  //   url: "/dashboard/stores",
+  //   icon: Store,
+  //   roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
+  // },
   {
     title: "Company",
     url: "/dashboard/company",

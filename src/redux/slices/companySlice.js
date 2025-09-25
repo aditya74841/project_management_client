@@ -27,7 +27,10 @@ export const createCompany = createAsyncThunk(
       const res = await api.post("/companies", payload, { headers });
       return res.data;
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to create company";
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to create company";
       return rejectWithValue(message);
     }
   }
@@ -42,7 +45,10 @@ export const getAllCompanies = createAsyncThunk(
       const res = await api.get("/companies", { headers });
       return res.data;
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to fetch companies";
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to fetch companies";
       return rejectWithValue(message);
     }
   }
@@ -57,7 +63,8 @@ export const getCompanyById = createAsyncThunk(
       const res = await api.get(`/companies/${companyId}`, { headers });
       return res.data;
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to fetch company";
+      const message =
+        err.response?.data?.message || err.message || "Failed to fetch company";
       return rejectWithValue(message);
     }
   }
@@ -69,10 +76,15 @@ export const updateCompany = createAsyncThunk(
   async ({ companyId, ...payload }, { rejectWithValue, getState }) => {
     try {
       const headers = getAuthHeaders(getState);
-      const res = await api.patch(`/companies/${companyId}`, payload, { headers });
+      const res = await api.patch(`/companies/${companyId}`, payload, {
+        headers,
+      });
       return res.data;
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to update company";
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to update company";
       return rejectWithValue(message);
     }
   }
@@ -87,7 +99,36 @@ export const deleteCompany = createAsyncThunk(
       const res = await api.delete(`/companies/${companyId}`, { headers });
       return { ...res.data, deletedId: companyId };
     } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to delete company";
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to delete company";
+      return rejectWithValue(message);
+    }
+  }
+);
+
+// fetch users for company dropdown
+export const fetchCompanyUsers = createAsyncThunk(
+  "company/fetchUsers",
+  async (companyId, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const params = {};
+      if (companyId) params.companyId = companyId;
+      const res = await api.get("companies/get-dropdown-users", {
+        headers,
+        params,
+      });
+
+      // console.log("The company data is ", res);
+
+      return res.data; // Expect { data: [ { _id, name } ], message, ... }
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to fetch company users";
       return rejectWithValue(message);
     }
   }
@@ -101,9 +142,11 @@ const initialState = {
   deleting: false,
   companies: [],
   selectedCompany: null,
+  companyUsers: [],
+  companyUsersLoading: false,
+  companyUsersError: null,
   error: null,
   message: null,
-  totalCompanies: 0,
 };
 
 // ------------------- Slice -------------------
@@ -111,20 +154,26 @@ const companySlice = createSlice({
   name: "company",
   initialState,
   reducers: {
-    clearMessages: (state) => {
+    clearUsers(state) {
+      state.companyUsers = [];
+      state.companyUsersLoading = false;
+      state.companyUsersError = null;
+    },
+    clearMessages(state) {
       state.error = null;
       state.message = null;
+      state.companyUsersError = null;
     },
-    clearError: (state) => {
+    clearError(state) {
       state.error = null;
+      state.companyUsersError = null;
     },
-    clearSelectedCompany: (state) => {
+    clearSelectedCompany(state) {
       state.selectedCompany = null;
     },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
+    resetCompanyState() {
+      return initialState;
     },
-    resetCompanyState: () => initialState,
   },
   extraReducers: (builder) => {
     // Create Company
@@ -138,7 +187,8 @@ const companySlice = createSlice({
         state.creating = false;
         state.companies.unshift(action.payload?.data?.company);
         state.totalCompanies += 1;
-        state.message = action.payload?.message || "Company created successfully";
+        state.message =
+          action.payload?.message || "Company created successfully";
         state.error = null;
       })
       .addCase(createCompany.rejected, (state, action) => {
@@ -192,7 +242,7 @@ const companySlice = createSlice({
       .addCase(updateCompany.fulfilled, (state, action) => {
         state.updating = false;
         const updatedCompany = action.payload?.data?.company;
-        
+
         // Update in companies array
         const index = state.companies.findIndex(
           (company) => company._id === updatedCompany._id
@@ -200,13 +250,14 @@ const companySlice = createSlice({
         if (index !== -1) {
           state.companies[index] = updatedCompany;
         }
-        
+
         // Update selected company if it matches
         if (state.selectedCompany?._id === updatedCompany._id) {
           state.selectedCompany = updatedCompany;
         }
-        
-        state.message = action.payload?.message || "Company updated successfully";
+
+        state.message =
+          action.payload?.message || "Company updated successfully";
         state.error = null;
       })
       .addCase(updateCompany.rejected, (state, action) => {
@@ -225,19 +276,20 @@ const companySlice = createSlice({
       .addCase(deleteCompany.fulfilled, (state, action) => {
         state.deleting = false;
         const deletedId = action.payload.deletedId;
-        
+
         // Remove from companies array
         state.companies = state.companies.filter(
           (company) => company._id !== deletedId
         );
         state.totalCompanies = Math.max(0, state.totalCompanies - 1);
-        
+
         // Clear selected company if it was deleted
         if (state.selectedCompany?._id === deletedId) {
           state.selectedCompany = null;
         }
-        
-        state.message = action.payload?.message || "Company deleted successfully";
+
+        state.message =
+          action.payload?.message || "Company deleted successfully";
         state.error = null;
       })
       .addCase(deleteCompany.rejected, (state, action) => {
@@ -245,19 +297,40 @@ const companySlice = createSlice({
         state.error = action.payload;
         state.message = null;
       });
+
+    builder
+      .addCase(fetchCompanyUsers.pending, (state) => {
+        state.companyUsersLoading = true;
+        state.companyUsersError = null;
+      })
+      .addCase(fetchCompanyUsers.fulfilled, (state, action) => {
+        // console.log("The playload Data is ", action.payload.data);
+        state.companyUsersLoading = false;
+        state.companyUsers = action.payload.data || [];
+      })
+      .addCase(fetchCompanyUsers.rejected, (state, action) => {
+        state.companyUsersLoading = false;
+        state.companyUsersError = action.payload;
+        state.companyUsers = [];
+      });
   },
 });
 
 // ------------------- Actions -------------------
 export const {
+  clearUsers,
   clearMessages,
   clearError,
   clearSelectedCompany,
-  setLoading,
   resetCompanyState,
 } = companySlice.actions;
-
 // ------------------- Selectors -------------------
+export const selectCompanyUsers = (state) => state.company.companyUsers;
+export const selectCompanyUsersLoading = (state) =>
+  state.company.companyUsersLoading;
+export const selectCompanyUsersError = (state) =>
+  state.company.companyUsersError;
+
 export const selectAllCompanies = (state) => state.company.companies;
 export const selectSelectedCompany = (state) => state.company.selectedCompany;
 export const selectCompanyLoading = (state) => state.company.loading;

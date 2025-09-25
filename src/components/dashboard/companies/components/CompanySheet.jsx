@@ -1,5 +1,5 @@
 // app/dashboard/companies/components/CompanySheet.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -9,6 +9,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import CompanyForm from './CompanyForm';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import RegisterForm from './CompanyUserForm';
 
 const CompanySheet = ({
   open,
@@ -24,6 +26,21 @@ const CompanySheet = ({
   onSubmit,
   onCancel
 }) => {
+  const [tabValue, setTabValue] = useState("companyForm");
+
+  // Automatically switch to Members tab when editing an existing project
+  useEffect(() => {
+    if (isEditing) {
+      setTabValue("AddUser");
+    } else {
+      setTabValue("companyForm");
+    }
+  }, [isEditing]);
+
+
+
+
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full max-w-xl sm:w-[640px] bg-white shadow-xl">
@@ -39,8 +56,20 @@ const CompanySheet = ({
           </SheetDescription>
         </SheetHeader>
 
+      
+
+
         <div className="px-6 py-4">
-          <CompanyForm
+          <Tabs value={tabValue} onValueChange={setTabValue}>
+            <TabsList>
+              <TabsTrigger value="companyForm">Company</TabsTrigger>
+              <TabsTrigger value="AddUser" disabled={!isEditing}>
+                Add User
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="companyForm">
+            <CompanyForm
             formData={formData}
             errors={errors}
             touched={touched}
@@ -52,7 +81,26 @@ const CompanySheet = ({
             onSubmit={onSubmit}
             onCancel={onCancel}
           />
+            </TabsContent>
+
+            <TabsContent value="AddUser">
+              {isEditing ? (
+                // <ProjectMemberPanel projectId={formData.id || formData._id} />
+                // <div><p>Add user</p></div>
+                <RegisterForm companyId={formData.id} onRegisterSuccess={() => router.push("/login")} />
+
+              ) : (
+                <p className="text-gray-500 text-center py-10">
+                  Create the project first to manage members.
+                </p>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
+
+
+
+     
       </SheetContent>
     </Sheet>
   );
