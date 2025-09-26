@@ -109,21 +109,51 @@ export const deleteCompany = createAsyncThunk(
 );
 
 // fetch users for company dropdown
+
+
+// export const fetchCompanyUsers = createAsyncThunk(
+//   "company/fetchUsers",
+//   async (companyId, { rejectWithValue, getState }) => {
+//     try {
+//       const headers = getAuthHeaders(getState);
+//       const params = {};
+//       if (companyId) params.companyId = companyId;
+//       const res = await api.get("companies/get-dropdown-users", {
+//         headers,
+//         params,
+//       });
+
+//       // console.log("The company data is ", res);
+
+//       return res.data; // Expect { data: [ { _id, name } ], message, ... }
+//     } catch (err) {
+//       const message =
+//         err.response?.data?.message ||
+//         err.message ||
+//         "Failed to fetch company users";
+//       return rejectWithValue(message);
+//     }
+//   }
+// );
+
+
+
 export const fetchCompanyUsers = createAsyncThunk(
   "company/fetchUsers",
   async (companyId, { rejectWithValue, getState }) => {
     try {
       const headers = getAuthHeaders(getState);
-      const params = {};
-      if (companyId) params.companyId = companyId;
-      const res = await api.get("companies/get-dropdown-users", {
+
+      // Axios will append this as ?companyId=... if companyId exists
+      const params = companyId ? { companyId } : {};
+
+      // Make sure the endpoint starts with a slash!
+      const res = await api.get("/companies/get-dropdown-users", {
         headers,
         params,
       });
 
-      // console.log("The company data is ", res);
-
-      return res.data; // Expect { data: [ { _id, name } ], message, ... }
+      return res.data; // { data: [ { _id, name } ], ... }
     } catch (err) {
       const message =
         err.response?.data?.message ||
@@ -133,6 +163,8 @@ export const fetchCompanyUsers = createAsyncThunk(
     }
   }
 );
+
+
 
 // ------------------- Initial State -------------------
 const initialState = {

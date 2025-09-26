@@ -1,5 +1,5 @@
 // app/dashboard/companies/components/CompanySheet.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -8,9 +8,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import CompanyForm from './CompanyForm';
+import CompanyForm from "./CompanyForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import RegisterForm from './CompanyUserForm';
+import RegisterForm from "./CompanyUserForm";
 
 const CompanySheet = ({
   open,
@@ -24,7 +24,7 @@ const CompanySheet = ({
   onChange,
   onBlur,
   onSubmit,
-  onCancel
+  onCancel,
 }) => {
   const [tabValue, setTabValue] = useState("companyForm");
 
@@ -37,10 +37,6 @@ const CompanySheet = ({
     }
   }, [isEditing]);
 
-
-
-
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full max-w-xl sm:w-[640px] bg-white shadow-xl">
@@ -49,15 +45,11 @@ const CompanySheet = ({
             {isEditing ? "Edit Company" : "Add New Company"}
           </SheetTitle>
           <SheetDescription className="text-gray-500">
-            {isEditing 
-              ? "Update company information below" 
-              : "Fill in the details to create a new company"
-            }
+            {isEditing
+              ? "Update company information below"
+              : "Fill in the details to create a new company"}
           </SheetDescription>
         </SheetHeader>
-
-      
-
 
         <div className="px-6 py-4">
           <Tabs value={tabValue} onValueChange={setTabValue}>
@@ -69,26 +61,31 @@ const CompanySheet = ({
             </TabsList>
 
             <TabsContent value="companyForm">
-            <CompanyForm
-            formData={formData}
-            errors={errors}
-            touched={touched}
-            isValid={isValid}
-            isSubmitting={isSubmitting}
-            isEditing={isEditing}
-            onChange={onChange}
-            onBlur={onBlur}
-            onSubmit={onSubmit}
-            onCancel={onCancel}
-          />
+              <CompanyForm
+                formData={formData}
+                errors={errors}
+                touched={touched}
+                isValid={isValid}
+                isSubmitting={isSubmitting}
+                isEditing={isEditing}
+                onChange={onChange}
+                onBlur={onBlur}
+                onSubmit={onSubmit}
+                onCancel={onCancel}
+              />
             </TabsContent>
 
             <TabsContent value="AddUser">
               {isEditing ? (
                 // <ProjectMemberPanel projectId={formData.id || formData._id} />
                 // <div><p>Add user</p></div>
-                <RegisterForm companyId={formData.id} onRegisterSuccess={() => router.push("/login")} />
-
+                <>
+                  <RegisterForm
+                    companyId={formData.id}
+                   
+                  />
+                  {/* onRegisterSuccess={() => router.push("/login")} */}
+                </>
               ) : (
                 <p className="text-gray-500 text-center py-10">
                   Create the project first to manage members.
@@ -97,10 +94,6 @@ const CompanySheet = ({
             </TabsContent>
           </Tabs>
         </div>
-
-
-
-     
       </SheetContent>
     </Sheet>
   );
