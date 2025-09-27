@@ -17,17 +17,15 @@ import storage from "redux-persist/lib/storage"; // defaults to localStorage
 import authReducer from "../redux/slices/authSlice";
 import companyReducer from "../redux/slices/companySlice";
 import userReducer from "../redux/slices/userClientSlice";
-import projectReducer from "../redux/slices/projectSlice"
+import projectReducer from "../redux/slices/projectSlice";
+import featureReducer from "../redux/slices/featureSlice";
 // Combine all reducers
 const rootReducer = combineReducers({
   auth: authReducer,
   company: companyReducer,
-  userClient:userReducer,
-  project: projectReducer,  
-
-
-
-
+  userClient: userReducer,
+  project: projectReducer,
+  feature: featureReducer,
 });
 
 // Persist config (only auth by default, you can extend later)
