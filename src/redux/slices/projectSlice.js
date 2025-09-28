@@ -270,7 +270,7 @@ const projectSlice = createSlice({
       })
       .addCase(getProjects.fulfilled, (s, a) => {
         s.loading = false;
-        s.projects = a.payload.data || []; // adjust to API shape
+        s.projects = a.payload.data.projects || []; // adjust to API shape
         s.message = a.payload.message || null;
       })
       .addCase(getProjects.rejected, (s, a) => {
