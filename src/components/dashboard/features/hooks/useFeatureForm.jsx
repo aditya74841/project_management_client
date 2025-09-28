@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { createFeature } from '@/redux/slices/featureSlice';
+import { createFeature, updateFeature } from '@/redux/slices/featureSlice';
+import { validateFeatureForm, getTodayDate } from '@/lib/validations/featureValidation';
 
 export const useFeatureForm = () => {
   const dispatch = useDispatch();
@@ -9,8 +10,8 @@ export const useFeatureForm = () => {
     title: '',
     description: '',
     priority: 'medium',
-    status: 'pending',
-    deadline: '',
+    status: 'pending', // Add status back for editing
+    deadline: getTodayDate(),
     tags: [],
     projectId: '',
   });
@@ -18,64 +19,65 @@ export const useFeatureForm = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
+  // Calculate isValid reactively
+  const isValid = useMemo(() => {
+    const validation = validateFeatureForm(formData);
+    return validation.isValid;
+  }, [formData]);
+
   const validateForm = useCallback(() => {
-    const newErrors = {};
-    
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
-    }
-    
-    if (!formData.projectId) {
-      newErrors.projectId = 'Project is required';
-    }
-    
-    if (formData.deadline) {
-      const deadlineDate = new Date(formData.deadline);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (deadlineDate <= today) {
-        newErrors.deadline = 'Deadline must be greater than today';
-      }
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const validation = validateFeatureForm(formData);
+    setErrors(validation.errors);
+    return validation.isValid;
   }, [formData]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     
-    if (name === 'tags') {
-      const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
-      setFormData(prev => ({ ...prev, tags }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
     
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }));
-    }
-  }, [errors]);
+    const validation = validateFeatureForm(newFormData);
+    setErrors(validation.errors);
+  }, [formData]);
+
+  const handleTagsChange = useCallback((e) => {
+    const value = e.target.value;
+    const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
+    
+    const newFormData = { ...formData, tags };
+    setFormData(newFormData);
+    
+    const validation = validateFeatureForm(newFormData);
+    setErrors(validation.errors);
+  }, [formData]);
 
   const handleBlur = useCallback((e) => {
     const { name } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
-  }, []);
+    
+    const validation = validateFeatureForm(formData);
+    setErrors(validation.errors);
+  }, [formData]);
 
   const handleSubmit = useCallback(async (data, editingId = null) => {
+    // Mark all fields as touched
     setTouched({ 
       title: true, 
       description: true, 
       priority: true, 
-      status: true, 
+      status: true,
       deadline: true, 
       tags: true,
       projectId: true 
     });
     
-    if (!validateForm()) {
+    // Final validation
+    const finalValidation = validateFeatureForm(data);
+    setErrors(finalValidation.errors);
+    
+    if (!finalValidation.isValid) {
+      console.log('Form submission blocked - validation errors:', finalValidation.errors);
       return false;
     }
 
@@ -84,28 +86,47 @@ export const useFeatureForm = () => {
         title: data.title.trim(),
         description: data.description?.trim() || '',
         priority: data.priority,
-        status: data.status,
         deadline: data.deadline || null,
         tags: Array.isArray(data.tags) ? data.tags : [],
         projectId: data.projectId,
       };
 
       if (editingId) {
-        // TODO: Implement update later
-        console.log("Update not implemented yet");
-        return false;
+        // UPDATED: Implement feature update
+        featureData.status = data.status; // Include status when updating
+        await dispatch(updateFeature({ 
+          featureId: editingId, 
+          ...featureData 
+        })).unwrap();
+        console.log('Feature updated successfully');
       } else {
-        // Create new feature using Redux
+        // Create new feature (don't include status for creation)
         await dispatch(createFeature(featureData)).unwrap();
+        console.log('Feature created successfully');
       }
 
       return true;
     } catch (error) {
-      // Error is handled by Redux and shown via useEffect in component
       console.error('Form submission error:', error);
       return false;
     }
-  }, [dispatch, validateForm]);
+  }, [dispatch]);
+
+  // NEW: Function to populate form with existing feature data
+  const populateForm = useCallback((feature) => {
+    setFormData({
+      title: feature.title || '',
+      description: feature.description || '',
+      priority: feature.priority || 'medium',
+      status: feature.status || 'pending',
+      deadline: feature.deadline ? feature.deadline.split('T')[0] : getTodayDate(),
+      tags: feature.tags || [],
+      projectId: feature.projectId?._id || feature.projectId || '',
+    });
+    // Clear errors and touched state when populating
+    setErrors({});
+    setTouched({});
+  }, []);
 
   const resetForm = useCallback(() => {
     setFormData({
@@ -113,7 +134,7 @@ export const useFeatureForm = () => {
       description: '',
       priority: 'medium',
       status: 'pending',
-      deadline: '',
+      deadline: getTodayDate(),
       tags: [],
       projectId: '',
     });
@@ -126,169 +147,22 @@ export const useFeatureForm = () => {
     setFormData,
     errors,
     touched,
-    isValid: Object.keys(errors).length === 0,
+    isValid,
     handleChange,
+    handleTagsChange,
     handleBlur,
     handleSubmit,
+    populateForm, // NEW: Add this function
     resetForm,
   };
 };
 
 
 
-
-// import { useState, useCallback } from 'react';
-// import { showMessage } from '@/app/utils/showMessage';
-
-// export const useFeatureForm = () => {
-//   const [formData, setFormData] = useState({
-//     title: '',
-//     description: '',
-//     priority: 'medium',
-//     status: 'pending',
-//     deadline: '',
-//     tags: [],
-//     projectId: '',
-//   });
-  
-//   const [errors, setErrors] = useState({});
-//   const [touched, setTouched] = useState({});
-
-//   const validateForm = useCallback(() => {
-//     const newErrors = {};
-    
-//     if (!formData.title.trim()) {
-//       newErrors.title = 'Title is required';
-//     }
-    
-//     if (!formData.projectId) {
-//       newErrors.projectId = 'Project is required';
-//     }
-    
-//     if (formData.deadline) {
-//       const deadlineDate = new Date(formData.deadline);
-//       const today = new Date();
-//       today.setHours(0, 0, 0, 0);
-      
-//       if (deadlineDate <= today) {
-//         newErrors.deadline = 'Deadline must be greater than today';
-//       }
-//     }
-    
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0;
-//   }, [formData]);
-
-//   const handleChange = useCallback((e) => {
-//     const { name, value } = e.target;
-    
-//     if (name === 'tags') {
-//       const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
-//       setFormData(prev => ({ ...prev, tags }));
-//     } else {
-//       setFormData(prev => ({ ...prev, [name]: value }));
-//     }
-    
-//     // Clear error when user starts typing
-//     if (errors[name]) {
-//       setErrors(prev => ({ ...prev, [name]: null }));
-//     }
-//   }, [errors]);
-
-//   const handleBlur = useCallback((e) => {
-//     const { name } = e.target;
-//     setTouched(prev => ({ ...prev, [name]: true }));
-//   }, []);
-
-//   const handleSubmit = useCallback(async (data, editingId = null, setFeatures, projects) => {
-//     setTouched({ 
-//       title: true, 
-//       description: true, 
-//       priority: true, 
-//       status: true, 
-//       deadline: true, 
-//       tags: true,
-//       projectId: true 
-//     });
-    
-//     if (!validateForm()) {
-//       return false;
-//     }
-
-//     try {
-//       // Simulate API delay
-//       await new Promise(resolve => setTimeout(resolve, 1000));
-
-//       const selectedProject = projects.find(p => p._id === data.projectId);
-      
-//       const featureData = {
-//         title: data.title.trim(),
-//         description: data.description?.trim() || '',
-//         priority: data.priority,
-//         status: data.status,
-//         deadline: data.deadline || null,
-//         tags: Array.isArray(data.tags) ? data.tags : [],
-//         projectId: { _id: data.projectId, name: selectedProject?.name || 'Unknown' },
-//         createdAt: new Date().toISOString(),
-//         updatedAt: new Date().toISOString(),
-//       };
-
-//       if (editingId) {
-//         // Update existing feature
-//         setFeatures(prev => prev.map(f => 
-//           f._id === editingId ? { ...f, ...featureData, _id: editingId } : f
-//         ));
-//         showMessage("Feature updated successfully");
-//       } else {
-//         // Add new feature
-//         const newFeature = {
-//           _id: `f${Date.now()}`,
-//           ...featureData,
-//         };
-//         setFeatures(prev => [...prev, newFeature]);
-//         showMessage("Feature created successfully");
-//       }
-
-//       return true;
-//     } catch (error) {
-//       console.error('Form submission error:', error);
-//       showMessage(error.message || "Failed to save feature", "error");
-//       return false;
-//     }
-//   }, [validateForm]);
-
-//   const resetForm = useCallback(() => {
-//     setFormData({
-//       title: '',
-//       description: '',
-//       priority: 'medium',
-//       status: 'pending',
-//       deadline: '',
-//       tags: [],
-//       projectId: '',
-//     });
-//     setErrors({});
-//     setTouched({});
-//   }, []);
-
-//   return {
-//     formData,
-//     setFormData,
-//     errors,
-//     touched,
-//     isValid: Object.keys(errors).length === 0,
-//     handleChange,
-//     handleBlur,
-//     handleSubmit,
-//     resetForm,
-//   };
-// };
-
-
-
-// import { useState, useCallback } from 'react';
+// import { useState, useCallback, useMemo } from 'react';
 // import { useDispatch } from 'react-redux';
-// import { createFeature, updateFeature } from '@/redux/slices/featureSlice';
+// import { createFeature } from '@/redux/slices/featureSlice';
+// import { validateFeatureForm, getTodayDate } from '@/lib/validations/featureValidation';
 
 // export const useFeatureForm = () => {
 //   const dispatch = useDispatch();
@@ -297,8 +171,7 @@ export const useFeatureForm = () => {
 //     title: '',
 //     description: '',
 //     priority: 'medium',
-//     status: 'pending',
-//     deadline: '',
+//     deadline: getTodayDate(),
 //     tags: [],
 //     projectId: '',
 //   });
@@ -306,64 +179,82 @@ export const useFeatureForm = () => {
 //   const [errors, setErrors] = useState({});
 //   const [touched, setTouched] = useState({});
 
+//   // Calculate isValid reactively - this is the key fix
+//   const isValid = useMemo(() => {
+//     // Run full validation on current form data
+//     const validation = validateFeatureForm(formData);
+//     console.log('Validation result:', validation); // Debug log
+//     console.log('Current errors state:', errors); // Debug log
+    
+//     // Button should be enabled when form data is valid (regardless of errors state)
+//     return validation.isValid;
+//   }, [formData]); // Only depend on formData, not errors state
+
 //   const validateForm = useCallback(() => {
-//     const newErrors = {};
-    
-//     if (!formData.title.trim()) {
-//       newErrors.title = 'Title is required';
-//     }
-    
-//     if (!formData.projectId) {
-//       newErrors.projectId = 'Project is required';
-//     }
-    
-//     if (formData.deadline) {
-//       const deadlineDate = new Date(formData.deadline);
-//       const today = new Date();
-//       today.setHours(0, 0, 0, 0);
-      
-//       if (deadlineDate <= today) {
-//         newErrors.deadline = 'Deadline must be greater than today';
-//       }
-//     }
-    
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0;
+//     const validation = validateFeatureForm(formData);
+//     setErrors(validation.errors);
+//     return validation.isValid;
 //   }, [formData]);
 
 //   const handleChange = useCallback((e) => {
 //     const { name, value } = e.target;
     
-//     if (name === 'tags') {
-//       const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
-//       setFormData(prev => ({ ...prev, tags }));
-//     } else {
-//       setFormData(prev => ({ ...prev, [name]: value }));
-//     }
+//     // Update form data first
+//     const newFormData = { ...formData, [name]: value };
+//     setFormData(newFormData);
     
-//     // Clear error when user starts typing
-//     if (errors[name]) {
-//       setErrors(prev => ({ ...prev, [name]: null }));
-//     }
-//   }, [errors]);
+//     // Then validate the updated form data
+//     const validation = validateFeatureForm(newFormData);
+    
+//     // Update errors state - completely replace with new validation errors
+//     setErrors(validation.errors);
+    
+//     console.log(`Field ${name} changed to: "${value}"`); // Debug log
+//     console.log('New validation errors:', validation.errors); // Debug log
+//   }, [formData]);
+
+//   const handleTagsChange = useCallback((e) => {
+//     const value = e.target.value;
+//     const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
+    
+//     // Update form data
+//     const newFormData = { ...formData, tags };
+//     setFormData(newFormData);
+    
+//     // Validate updated form data
+//     const validation = validateFeatureForm(newFormData);
+//     setErrors(validation.errors);
+    
+//     console.log('Tags changed to:', tags); // Debug log
+//     console.log('New validation errors:', validation.errors); // Debug log
+//   }, [formData]);
 
 //   const handleBlur = useCallback((e) => {
 //     const { name } = e.target;
 //     setTouched(prev => ({ ...prev, [name]: true }));
-//   }, []);
+    
+//     // Re-run validation to make sure errors are up to date
+//     const validation = validateFeatureForm(formData);
+//     setErrors(validation.errors);
+//   }, [formData]);
 
 //   const handleSubmit = useCallback(async (data, editingId = null) => {
+//     // Mark all fields as touched
 //     setTouched({ 
 //       title: true, 
 //       description: true, 
 //       priority: true, 
-//       status: true, 
 //       deadline: true, 
 //       tags: true,
 //       projectId: true 
 //     });
     
-//     if (!validateForm()) {
+//     // Final validation
+//     const finalValidation = validateFeatureForm(data);
+//     setErrors(finalValidation.errors);
+    
+//     if (!finalValidation.isValid) {
+//       console.log('Form submission blocked - validation errors:', finalValidation.errors);
 //       return false;
 //     }
 
@@ -372,19 +263,21 @@ export const useFeatureForm = () => {
 //         title: data.title.trim(),
 //         description: data.description?.trim() || '',
 //         priority: data.priority,
-//         status: data.status,
 //         deadline: data.deadline || null,
 //         tags: Array.isArray(data.tags) ? data.tags : [],
 //         projectId: data.projectId,
 //       };
 
+//       if (editingId && data.status) {
+//         featureData.status = data.status;
+//       }
+
 //       if (editingId) {
-//         await dispatch(updateFeature({ 
-//           featureId: editingId, 
-//           ...featureData 
-//         })).unwrap();
+//         console.log("Update not implemented yet");
+//         return false;
 //       } else {
 //         await dispatch(createFeature(featureData)).unwrap();
+//         console.log('Feature created successfully');
 //       }
 
 //       return true;
@@ -392,15 +285,14 @@ export const useFeatureForm = () => {
 //       console.error('Form submission error:', error);
 //       return false;
 //     }
-//   }, [dispatch, validateForm]);
+//   }, [dispatch]);
 
 //   const resetForm = useCallback(() => {
 //     setFormData({
 //       title: '',
 //       description: '',
 //       priority: 'medium',
-//       status: 'pending',
-//       deadline: '',
+//       deadline: getTodayDate(),
 //       tags: [],
 //       projectId: '',
 //     });
@@ -408,15 +300,21 @@ export const useFeatureForm = () => {
 //     setTouched({});
 //   }, []);
 
+//   // Debug log the current state
+//   console.log('Form state - isValid:', isValid, 'formData:', formData, 'errors:', errors);
+
 //   return {
 //     formData,
 //     setFormData,
 //     errors,
 //     touched,
-//     isValid: Object.keys(errors).length === 0,
+//     isValid,
 //     handleChange,
+//     handleTagsChange,
 //     handleBlur,
 //     handleSubmit,
 //     resetForm,
 //   };
 // };
+
+

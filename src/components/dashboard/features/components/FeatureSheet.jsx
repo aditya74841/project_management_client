@@ -24,6 +24,8 @@ const FeatureSheet = ({
   onBlur,
   onSubmit,
   onCancel,
+
+  onTagsChange
 }) => {
   const [tabValue, setTabValue] = useState("form");
 
@@ -69,6 +71,8 @@ const FeatureSheet = ({
                 isValid={isValid}
                 isSubmitting={isSubmitting}
                 isEditing={isEditing}
+                onTagsChange={onTagsChange} // Add this line
+
                 onChange={onChange}
                 onBlur={onBlur}
                 onSubmit={onSubmit}
