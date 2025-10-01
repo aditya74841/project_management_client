@@ -11,6 +11,7 @@ import {
 } from "@/redux/slices/authSlice";
 import { useState, useEffect } from "react";
 import LoginSheet from "../home/LoginSheet";
+import RegisterSheet from "../home/RegisterSheet";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ export default function Navbar() {
   }, []);
 
   const [isLoginDrawerOpen, setLoginDrawerOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   // Handle success/error messages
   useEffect(() => {
@@ -53,6 +55,7 @@ export default function Navbar() {
     // fetchProfile()
     if (isLoggedIn && isLoginDrawerOpen) {
       setLoginDrawerOpen(false);
+      setIsRegisterOpen(false);
     }
   }, [isLoggedIn, isLoginDrawerOpen]);
 
@@ -101,12 +104,37 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           {!isLoggedIn ? (
-            <LoginSheet
-              isOpen={isLoginDrawerOpen}
-              onOpenChange={setLoginDrawerOpen}
-              onLogin={handleLogin}
-              isLoading={loading}
-            />
+            <>
+              <LoginSheet
+                isOpen={isLoginDrawerOpen}
+                onOpenChange={setLoginDrawerOpen}
+                onLogin={handleLogin}
+                isLoading={loading}
+              />
+              {/* <RegisterSheet
+                isOpen={isLoginDrawerOpen}
+                onOpenChange={setLoginDrawerOpen}
+                onLogin={handleLogin}
+                isLoading={loading}
+              /> */}
+              <RegisterSheet
+                isOpen={isRegisterOpen}
+                onOpenChange={setIsRegisterOpen}
+                onRegister={async (data) => {
+                  // Handle email/password registration
+                  console.log("Register data:", data);
+                }}
+                onGoogleLogin={async () => {
+                  // Redirect to Google OAuth
+                  window.location.href = "/api/auth/google";
+                }}
+                onGithubLogin={async () => {
+                  // Redirect to GitHub OAuth
+                  window.location.href = "/api/auth/github";
+                }}
+                // isLoading={isAuthLoading}
+              />
+            </>
           ) : (
             <Link
               href="/dashboard"

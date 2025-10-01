@@ -112,15 +112,15 @@ const ProjectSheet = ({
         </SheetHeader>
 
         <div className="px-6 py-4">
-          <Tabs value={tabValue} onValueChange={setTabValue}>
-            <TabsList>
+          {/* <Tabs value={tabValue} onValueChange={setTabValue}> */}
+            {/* <TabsList>
               <TabsTrigger value="projectForm">Project</TabsTrigger>
               <TabsTrigger value="members" disabled={!isEditing}>
                 Members
               </TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
-            <TabsContent value="projectForm">
+            {/* <TabsContent value="projectForm"> */}
               <ProjectForm
                 formData={formData}
                 errors={errors}
@@ -133,7 +133,7 @@ const ProjectSheet = ({
                 onSubmit={onSubmit}
                 onCancel={onCancel}
               />
-            </TabsContent>
+            {/* </TabsContent>
 
             <TabsContent value="members">
               {isEditing ? (
@@ -143,8 +143,8 @@ const ProjectSheet = ({
                   Create the project first to manage members.
                 </p>
               )}
-            </TabsContent>
-          </Tabs>
+            </TabsContent> */}
+          {/* </Tabs> */}
         </div>
       </SheetContent>
     </Sheet>

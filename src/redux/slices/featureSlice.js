@@ -701,7 +701,7 @@ const featureSlice = createSlice({
         state.error = null;
       })
       .addCase(getProjectNames.fulfilled, (state, action) => {
-        console.log("The projects name is ", action.payload);
+        // console.log("The projects name is ", action.payload);
         state.loadingProjectNames = false;
         state.projectNames = action.payload.data || [];
       })

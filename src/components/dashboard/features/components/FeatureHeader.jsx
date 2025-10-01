@@ -121,7 +121,7 @@ const FeatureHeader = ({
       </div>
 
       {/* Project Selector */}
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4">
         <select
           value={selectedProjectId}
           onChange={(e) => onProjectChange(e.target.value)}
@@ -144,7 +144,7 @@ const FeatureHeader = ({
             <span className="ml-2">selected</span>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Priority Legend */}
       {selectedProjectId && (
