@@ -103,7 +103,7 @@ export default function LoginSheet({
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
-        <motion.button
+        {/* <motion.button
           variants={buttonVariants}
           whileHover="hover"
           whileTap="tap"
@@ -115,7 +115,7 @@ export default function LoginSheet({
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </span>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-20 transition-opacity" />
-        </motion.button>
+        </motion.button> */}
       </SheetTrigger>
 
       <SheetContent className="sm:max-w-lg w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/40 border-0 shadow-2xl">

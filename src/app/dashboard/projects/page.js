@@ -2,20 +2,12 @@ import LoadingState from "@/components/dashboard/LoadingState";
 import ProjectPageClient from "@/components/dashboard/projects/components/ProjectPageClient";
 import { Suspense } from "react";
 
-// optional – keep client-side fetch
 const getInitialProjects = async () => null;
 
 export default async function ProjectsPage() {
   const initialData = await getInitialProjects();
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>
-        <p className="text-gray-600 mt-2">
-          Manage projects, members, features and visibility
-        </p>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Suspense fallback={<LoadingState />}>
         <ProjectPageClient initialData={initialData} />
       </Suspense>
@@ -24,16 +16,39 @@ export default async function ProjectsPage() {
 }
 
 export const metadata = {
-  title: "Projects | Audit Pro",
-  description: "Manage company projects and their members",
+  title: "Dashboard | Audit Pro",
+  description: "Manage your projects and track progress",
 };
 
-// import React from 'react'
 
-// const page = () => {
+
+// import LoadingState from "@/components/dashboard/LoadingState";
+// import ProjectPageClient from "@/components/dashboard/projects/components/ProjectPageClient";
+// import { Suspense } from "react";
+
+// // optional – keep client-side fetch
+// const getInitialProjects = async () => null;
+
+// export default async function ProjectsPage() {
+//   const initialData = await getInitialProjects();
 //   return (
-//     <div className='bg-black'>THis is tge page</div>
-//   )
+//     <div className="container mx-auto px-4 py-6">
+//       <div className="mb-6">
+//         <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>
+//         <p className="text-gray-600 mt-2">
+//           Manage projects, members, features and visibility
+//         </p>
+//       </div>
+
+//       <Suspense fallback={<LoadingState />}>
+//         <ProjectPageClient initialData={initialData} />
+//       </Suspense>
+//     </div>
+//   );
 // }
 
-// export default page
+// export const metadata = {
+//   title: "Projects | Audit Pro",
+//   description: "Manage company projects and their members",
+// };
+
