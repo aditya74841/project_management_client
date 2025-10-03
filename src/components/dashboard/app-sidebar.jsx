@@ -22,12 +22,12 @@ import {
 import { useSelector } from "react-redux";
 
 const allItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-    roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
-  },
+  // {
+  //   title: "Dashboard",
+  //   url: "/dashboard",
+  //   icon: LayoutDashboard,
+  //   roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
+  // },
   // {
   //   title: "Audits",
   //   url: "/dashboard/audits",
