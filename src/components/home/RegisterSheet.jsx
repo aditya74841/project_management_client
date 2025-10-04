@@ -139,7 +139,7 @@ export default function RegisterSheet({ isOpen, onOpenChange }) {
         });
       } else {
         // General error - you can show it in a toast/notification
-        console.error("Registration error:", error);
+        // console.error("Registration error:", error);
       }
     }
   }, [error, setError]);

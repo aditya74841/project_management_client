@@ -67,9 +67,10 @@ export const userProfile = createAsyncThunk(
       const { auth } = getState();
       const token = auth.accessToken;
 
-      const res = await api.get("/current-user", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      // const res = await api.get("/current-user", {
+      //   headers: token ? { Authorization: `Bearer ${token}` } : {},
+      // });
+      const res = await api.get("/current-user", { withCredentials: true });
 
       return res.data;
     } catch (err) {
