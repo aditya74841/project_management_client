@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 // Helper to decode JWT safely in Edge runtime
 function base64UrlDecode(str) {
   str = str.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = str.padEnd(str.length + (4 - (str.length % 4)) % 4, "=");
+  const padded = str.padEnd(str.length + ((4 - (str.length % 4)) % 4), "=");
   return atob(padded);
 }
 
@@ -53,7 +53,13 @@ export async function middleware(request) {
     }
   }
 
-  const protectedRoutes = ["/dashboard", "/profile", "/settings", "/admin", "/reports"];
+  const protectedRoutes = [
+    "/dashboard",
+    "/profile",
+    "/settings",
+    "/admin",
+    "/reports",
+  ];
   const publicRoutes = ["/login", "/register", "/forgot-password"];
 
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -62,6 +68,8 @@ export async function middleware(request) {
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route)
   );
+
+  console.log("The is LoggedIn is ", isLoggedIn);
 
   // Protect routes
   if (isProtectedRoute && !isLoggedIn) {
@@ -115,9 +123,6 @@ export const config = {
     "/forgot-password",
   ],
 };
-
-
-
 
 // import { NextResponse } from "next/server";
 
