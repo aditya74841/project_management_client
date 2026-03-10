@@ -12,6 +12,7 @@ import {
 import { useState, useEffect } from "react";
 import LoginSheet from "../home/LoginSheet";
 import RegisterSheet from "../home/RegisterSheet";
+import ForgotPasswordSheet from "../home/ForgotPasswordSheet";
 
 export default function Navbar() {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ export default function Navbar() {
 
   const [isLoginDrawerOpen, setLoginDrawerOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -56,11 +58,12 @@ export default function Navbar() {
 
   // Auto-close drawers when login succeeds
   useEffect(() => {
-    if (isLoggedIn && (isLoginDrawerOpen || isRegisterOpen)) {
+    if (isLoggedIn && (isLoginDrawerOpen || isRegisterOpen || isForgotPasswordOpen)) {
       setLoginDrawerOpen(false);
       setIsRegisterOpen(false);
+      setIsForgotPasswordOpen(false);
     }
-  }, [isLoggedIn, isLoginDrawerOpen, isRegisterOpen]);
+  }, [isLoggedIn, isLoginDrawerOpen, isRegisterOpen, isForgotPasswordOpen]);
 
   const handleLogin = async (data) => {
     try {
@@ -85,11 +88,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled
+      className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled
           ? "bg-white/95 dark:bg-gray-900/95 shadow-md"
           : "bg-white/80 dark:bg-gray-900/80 shadow-sm"
-      } backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50`}
+        } backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
@@ -326,8 +328,23 @@ export default function Navbar() {
         isOpen={isLoginDrawerOpen}
         onOpenChange={setLoginDrawerOpen}
         onLogin={handleLogin}
+        onForgotPasswordClick={() => {
+          setLoginDrawerOpen(false);
+          // Small delay for smooth animation transition
+          setTimeout(() => setIsForgotPasswordOpen(true), 300);
+        }}
         isLoading={loading}
       />
+
+      <ForgotPasswordSheet
+        isOpen={isForgotPasswordOpen}
+        onOpenChange={setIsForgotPasswordOpen}
+        onBackToLogin={() => {
+          setIsForgotPasswordOpen(false);
+          setTimeout(() => setLoginDrawerOpen(true), 300);
+        }}
+      />
+
       <RegisterSheet
         isOpen={isRegisterOpen}
         onOpenChange={setIsRegisterOpen}

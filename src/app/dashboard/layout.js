@@ -1,8 +1,25 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { AppSidebar } from "../../components/dashboard/app-sidebar";
 import TopNavbar from "../../components/dashboard/TopNavbar";
 import { SidebarProvider } from "../../components/ui/sidebar";
 
-export default function Layout({ children }) {
+function DashboardLayoutContent({ children }) {
+  const searchParams = useSearchParams();
+  const minimal = searchParams.get("minimal") === "true";
+
+  if (minimal) {
+    return (
+      <div className="flex h-screen w-screen overflow-hidden bg-white">
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden">
@@ -22,5 +39,13 @@ export default function Layout({ children }) {
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+export default function Layout({ children }) {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-screen items-center justify-center">Loading...</div>}>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }

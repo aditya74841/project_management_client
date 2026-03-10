@@ -8,14 +8,19 @@ import { AuthErrorHandler } from "@/components/AuthErrorBoundary";
 import { validateAuthOnStart } from "@/redux/slices/authSlice";
 import { useEffect } from "react";
 
-export function Providers({ children }) {
+import { IframeAuthProvider } from "@/components/IframeAuthProvider";
 
+export function Providers({ children }) {
   return (
     <Provider store={store}>
       <PersistGate loading={<div>Loading...</div>} persistor={persistor}>
-      <AuthErrorHandler>
-        {children}
-        </AuthErrorHandler>
+        <AuthInitializer>
+          <IframeAuthProvider>
+            <AuthErrorHandler>
+              {children}
+            </AuthErrorHandler>
+          </IframeAuthProvider>
+        </AuthInitializer>
         <Toaster
           position="top-right"
           toastOptions={{
@@ -27,4 +32,13 @@ export function Providers({ children }) {
       </PersistGate>
     </Provider>
   );
+}
+
+function AuthInitializer({ children }) {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(validateAuthOnStart());
+  }, [dispatch]);
+
+  return <>{children}</>;
 }

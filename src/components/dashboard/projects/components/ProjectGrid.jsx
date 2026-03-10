@@ -31,7 +31,8 @@ const statusConfig = {
   },
 };
 
-const BASE_URL = "https://project-management-client-amber.vercel.app"; // Replace with your deployment URL
+// const BASE_URL = "https://project-management-client-amber.vercel.app"; 
+const BASE_URL = "http://localhost:3000"; 
 
 const ProjectGrid = ({ projects, onEdit, onDelete, onToggle, loading }) => {
   const router = useRouter();
@@ -42,7 +43,6 @@ const ProjectGrid = ({ projects, onEdit, onDelete, onToggle, loading }) => {
     const iframeCode = `<iframe src="${embedUrl}" width="100%" height="600" frameBorder="0"></iframe>`;
     navigator.clipboard.writeText(iframeCode)
       .then(() => {
-        // You can use your toast/message util here
         alert("Embed code copied to clipboard!");
       })
       .catch(() => {

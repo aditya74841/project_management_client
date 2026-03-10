@@ -19,6 +19,7 @@ import companyReducer from "../redux/slices/companySlice";
 import userReducer from "../redux/slices/userClientSlice";
 import projectReducer from "../redux/slices/projectSlice";
 import featureReducer from "../redux/slices/featureSlice";
+import projectDiaryReducer from "../redux/slices/projectDiarySlice";
 // Combine all reducers
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   userClient: userReducer,
   project: projectReducer,
   feature: featureReducer,
+  projectDiary: projectDiaryReducer,
 });
 
 // Persist config (only auth by default, you can extend later)
