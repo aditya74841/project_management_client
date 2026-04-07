@@ -1,43 +1,31 @@
 "use client";
 
 import React from "react";
+import { FolderPlus, Sparkles } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { FolderOpen, Plus, Sparkles } from "lucide-react";
 
 const EmptyState = ({ onAddProject }) => (
-  <div className="flex items-center justify-center min-h-[400px]">
-    <div className="text-center max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-12">
-      {/* Icon */}
-      <div className="relative mx-auto w-24 h-24 mb-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full opacity-10 animate-pulse"></div>
-        <div className="relative w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-full flex items-center justify-center">
-          <FolderOpen className="w-12 h-12 text-blue-600 dark:text-blue-400" />
-        </div>
-      </div>
-
-      {/* Text */}
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-        No Projects Yet
+  <div className="rounded-[32px] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px] bg-slate-100">
+      <FolderPlus className="h-10 w-10 text-slate-700" />
+    </div>
+    <div className="mx-auto mt-6 max-w-xl space-y-3">
+      <h3 className="text-3xl font-semibold tracking-tight text-slate-900">
+        Start with just a project name.
       </h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-        Start your journey by creating your first project. Track progress, manage features, and stay organized.
-      </p>
-
-      {/* CTA Button */}
-      <Button
-        onClick={onAddProject}
-        className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-      >
-        <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-        Create Your First Project
-        <Plus className="w-5 h-5 ml-2" />
-      </Button>
-
-      {/* Helper text */}
-      <p className="mt-6 text-sm text-gray-500 dark:text-gray-500">
-        It only takes a minute to get started
+      <p className="text-sm leading-7 text-slate-600">
+        You do not need to fill everything up front anymore. Create the project shell now, then
+        return later for description, deadlines, visibility, and the rest.
       </p>
     </div>
+    <Button
+      onClick={onAddProject}
+      className="mt-8 h-12 rounded-full bg-[linear-gradient(135deg,#0f172a_0%,#0f766e_55%,#06b6d4_100%)] px-6 text-sm font-semibold text-white shadow-md hover:opacity-95"
+    >
+      <Sparkles className="mr-2 h-4 w-4" />
+      Create Your First Project
+    </Button>
   </div>
 );
 

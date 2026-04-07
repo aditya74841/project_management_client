@@ -65,7 +65,7 @@ export default function ForgotPasswordSheet({ isOpen, onOpenChange, onBackToLogi
 
     // Handle successful execution 
     useEffect(() => {
-        if (message && message.includes("Reset link sent")) {
+        if (message && message.toLowerCase().includes("reset link sent")) {
             setIsSuccess(true);
             reset();
             // Auto-close after 4 seconds

@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { showMessage } from "@/utils/showMessage";
 import {
@@ -16,6 +17,7 @@ import ForgotPasswordSheet from "../home/ForgotPasswordSheet";
 
 export default function Navbar() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { isLoggedIn, loading, error, message } = useSelector(
     (state) => state.auth
   );
@@ -75,6 +77,7 @@ export default function Navbar() {
       ).unwrap();
 
       await dispatch(userProfile());
+      router.push("/dashboard");
       return result;
     } catch (err) {
       throw err;
@@ -179,7 +182,7 @@ export default function Navbar() {
               </>
             ) : (
               <Link
-                href="/dashboard/projects"
+                href="/dashboard"
                 className="group relative overflow-hidden rounded-full bg-gradient-to-r from-green-600 to-green-700 px-8 py-2.5 text-white font-semibold shadow-lg hover:from-green-700 hover:to-green-800 transition-all duration-200"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -348,15 +351,6 @@ export default function Navbar() {
       <RegisterSheet
         isOpen={isRegisterOpen}
         onOpenChange={setIsRegisterOpen}
-        onRegister={async (data) => {
-          console.log("Register data:", data);
-        }}
-        onGoogleLogin={async () => {
-          window.location.href = "/api/auth/google";
-        }}
-        onGithubLogin={async () => {
-          window.location.href = "/api/auth/github";
-        }}
       />
     </nav>
   );

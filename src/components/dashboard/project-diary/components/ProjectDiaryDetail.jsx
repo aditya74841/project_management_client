@@ -81,7 +81,7 @@ const PRIORITY_OPTIONS = [
     { value: "high", label: "High", color: "bg-red-500/10 text-red-500" },
 ];
 
-const ProjectDiaryDetail = ({ diaryId }) => {
+const ProjectDiaryDetail = ({ diaryId, basePath = "/project-diary" }) => {
     const router = useRouter();
     const dispatch = useDispatch();
 
@@ -127,7 +127,7 @@ const ProjectDiaryDetail = ({ diaryId }) => {
         });
         if (ok.isConfirmed) {
             await dispatch(deleteProjectDiary(diaryId));
-            router.push("/project-diary");
+            router.push(basePath);
         }
     };
 
@@ -152,7 +152,7 @@ const ProjectDiaryDetail = ({ diaryId }) => {
                     <p className="text-muted-foreground mb-4">
                         The project diary you're looking for doesn't exist or has been deleted.
                     </p>
-                    <Button onClick={() => router.push("/project-diary")}>
+                    <Button onClick={() => router.push(basePath)}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to Project Diaries
                     </Button>
@@ -172,7 +172,7 @@ const ProjectDiaryDetail = ({ diaryId }) => {
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push("/project-diary")}
+                        onClick={() => router.push(basePath)}
                         className="mb-4"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />

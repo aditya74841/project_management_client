@@ -44,7 +44,7 @@ const ProjectDiaryHeader = ({
                 <div>
                     <h2 className="text-xl font-semibold">Project Diaries</h2>
                     <p className="text-sm text-muted-foreground">
-                        {diaryCount} {diaryCount === 1 ? "project" : "projects"}
+                        {diaryCount} {diaryCount === 1 ? "diary" : "diaries"}
                     </p>
                 </div>
             </div>
@@ -85,7 +85,7 @@ const ProjectDiaryHeader = ({
                     className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
                 >
                     <Plus className="h-4 w-4" />
-                    New Project
+                    New Diary
                 </Button>
             </div>
         </div>

@@ -52,7 +52,8 @@ const ProjectDiaryCard = ({ diary, onDelete }) => {
     const techStackCount = diary.techStack?.length || 0;
 
     const handleView = () => {
-        router.push(`/project-diary/${diary._id}`);
+        const query = diary.projectId ? `?projectId=${diary.projectId}` : "";
+        router.push(`/dashboard/project-diary/${diary._id}${query}`);
     };
 
     return (

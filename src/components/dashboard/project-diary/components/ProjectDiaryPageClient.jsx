@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
+import { ArrowLeft, FolderKanban } from "lucide-react";
 
 import ProjectDiaryHeader from "./ProjectDiaryHeader";
 import ProjectDiaryStats from "./ProjectDiaryStats";
@@ -15,7 +18,6 @@ import { showMessage } from "@/app/utils/showMessage";
 
 import {
     getAllProjectDiaries,
-    createProjectDiary,
     deleteProjectDiary,
     clearMessages,
     selectDiaries,
@@ -25,9 +27,13 @@ import {
     selectDiaryError,
     selectDiaryMessage,
 } from "@/redux/slices/projectDiarySlice";
+import { getProjects, selectProjects } from "@/redux/slices/projectSlice";
 
 const ProjectDiaryPageClient = () => {
     const dispatch = useDispatch();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const selectedProjectId = searchParams.get("projectId");
 
     /* Redux state */
     const diaries = useSelector(selectDiaries);
@@ -36,6 +42,7 @@ const ProjectDiaryPageClient = () => {
     const deleting = useSelector(selectDiaryDeleting);
     const error = useSelector(selectDiaryError);
     const message = useSelector(selectDiaryMessage);
+    const projects = useSelector(selectProjects);
 
     /* Local UI state */
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -52,13 +59,24 @@ const ProjectDiaryPageClient = () => {
         handleChange,
         handleSelectChange,
         handleBlur,
+        handleSubmit,
         resetForm,
     } = useProjectDiaryForm();
 
     /* Fetch on mount */
     useEffect(() => {
-        dispatch(getAllProjectDiaries());
-    }, [dispatch]);
+        dispatch(
+            getAllProjectDiaries(
+                selectedProjectId ? { projectId: selectedProjectId } : {}
+            )
+        );
+    }, [dispatch, selectedProjectId]);
+
+    useEffect(() => {
+        if (!projects.length) {
+            dispatch(getProjects());
+        }
+    }, [dispatch, projects.length]);
 
     /* Show toast messages from Redux */
     useEffect(() => {
@@ -72,10 +90,14 @@ const ProjectDiaryPageClient = () => {
         }
     }, [message, error, dispatch]);
 
+    const linkedProject =
+        projects.find((project) => project._id === selectedProjectId) || null;
+
     /* Filter diaries client-side */
     const filteredDiaries = diaries.filter((d) => {
         if (statusFilter !== "all" && d.status !== statusFilter) return false;
         if (priorityFilter !== "all" && d.priority !== priorityFilter) return false;
+        if (selectedProjectId && d.projectId !== selectedProjectId) return false;
         return true;
     });
 
@@ -102,16 +124,14 @@ const ProjectDiaryPageClient = () => {
     };
 
     const onSubmit = async (data) => {
-        const result = await dispatch(
-            createProjectDiary({
-                title: data.title,
-                description: data.description || "",
-                status: data.status || "idea",
-                priority: data.priority || "medium",
-            })
+        const success = await handleSubmit(
+            {
+                ...data,
+                projectId: selectedProjectId || data.projectId,
+            },
+            editing?._id
         );
-
-        if (!result.error) {
+        if (success) {
             setSheetOpen(false);
             resetForm();
             setEditing(null);
@@ -120,7 +140,7 @@ const ProjectDiaryPageClient = () => {
 
     if (loading && diaries.length === 0) {
         return (
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="px-4 py-8 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-center min-h-[400px]">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -132,9 +152,59 @@ const ProjectDiaryPageClient = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6 px-1 py-2">
+            <div className="rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.12),_transparent_24%),linear-gradient(180deg,_#ffffff_0%,_#faf7ff_100%)] p-6 shadow-sm">
+                <div className="max-w-3xl space-y-2">
+                    <p className="text-sm font-medium uppercase tracking-[0.24em] text-violet-700">
+                        Product Thinking Space
+                    </p>
+                    <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+                        Capture ideas before they get lost.
+                    </h1>
+                    <p className="text-sm leading-6 text-slate-600">
+                        Project Diary is backed by the server for title, description, status, priority,
+                        and all the deeper sections inside the detail page including questions, user flows,
+                        features, tags, links, and tech stack.
+                    </p>
+                </div>
+            </div>
+
+            {selectedProjectId ? (
+                <div className="flex flex-col gap-4 rounded-[24px] border border-sky-200 bg-sky-50 p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                        <div className="inline-flex items-center gap-2 text-sm font-semibold text-sky-800">
+                            <FolderKanban className="h-4 w-4" />
+                            Linked Project Diary Flow
+                        </div>
+                        <p className="text-lg font-semibold text-slate-900">
+                            {linkedProject?.name || "Selected project"}
+                        </p>
+                        <p className="text-sm leading-6 text-slate-600">
+                            You are working inside the diary space for this project. Any new diary created here will be attached to this project automatically.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                        <Link
+                            href="/dashboard/projects"
+                            className="inline-flex h-10 items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Projects
+                        </Link>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/dashboard/project-diary")}
+                            className="inline-flex h-10 items-center rounded-full bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800"
+                        >
+                            View All Diaries
+                        </button>
+                    </div>
+                </div>
+            ) : null}
+
             {/* Stats */}
-            <ProjectDiaryStats diaries={diaries} />
+            <ProjectDiaryStats diaries={filteredDiaries} />
 
             {/* Header with Filters */}
             <ProjectDiaryHeader

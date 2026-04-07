@@ -150,16 +150,6 @@ const FeaturePageClient = ({ initialData }) => {
     }
   };
 
-  // ✅ Handle Google login
-  const handleGoogleLogin = async () => {
-    try {
-      // Redirect to Google OAuth endpoint
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/google`;
-    } catch (error) {
-      console.error("Google login error:", error);
-      throw error;
-    }
-  };
 
   const handleAddFeature = () => {
     if (!isLoggedIn) {
@@ -266,7 +256,6 @@ const FeaturePageClient = ({ initialData }) => {
         <LoginModal
           open={showLoginModal}
           onEmailLogin={handleLogin}
-          onGoogleLogin={handleGoogleLogin}
           onClose={() => setShowLoginModal(false)}
         />
       </>
@@ -298,7 +287,6 @@ const FeaturePageClient = ({ initialData }) => {
       <LoginModal
         open={showLoginModal}
         onEmailLogin={handleLogin}
-        onGoogleLogin={handleGoogleLogin}
         onClose={() => setShowLoginModal(false)}
       />
 

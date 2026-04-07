@@ -23,7 +23,7 @@ const ProjectDiaryEmptyState = ({ onAddDiary }) => {
 
                 <Button onClick={onAddDiary} size="lg" className="gap-2">
                     <Plus className="h-4 w-4" />
-                    Create Your First Project
+                    Create Your First Diary
                 </Button>
 
                 <div className="mt-8 flex items-center gap-2 text-sm text-muted-foreground">

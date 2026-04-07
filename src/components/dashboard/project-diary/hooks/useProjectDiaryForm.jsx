@@ -57,6 +57,7 @@ export const useProjectDiaryForm = () => {
                 description: data.description?.trim() || "",
                 status: data.status,
                 priority: data.priority,
+                ...(data.projectId ? { projectId: data.projectId } : {}),
             };
 
             try {

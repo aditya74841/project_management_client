@@ -1,342 +1,215 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { 
+  ArrowRight, 
+  Calendar, 
+  MoreVertical, 
+  Users, 
+  Clock, 
+  Target,
+  Edit3,
+  Trash2,
+  Eye,
+  EyeOff,
+  Copy
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Edit, Trash2, Eye, EyeOff, Calendar, ArrowRight, MoreVertical, Copy,
-} from "lucide-react";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { showMessage } from "@/app/utils/showMessage";
 
-const statusConfig = {
-  completed: {
-    bg: "bg-green-100 dark:bg-green-900/30",
-    text: "text-green-800 dark:text-green-300",
-    border: "border-green-200 dark:border-green-800",
-  },
-  archived: {
-    bg: "bg-gray-100 dark:bg-gray-900/30",
-    text: "text-gray-800 dark:text-gray-300",
-    border: "border-gray-200 dark:border-gray-800",
-  },
-  draft: {
-    bg: "bg-yellow-100 dark:bg-yellow-900/30",
-    text: "text-yellow-800 dark:text-yellow-300",
-    border: "border-yellow-200 dark:border-yellow-800",
-  },
-  active: {
-    bg: "bg-blue-100 dark:bg-blue-900/30",
-    text: "text-blue-800 dark:text-blue-300",
-    border: "border-blue-200 dark:border-blue-800",
-  },
+const statusColors = {
+  active: "from-emerald-400 to-cyan-500",
+  completed: "from-blue-500 to-indigo-600",
+  draft: "from-amber-400 to-orange-500",
+  archived: "from-slate-400 to-slate-600",
 };
 
-// const BASE_URL = "https://project-management-client-amber.vercel.app"; 
-const BASE_URL = "http://localhost:3000"; 
-
-const ProjectGrid = ({ projects, onEdit, onDelete, onToggle, loading }) => {
+const ProjectCard = ({ project, onEdit, onDelete, onToggle }) => {
   const router = useRouter();
+  const [hovered, setHovered] = useState(false);
 
-  // Copy to clipboard utility
-  const handleCopyUrl = (projectId) => {
-    const embedUrl = `${BASE_URL}/features?projectId=${projectId}`;
-    const iframeCode = `<iframe src="${embedUrl}" width="100%" height="600" frameBorder="0"></iframe>`;
-    navigator.clipboard.writeText(iframeCode)
-      .then(() => {
-        alert("Embed code copied to clipboard!");
-      })
-      .catch(() => {
-        alert("Failed to copy. Try again!");
-      });
-  };
-
-  const handleProjectClick = (projectId) => {
-    router.push(`/dashboard/features?projectId=${projectId}`);
-  };
+  const initials = project.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const statusColor = statusColors[project.status] || statusColors.active;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project) => {
-        const status = statusConfig[project.status] || statusConfig.active;
-
-        return (
-          <div
-            key={project._id}
-            className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden"
-          >
-            {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-            <div className="relative p-6">
-              {/* Header with status and menu */}
-              <div className="flex items-start justify-between mb-4">
-                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${status.bg} ${status.text} border ${status.border}`}>
-                  {project.status}
-                </span>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => onEdit(project)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Project
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onToggle(project._id)}>
-                      {project.isShown ? (
-                        <>
-                          <EyeOff className="w-4 h-4 mr-2" />
-                          Hide Project
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Show Project
-                        </>
-                      )}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => onDelete(project._id)}
-                      className="text-red-600 dark:text-red-400"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Project
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Project Name */}
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {project.name}
-              </h3>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
-                {project.description || "No description provided"}
-              </p>
-
-              {/* Deadline */}
-              {project.deadline && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  <Calendar className="w-4 h-4" />
-                  <span>Due: {new Date(project.deadline).toLocaleDateString()}</span>
-                </div>
-              )}
-
-              {/* View Features Button */}
-              <Button
-                onClick={() => handleProjectClick(project._id)}
-                className="w-full mb-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group"
-              >
-                View Features
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-
-              {/* Copy URL as iframe embed */}
-              <Button
-                onClick={() => handleCopyUrl(project._id)}
-                className="w-full bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group"
-              >
-                Copy Embed Code
-                <Copy className="w-4 h-4 group-hover:translate-y-[-2px] transition-transform" />
-              </Button>
-              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Use this code to embed your features view anywhere!
-              </div>
-            </div>
-
-            {/* Visibility Indicator */}
-            {!project.isShown && (
-              <div className="absolute top-2 left-2">
-                <div className="p-1.5 bg-gray-900/80 rounded-full">
-                  <EyeOff className="w-3 h-3 text-white" />
-                </div>
-              </div>
-            )}
+    <div 
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="group relative flex flex-col justify-between overflow-hidden rounded-[32px] border border-white/40 bg-white/60 p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/10 backdrop-blur-xl"
+    >
+      {/* Top Section */}
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${statusColor} text-xl font-bold text-white shadow-lg shadow-black/5`}>
+            {initials}
           </div>
-        );
-      })}
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-slate-100/50">
+                <MoreVertical size={20} className="text-slate-400" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52 rounded-2xl p-2 shadow-xl backdrop-blur-lg">
+              <DropdownMenuItem onClick={() => onEdit(project)} className="rounded-xl p-3">
+                <Edit3 className="mr-3 h-4 w-4" /> Edit Details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onToggle(project._id)} className="rounded-xl p-3">
+                {project.isShown ? <EyeOff className="mr-3 h-4 w-4" /> : <Eye className="mr-3 h-4 w-4" />}
+                {project.isShown ? "Hide Project" : "Show Project"}
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onDelete(project._id)} 
+                className="rounded-xl p-3 text-red-600 focus:bg-red-50 focus:text-red-700"
+              >
+                <Trash2 className="mr-3 h-4 w-4" /> Delete Project
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-500">
+              {project.category || "Uncategorized"}
+            </span>
+            <div className="h-1 w-1 rounded-full bg-slate-300" />
+            <span className={`text-[10px] font-bold uppercase tracking-widest ${project.status === "active" ? "text-emerald-500" : "text-slate-500"}`}>
+              {project.status}
+            </span>
+          </div>
+          <h3 className="text-2xl font-bold tracking-tight text-slate-800">
+            {project.name}
+          </h3>
+          <p className="line-clamp-3 text-sm leading-relaxed text-slate-500">
+            {project.description}
+          </p>
+        </div>
+      </div>
+
+      {/* Stats & Avatars */}
+      <div className="mt-8 space-y-6">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-400">
+            <span>Project Progress</span>
+            <span className="text-slate-800">{project.progress}%</span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div 
+              className={`h-full bg-gradient-to-r ${statusColor} transition-all duration-1000 ease-out`}
+              style={{ width: `${project.progress}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex -space-x-3 overflow-hidden">
+            {project.members?.map((member, i) => (
+              <div 
+                key={i} 
+                title={member.name}
+                className="inline-block h-8 w-8 rounded-full border-2 border-white ring-2 ring-transparent transition-all hover:scale-110 hover:ring-indigo-200"
+              >
+                <img src={member.avatar} alt={member.name} className="h-full w-full rounded-full bg-slate-100" />
+              </div>
+            ))}
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-50 text-[10px] font-bold text-slate-400">
+              +4
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => router.push(`/dashboard/project-diary/${project._id}`)}
+            className={`h-10 rounded-xl px-5 text-xs font-bold transition-all ${hovered ? "bg-slate-900 text-white" : "bg-white text-slate-900 border border-slate-200"}`}
+          >
+            Manage Diary
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProjectListRow = ({ project, onEdit, onDelete }) => {
+  const router = useRouter();
+  const initials = project.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const statusColor = statusColors[project.status] || statusColors.active;
+
+  return (
+    <div className="group flex items-center justify-between rounded-3xl border border-white/20 bg-white/40 p-4 backdrop-blur-lg transition-all hover:bg-white/60 hover:shadow-lg">
+      <div className="flex items-center gap-5">
+        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${statusColor} text-sm font-bold text-white`}>
+          {initials}
+        </div>
+        <div>
+          <h4 className="font-bold text-slate-800">{project.name}</h4>
+          <div className="flex items-center gap-3 text-xs text-slate-400">
+            <span className="flex items-center gap-1"><Target size={12} /> {project.category}</span>
+            <span className="flex items-center gap-1"><Clock size={12} /> {new Date(project.deadline).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-10">
+        <div className="hidden w-48 space-y-2 md:block">
+          <div className="flex justify-between text-[10px] font-bold text-slate-400">
+            <span>PROGRESS</span>
+            <span>{project.progress}%</span>
+          </div>
+          <div className="h-1 w-full rounded-full bg-slate-100">
+            <div className={`h-full rounded-full bg-gradient-to-r ${statusColor}`} style={{ width: `${project.progress}%` }} />
+          </div>
+        </div>
+        
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => router.push(`/dashboard/projects/${project._id}`)}
+          className="rounded-full text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+        >
+          <ArrowRight size={20} />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const ProjectGrid = ({ projects, viewType, onEdit, onDelete, onToggle }) => {
+  if (viewType === "list") {
+    return (
+      <div className="space-y-4">
+        {projects.map(project => (
+          <ProjectListRow 
+            key={project._id} 
+            project={project} 
+            onEdit={onEdit} 
+            onDelete={onDelete} 
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+      {projects.map(project => (
+        <ProjectCard 
+          key={project._id} 
+          project={project} 
+          onEdit={onEdit} 
+          onDelete={onDelete} 
+          onToggle={onToggle}
+        />
+      ))}
     </div>
   );
 };
 
 export default ProjectGrid;
-
-
-
-
-
-// "use client";
-
-// import React from "react";
-// import { useRouter } from "next/navigation";
-// import { Button } from "@/components/ui/button";
-// import {
-//   Edit,
-//   Trash2,
-//   Eye,
-//   EyeOff,
-//   Calendar,
-//   ArrowRight,
-//   MoreVertical,
-// } from "lucide-react";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-
-// const statusConfig = {
-//   completed: {
-//     bg: "bg-green-100 dark:bg-green-900/30",
-//     text: "text-green-800 dark:text-green-300",
-//     border: "border-green-200 dark:border-green-800",
-//   },
-//   archived: {
-//     bg: "bg-gray-100 dark:bg-gray-900/30",
-//     text: "text-gray-800 dark:text-gray-300",
-//     border: "border-gray-200 dark:border-gray-800",
-//   },
-//   draft: {
-//     bg: "bg-yellow-100 dark:bg-yellow-900/30",
-//     text: "text-yellow-800 dark:text-yellow-300",
-//     border: "border-yellow-200 dark:border-yellow-800",
-//   },
-//   active: {
-//     bg: "bg-blue-100 dark:bg-blue-900/30",
-//     text: "text-blue-800 dark:text-blue-300",
-//     border: "border-blue-200 dark:border-blue-800",
-//   },
-// };
-
-// const ProjectGrid = ({ projects, onEdit, onDelete, onToggle, loading }) => {
-//   const router = useRouter();
-
-//   const handleProjectClick = (projectId) => {
-//     router.push(`/dashboard/features?projectId=${projectId}`);
-//   };
-
-//   return (
-//     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//       {projects.map((project) => {
-//         const status = statusConfig[project.status] || statusConfig.active;
-        
-//         return (
-//           <div
-//             key={project._id}
-//             className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden"
-//           >
-//             {/* Gradient overlay on hover */}
-//             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-//             {/* Card Content */}
-//             <div className="relative p-6">
-//               {/* Header with status and menu */}
-//               <div className="flex items-start justify-between mb-4">
-//                 <span
-//                   className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${status.bg} ${status.text} border ${status.border}`}
-//                 >
-//                   {project.status}
-//                 </span>
-
-//                 <DropdownMenu>
-//                   <DropdownMenuTrigger asChild>
-//                     <Button
-//                       variant="ghost"
-//                       size="sm"
-//                       className="h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
-//                       onClick={(e) => e.stopPropagation()}
-//                     >
-//                       <MoreVertical className="h-4 w-4" />
-//                     </Button>
-//                   </DropdownMenuTrigger>
-//                   <DropdownMenuContent align="end" className="w-48">
-//                     <DropdownMenuItem onClick={() => onEdit(project)}>
-//                       <Edit className="w-4 h-4 mr-2" />
-//                       Edit Project
-//                     </DropdownMenuItem>
-//                     <DropdownMenuItem onClick={() => onToggle(project._id)}>
-//                       {project.isShown ? (
-//                         <>
-//                           <EyeOff className="w-4 h-4 mr-2" />
-//                           Hide Project
-//                         </>
-//                       ) : (
-//                         <>
-//                           <Eye className="w-4 h-4 mr-2" />
-//                           Show Project
-//                         </>
-//                       )}
-//                     </DropdownMenuItem>
-//                     <DropdownMenuItem
-//                       onClick={() => onDelete(project._id)}
-//                       className="text-red-600 dark:text-red-400"
-//                     >
-//                       <Trash2 className="w-4 h-4 mr-2" />
-//                       Delete Project
-//                     </DropdownMenuItem>
-//                   </DropdownMenuContent>
-//                 </DropdownMenu>
-//               </div>
-
-//               {/* Project Name */}
-//               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-//                 {project.name}
-//               </h3>
-
-//               {/* Description */}
-//               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
-//                 {project.description || "No description provided"}
-//               </p>
-
-//               {/* Deadline */}
-//               {project.deadline && (
-//                 <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
-//                   <Calendar className="w-4 h-4" />
-//                   <span>Due: {new Date(project.deadline).toLocaleDateString()}</span>
-//                 </div>
-//               )}
-
-//               {/* View Features Button */}
-//               <Button
-//                 onClick={() => handleProjectClick(project._id)}
-//                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group"
-//               >
-//                 View Features
-//                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-//               </Button>
-//               <Button
-//                 onClick={() => handleProjectClick(project._id)}
-//                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group"
-//               >
-//                 Copy Url
-//                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-//               </Button>
-//             </div>
-
-//             {/* Visibility Indicator */}
-//             {!project.isShown && (
-//               <div className="absolute top-2 left-2">
-//                 <div className="p-1.5 bg-gray-900/80 rounded-full">
-//                   <EyeOff className="w-3 h-3 text-white" />
-//                 </div>
-//               </div>
-//             )}
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-// };
-
-// export default ProjectGrid;

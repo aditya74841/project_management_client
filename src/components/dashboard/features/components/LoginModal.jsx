@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Lock, LogIn, Eye, EyeOff, Mail } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
 
-const LoginModal = ({ open, onEmailLogin, onGoogleLogin, onClose }) => {
+const LoginModal = ({ open, onEmailLogin, onClose }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,15 +45,6 @@ const LoginModal = ({ open, onEmailLogin, onGoogleLogin, onClose }) => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      await onGoogleLogin();
-    } catch (err) {
-      setError(err?.message || "Google login failed");
-      setIsLoading(false);
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -67,7 +57,7 @@ const LoginModal = ({ open, onEmailLogin, onGoogleLogin, onClose }) => {
           </div>
           <DialogTitle className="text-center text-2xl">Sign In</DialogTitle>
           <DialogDescription className="text-center mb-4">
-            Sign in with your email & password or Google account
+            Sign in with your email & password
           </DialogDescription>
         </DialogHeader>
 
@@ -139,25 +129,6 @@ const LoginModal = ({ open, onEmailLogin, onGoogleLogin, onClose }) => {
                 Sign In
               </>
             )}
-          </Button>
-
-          {/* Divider */}
-          <div className="flex items-center my-2">
-            <hr className="flex-grow border-gray-300" />
-            <span className="mx-4 text-gray-400 font-semibold text-sm">OR</span>
-            <hr className="flex-grow border-gray-300" />
-          </div>
-
-          {/* Google Login Button */}
-          <Button
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            size="lg"
-          >
-            <FcGoogle className="w-6 h-6" />
-            Continue with Google
           </Button>
         </div>
 

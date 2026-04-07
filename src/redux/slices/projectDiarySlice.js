@@ -6,7 +6,7 @@ import axios from "axios";
 /*  Axios instance                                   */
 /* ------------------------------------------------- */
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:5000/api",
+    baseURL: process.env.SERVER_URL || "http://localhost:5000/api",
     withCredentials: true,
     timeout: 10000,
 });
@@ -27,7 +27,7 @@ export const createProjectDiary = createAsyncThunk(
     async (payload, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post("/project-diary", payload, { headers });
+            const res = await api.post("/project-diaries", payload, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to create project diary";
@@ -41,7 +41,7 @@ export const getAllProjectDiaries = createAsyncThunk(
     async (params = {}, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.get("/project-diary", { headers, params });
+            const res = await api.get("/project-diaries", { headers, params });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to fetch project diaries";
@@ -55,10 +55,24 @@ export const getProjectDiaryById = createAsyncThunk(
     async (diaryId, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.get(`/project-diary/${diaryId}`, { headers });
+            const res = await api.get(`/project-diaries/${diaryId}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to fetch project diary";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+export const getOrCreateDiaryForProject = createAsyncThunk(
+    "projectDiary/getOrCreateForProject",
+    async (projectId, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.get(`/project-diaries/project/${projectId}`, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to fetch or create diary for project";
             return rejectWithValue(msg);
         }
     }
@@ -69,7 +83,7 @@ export const deleteProjectDiary = createAsyncThunk(
     async (diaryId, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}`, { headers });
             return { ...res.data, deletedId: diaryId };
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to delete project diary";
@@ -87,7 +101,7 @@ export const updateDiaryStatus = createAsyncThunk(
     async ({ diaryId, status }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.patch(`/project-diary/${diaryId}/status`, { status }, { headers });
+            const res = await api.patch(`/project-diaries/${diaryId}/status`, { status }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to update status";
@@ -101,7 +115,7 @@ export const updateDiaryPriority = createAsyncThunk(
     async ({ diaryId, priority }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.patch(`/project-diary/${diaryId}/priority`, { priority }, { headers });
+            const res = await api.patch(`/project-diaries/${diaryId}/priority`, { priority }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to update priority";
@@ -119,7 +133,7 @@ export const addQuestion = createAsyncThunk(
     async ({ diaryId, name, answer }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post(`/project-diary/${diaryId}/questions`, { name, answer }, { headers });
+            const res = await api.post(`/project-diaries/${diaryId}/questions`, { name, answer }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to add question";
@@ -133,7 +147,7 @@ export const removeQuestion = createAsyncThunk(
     async ({ diaryId, questionId }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}/questions/${questionId}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}/questions/${questionId}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove question";
@@ -151,7 +165,7 @@ export const addUserFlow = createAsyncThunk(
     async ({ diaryId, flow }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post(`/project-diary/${diaryId}/user-flows`, { flow }, { headers });
+            const res = await api.post(`/project-diaries/${diaryId}/user-flows`, { flow }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to add user flow";
@@ -165,7 +179,7 @@ export const removeUserFlow = createAsyncThunk(
     async ({ diaryId, flowId }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}/user-flows/${flowId}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}/user-flows/${flowId}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove user flow";
@@ -183,7 +197,7 @@ export const addFeature = createAsyncThunk(
     async ({ diaryId, name, description, priority, status }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post(`/project-diary/${diaryId}/features`, { name, description, priority, status }, { headers });
+            const res = await api.post(`/project-diaries/${diaryId}/features`, { name, description, priority, status }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to add feature";
@@ -197,7 +211,7 @@ export const removeFeature = createAsyncThunk(
     async ({ diaryId, featureId }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}/features/${featureId}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}/features/${featureId}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove feature";
@@ -211,7 +225,7 @@ export const updateFeatureDetails = createAsyncThunk(
     async ({ diaryId, featureId, name, description }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.patch(`/project-diary/${diaryId}/features/${featureId}/details`, { name, description }, { headers });
+            const res = await api.patch(`/project-diaries/${diaryId}/features/${featureId}/details`, { name, description }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to update feature details";
@@ -225,7 +239,7 @@ export const updateFeaturePriority = createAsyncThunk(
     async ({ diaryId, featureId, priority }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.patch(`/project-diary/${diaryId}/features/${featureId}/priority`, { priority }, { headers });
+            const res = await api.patch(`/project-diaries/${diaryId}/features/${featureId}/priority`, { priority }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to update feature priority";
@@ -239,7 +253,7 @@ export const updateFeatureStatus = createAsyncThunk(
     async ({ diaryId, featureId, status }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.patch(`/project-diary/${diaryId}/features/${featureId}/status`, { status }, { headers });
+            const res = await api.patch(`/project-diaries/${diaryId}/features/${featureId}/status`, { status }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to update feature status";
@@ -253,7 +267,7 @@ export const toggleFeatureCompletion = createAsyncThunk(
     async ({ diaryId, featureId }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.patch(`/project-diary/${diaryId}/features/${featureId}/toggle`, {}, { headers });
+            const res = await api.patch(`/project-diaries/${diaryId}/features/${featureId}/toggle`, {}, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to toggle feature completion";
@@ -271,7 +285,7 @@ export const addTag = createAsyncThunk(
     async ({ diaryId, tag }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post(`/project-diary/${diaryId}/tags`, { tag }, { headers });
+            const res = await api.post(`/project-diaries/${diaryId}/tags`, { tag }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to add tag";
@@ -285,7 +299,7 @@ export const removeTag = createAsyncThunk(
     async ({ diaryId, tag }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}/tags/${encodeURIComponent(tag)}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}/tags/${encodeURIComponent(tag)}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove tag";
@@ -303,7 +317,7 @@ export const addReferenceLink = createAsyncThunk(
     async ({ diaryId, name, url }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post(`/project-diary/${diaryId}/links`, { name, url }, { headers });
+            const res = await api.post(`/project-diaries/${diaryId}/links`, { name, url }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to add reference link";
@@ -317,7 +331,7 @@ export const removeReferenceLink = createAsyncThunk(
     async ({ diaryId, linkId }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}/links/${linkId}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}/links/${linkId}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove reference link";
@@ -335,7 +349,7 @@ export const addTechStack = createAsyncThunk(
     async ({ diaryId, tech }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.post(`/project-diary/${diaryId}/tech-stack`, { tech }, { headers });
+            const res = await api.post(`/project-diaries/${diaryId}/tech-stack`, { tech }, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to add tech stack";
@@ -349,7 +363,7 @@ export const removeTechStack = createAsyncThunk(
     async ({ diaryId, tech }, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.delete(`/project-diary/${diaryId}/tech-stack/${encodeURIComponent(tech)}`, { headers });
+            const res = await api.delete(`/project-diaries/${diaryId}/tech-stack/${encodeURIComponent(tech)}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove tech stack";
@@ -446,6 +460,21 @@ const projectDiarySlice = createSlice({
                 s.loading = false;
                 s.error = a.payload;
                 s.selectedDiary = null;
+            });
+
+        /* ---------- get or create by project id ---------- */
+        builder
+            .addCase(getOrCreateDiaryForProject.pending, (s) => {
+                s.loading = true;
+                s.error = null;
+            })
+            .addCase(getOrCreateDiaryForProject.fulfilled, (s, a) => {
+                s.loading = false;
+                s.selectedDiary = a.payload.data.projectDiary;
+            })
+            .addCase(getOrCreateDiaryForProject.rejected, (s, a) => {
+                s.loading = false;
+                s.error = a.payload;
             });
 
         /* ---------- delete ---------- */
@@ -604,6 +633,8 @@ const projectDiarySlice = createSlice({
 /* ------------------------------------------------- */
 export const { clearMessages, clearError, resetProjectDiaryState, setSelectedDiary } =
     projectDiarySlice.actions;
+
+export { getOrCreateDiaryForProject }; // Exporting the new thunk here if needed, but it's already exported at definition
 
 /* basic selectors */
 export const selectDiaries = (s) => s.projectDiary.diaries;

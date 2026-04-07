@@ -1,68 +1,70 @@
 "use client";
 
 import React from "react";
-import { FolderOpen, CheckCircle, Clock, Archive } from "lucide-react";
+import {
+  Eye,
+  FolderOpen,
+  Layers3,
+  TimerReset,
+} from "lucide-react";
 
 const DashboardStats = ({ projects }) => {
   const stats = [
     {
-      label: "Total Projects",
+      label: "All Projects",
       value: projects.length,
+      helper: "Everything in your workspace",
       icon: FolderOpen,
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
-      textColor: "text-blue-600 dark:text-blue-400",
+      panel: "border-slate-200 bg-white",
+      iconWrap: "bg-slate-100 text-slate-700",
     },
     {
-      label: "Active",
-      value: projects.filter((p) => p.status === "active").length,
-      icon: Clock,
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50 dark:bg-green-900/20",
-      textColor: "text-green-600 dark:text-green-400",
+      label: "Draft",
+      value: projects.filter((p) => p.status === "draft").length,
+      helper: "Created quickly, still waiting for detail",
+      icon: TimerReset,
+      panel: "border-amber-200 bg-amber-50",
+      iconWrap: "bg-white text-amber-700",
     },
     {
-      label: "Completed",
-      value: projects.filter((p) => p.status === "completed").length,
-      icon: CheckCircle,
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
-      textColor: "text-purple-600 dark:text-purple-400",
+      label: "Visible",
+      value: projects.filter((p) => p.isShown).length,
+      helper: "Ready to be surfaced outside the dashboard",
+      icon: Eye,
+      panel: "border-emerald-200 bg-emerald-50",
+      iconWrap: "bg-white text-emerald-700",
     },
     {
-      label: "Archived",
-      value: projects.filter((p) => p.status === "archived").length,
-      icon: Archive,
-      color: "from-gray-500 to-gray-600",
-      bgColor: "bg-gray-50 dark:bg-gray-900/20",
-      textColor: "text-gray-600 dark:text-gray-400",
+      label: "With Description",
+      value: projects.filter((p) => p.description?.trim()).length,
+      helper: "Already documented beyond the name",
+      icon: Layers3,
+      panel: "border-sky-200 bg-sky-50",
+      iconWrap: "bg-white text-sky-700",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {stats.map((stat, index) => {
+    <div className="grid gap-4 lg:grid-cols-4">
+      {stats.map((stat) => {
         const Icon = stat.icon;
+
         return (
           <div
-            key={index}
-            className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700"
+            key={stat.label}
+            className={`rounded-[26px] border p-5 shadow-sm ${stat.panel}`}
           >
-            {/* Gradient background on hover */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-            
-            <div className="relative p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 ${stat.bgColor} rounded-xl`}>
-                  <Icon className={`w-6 h-6 ${stat.textColor}`} />
-                </div>
-                <div className={`text-3xl font-bold ${stat.textColor}`}>
-                  {stat.value}
-                </div>
+            <div className="flex items-start justify-between gap-3">
+              <div className={`rounded-2xl p-3 shadow-sm ${stat.iconWrap}`}>
+                <Icon className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                {stat.label}
-              </h3>
+              <div className="text-right">
+                <p className="text-3xl font-semibold text-slate-900">{stat.value}</p>
+              </div>
+            </div>
+            <div className="mt-4 space-y-1">
+              <p className="text-sm font-semibold text-slate-900">{stat.label}</p>
+              <p className="text-xs leading-5 text-slate-600">{stat.helper}</p>
             </div>
           </div>
         );

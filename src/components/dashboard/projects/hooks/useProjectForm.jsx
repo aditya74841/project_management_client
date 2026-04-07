@@ -43,16 +43,26 @@ export const useProjectForm = () => {
   }, []);
 
   const handleSubmit = useCallback(
-    async (data, id) => {
-      setTouched({ name: true, description: true, status: true });
+    async (data, id, options = {}) => {
+      const { quickCreate = false } = options;
+      setTouched(
+        quickCreate
+          ? { name: true }
+          : { name: true, description: true, deadline: true, status: true }
+      );
       if (!validateForm()) return false;
 
-      const payload = {
-        name:        data.name.trim(),
-        description: data.description.trim(),
-        deadline:    data.deadline || null,
-        status:      data.status,
-      };
+      const payload = quickCreate
+        ? {
+            name: data.name.trim(),
+            status: "draft",
+          }
+        : {
+            name: data.name.trim(),
+            description: data.description.trim(),
+            deadline: data.deadline || null,
+            status: data.status,
+          };
 
       try {
         id

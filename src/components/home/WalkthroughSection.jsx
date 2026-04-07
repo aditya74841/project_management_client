@@ -22,10 +22,10 @@ export default function WalkthroughSection() {
                 Step One
               </div>
               <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                Sign up with email or OAuth
+                Sign up with your email
               </h3>
               <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">
-                Create your free account in seconds using your email, Google, or GitHub. No credit card required, no commitments.
+                Create your free account in seconds using your email and password. No credit card required, no commitments.
               </p>
             </div>
             <div className="md:w-1/2 order-1 md:order-2">
@@ -39,15 +39,6 @@ export default function WalkthroughSection() {
                   </div>
                   <div className="h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-semibold">
                     Create Account
-                  </div>
-                  <div className="text-center text-sm text-slate-500 dark:text-slate-400">or continue with</div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="h-10 border-2 border-slate-200 dark:border-slate-600 rounded-lg flex items-center justify-center gap-2 text-sm font-medium">
-                      Google
-                    </div>
-                    <div className="h-10 border-2 border-slate-200 dark:border-slate-600 rounded-lg flex items-center justify-center gap-2 text-sm font-medium">
-                      GitHub
-                    </div>
                   </div>
                 </div>
               </div>

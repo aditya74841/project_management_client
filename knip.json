@@ -1,0 +1,8 @@
+{
+  "$schema": "https://unpkg.com/knip@3/schema.json",
+  "entry": [
+    "src/app/**/*.{js,jsx,ts,tsx}",
+    "next.config.mjs"
+  ],
+  "project": ["src/**/*.{js,jsx,ts,tsx}"]
+}
