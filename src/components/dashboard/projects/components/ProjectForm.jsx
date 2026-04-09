@@ -15,7 +15,8 @@ import {
   Type,
   AlignLeft,
   Activity,
-  Calendar
+  Calendar,
+  Users
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

@@ -8,8 +8,18 @@ export const validateFeatureForm = (formData, isEditing = false) => {
     errors.title = "Feature title is required";
   } else if (formData.title.trim().length < 3) {
     errors.title = "Feature title must be at least 3 characters long";
-  } else if (formData.title.trim().length > 100) {
-    errors.title = "Feature title must be less than 100 characters";
+  } else if (formData.title.trim().length > 150) {
+    errors.title = "Feature title must be less than 150 characters";
+  }
+
+  // Description validation
+  if (formData.description && formData.description.trim().length > 1000) {
+    errors.description = "Description must be less than 1000 characters";
+  }
+
+  // Benefits validation
+  if (formData.benefits && formData.benefits.trim().length > 1000) {
+    errors.benefits = "Benefits must be less than 1000 characters";
   }
 
   // Priority validation

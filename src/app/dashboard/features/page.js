@@ -17,12 +17,7 @@ export default async function FeaturesPage() {
   const initialData = await getInitialFeatures();
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Feature Management</h1>
-        <p className="text-gray-600 mt-2">Manage your project features and track progress</p>
-      </div>
-      
+    <div className="px-4 py-6 sm:px-6">
       <Suspense fallback={<LoadingState />}>
         <FeaturePageClient initialData={initialData} />
       </Suspense>

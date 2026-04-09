@@ -64,12 +64,26 @@ export const getProjectDiaryById = createAsyncThunk(
     }
 );
 
+export const updateProjectDiary = createAsyncThunk(
+    "projectDiary/update",
+    async ({ diaryId, title, description }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.patch(`/project-diaries/${diaryId}`, { title, description }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to update project diary";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
 export const getOrCreateDiaryForProject = createAsyncThunk(
     "projectDiary/getOrCreateForProject",
     async (projectId, { rejectWithValue, getState }) => {
         try {
             const headers = getAuthHeaders(getState);
-            const res = await api.get(`/project-diaries/project/${projectId}`, { headers });
+            const res = await api.get(`/project-diaries/projectDiary/${projectId}`, { headers });
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to fetch or create diary for project";
@@ -156,6 +170,20 @@ export const removeQuestion = createAsyncThunk(
     }
 );
 
+export const updateQuestion = createAsyncThunk(
+    "projectDiary/updateQuestion",
+    async ({ diaryId, questionId, name, answer }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.patch(`/project-diaries/${diaryId}/questions/${questionId}`, { name, answer }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to update question";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
 /* ------------------------------------------------- */
 /*  Async thunks - User Flows                        */
 /* ------------------------------------------------- */
@@ -183,6 +211,20 @@ export const removeUserFlow = createAsyncThunk(
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to remove user flow";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+export const updateUserFlow = createAsyncThunk(
+    "projectDiary/updateUserFlow",
+    async ({ diaryId, flowId, flow }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.patch(`/project-diaries/${diaryId}/user-flows/${flowId}`, { flow }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to update user flow";
             return rejectWithValue(msg);
         }
     }
@@ -340,6 +382,20 @@ export const removeReferenceLink = createAsyncThunk(
     }
 );
 
+export const updateReferenceLink = createAsyncThunk(
+    "projectDiary/updateReferenceLink",
+    async ({ diaryId, linkId, name, url }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.patch(`/project-diaries/${diaryId}/links/${linkId}`, { name, url }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to update reference link";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
 /* ------------------------------------------------- */
 /*  Async thunks - Tech Stack                        */
 /* ------------------------------------------------- */
@@ -462,6 +518,25 @@ const projectDiarySlice = createSlice({
                 s.selectedDiary = null;
             });
 
+        /* ---------- update core ---------- */
+        builder
+            .addCase(updateProjectDiary.pending, (s) => {
+                s.updating = true;
+                s.error = null;
+            })
+            .addCase(updateProjectDiary.fulfilled, (s, a) => {
+                s.updating = false;
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+                s.message = a.payload.message || "Project diary updated successfully";
+            })
+            .addCase(updateProjectDiary.rejected, (s, a) => {
+                s.updating = false;
+                s.error = a.payload;
+            });
+
         /* ---------- get or create by project id ---------- */
         builder
             .addCase(getOrCreateDiaryForProject.pending, (s) => {
@@ -525,6 +600,12 @@ const projectDiarySlice = createSlice({
                 s.selectedDiary = updated;
                 const idx = s.diaries.findIndex((d) => d._id === updated._id);
                 if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(updateQuestion.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
             });
 
         /* ---------- user flows ---------- */
@@ -536,6 +617,12 @@ const projectDiarySlice = createSlice({
                 if (idx !== -1) s.diaries[idx] = updated;
             })
             .addCase(removeUserFlow.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(updateUserFlow.fulfilled, (s, a) => {
                 const updated = a.payload.data.projectDiary;
                 s.selectedDiary = updated;
                 const idx = s.diaries.findIndex((d) => d._id === updated._id);
@@ -605,6 +692,12 @@ const projectDiarySlice = createSlice({
                 if (idx !== -1) s.diaries[idx] = updated;
             })
             .addCase(removeReferenceLink.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(updateReferenceLink.fulfilled, (s, a) => {
                 const updated = a.payload.data.projectDiary;
                 s.selectedDiary = updated;
                 const idx = s.diaries.findIndex((d) => d._id === updated._id);

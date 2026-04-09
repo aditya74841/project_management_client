@@ -36,10 +36,10 @@ const ProjectDiaryHeader = ({
     onPriorityChange,
 }) => {
     return (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                    <BookOpen className="h-5 w-5 text-primary" />
+                <div className="rounded-lg bg-cyan-50 p-2">
+                    <BookOpen className="h-5 w-5 text-cyan-700" />
                 </div>
                 <div>
                     <h2 className="text-xl font-semibold">Project Diaries</h2>
@@ -52,7 +52,7 @@ const ProjectDiaryHeader = ({
             <div className="flex flex-wrap items-center gap-3">
                 {/* Status Filter */}
                 <Select value={statusFilter} onValueChange={onStatusChange}>
-                    <SelectTrigger className="w-[150px]">
+                    <SelectTrigger className="w-[150px] bg-white">
                         <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
@@ -67,7 +67,7 @@ const ProjectDiaryHeader = ({
 
                 {/* Priority Filter */}
                 <Select value={priorityFilter} onValueChange={onPriorityChange}>
-                    <SelectTrigger className="w-[150px]">
+                    <SelectTrigger className="w-[150px] bg-white">
                         <SelectValue placeholder="Priority" />
                     </SelectTrigger>
                     <SelectContent>
@@ -82,7 +82,7 @@ const ProjectDiaryHeader = ({
                 {/* Add Button */}
                 <Button
                     onClick={onAddDiary}
-                    className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+                    className="gap-2 bg-cyan-600 text-white hover:bg-cyan-700"
                 >
                     <Plus className="h-4 w-4" />
                     New Diary

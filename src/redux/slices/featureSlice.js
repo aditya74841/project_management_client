@@ -1,439 +1,8 @@
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import axios from "axios";
-
-// const api = axios.create({
-//   baseURL: process.env.SERVER_URL || "http://localhost:5000/api",
-//   withCredentials: true,
-//   timeout: 10000,
-// });
-
-// const getAuthHeaders = (getState) => {
-//   const { auth } = getState();
-//   const token = auth.accessToken;
-//   return token ? { Authorization: `Bearer ${token}` } : {};
-// };
-
-// // Create Feature
-// export const createFeature = createAsyncThunk(
-//   "feature/create",
-//   async (payload, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.post("/features", payload, { headers });
-//       return res.data;
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to create feature";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Get Features by Project ID
-// export const getFeaturesByProjectId = createAsyncThunk(
-//   "feature/getByProjectId",
-//   async (projectId, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.get(`/features/project/${projectId}`, { headers });
-//       return res.data;
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to fetch features";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Get Feature by ID
-// export const getFeatureById = createAsyncThunk(
-//   "feature/getById",
-//   async (featureId, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.get(`/features/${featureId}`, { headers });
-//       return res.data;
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to fetch feature";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Update Feature
-// export const updateFeature = createAsyncThunk(
-//   "feature/update",
-//   async ({ featureId, ...payload }, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.patch(`/features/${featureId}`, payload, { headers });
-//       return res.data;
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to update feature";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Delete Feature
-// export const deleteFeature = createAsyncThunk(
-//   "feature/delete",
-//   async (featureId, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.delete(`/features/${featureId}`, { headers });
-//       return { ...res.data, deletedId: featureId };
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to delete feature";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Assign Users to Feature
-// export const assignUsersToFeature = createAsyncThunk(
-//   "feature/assignUsers",
-//   async ({ featureId, userIds }, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.post(`/features/${featureId}/assign-users`, { userIds }, { headers });
-//       return { ...res.data, featureId };
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to assign users";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Remove User from Feature
-// export const removeUserFromFeature = createAsyncThunk(
-//   "feature/removeUser",
-//   async ({ featureId, userId }, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.post(`/features/${featureId}/remove-user`, { userId }, { headers });
-//       return { ...res.data, featureId, userId };
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to remove user";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Add Comment to Feature
-// export const addCommentToFeature = createAsyncThunk(
-//   "feature/addComment",
-//   async ({ featureId, text }, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.post(`/features/${featureId}/add-comment`, { text }, { headers });
-//       return { ...res.data, featureId };
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to add comment";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Remove Comment from Feature
-// export const removeCommentFromFeature = createAsyncThunk(
-//   "feature/removeComment",
-//   async ({ featureId, commentId }, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.delete(`/features/${featureId}/comments/${commentId}`, { headers });
-//       return { ...res.data, featureId, commentId };
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to remove comment";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// // Toggle Feature Completion
-// export const toggleFeatureCompletion = createAsyncThunk(
-//   "feature/toggleCompletion",
-//   async (featureId, { rejectWithValue, getState }) => {
-//     try {
-//       const headers = getAuthHeaders(getState);
-//       const res = await api.patch(`/features/${featureId}/toggle-completion`, {}, { headers });
-//       return { ...res.data, featureId };
-//     } catch (err) {
-//       const message = err.response?.data?.message || err.message || "Failed to toggle completion";
-//       return rejectWithValue(message);
-//     }
-//   }
-// );
-
-// const initialState = {
-//   loading: false,
-//   creating: false,
-//   updating: false,
-//   deleting: false,
-//   assigningUsers: false,
-//   removingUser: false,
-//   addingComment: false,
-//   removingComment: false,
-//   togglingCompletion: false,
-//   features: [],
-//   selectedFeature: null,
-//   selectedProjectId: null,
-//   error: null,
-//   message: null,
-// };
-
-// const featureSlice = createSlice({
-//   name: "feature",
-//   initialState,
-//   reducers: {
-//     clearMessages: (state) => {
-//       state.error = null;
-//       state.message = null;
-//     },
-//     clearError: (state) => {
-//       state.error = null;
-//     },
-//     setSelectedProjectId: (state, action) => {
-//       state.selectedProjectId = action.payload;
-//     },
-//     setSelectedFeature: (state, action) => {
-//       state.selectedFeature = action.payload;
-//     },
-//     resetFeatureState: () => initialState,
-//   },
-//   extraReducers: (builder) => {
-//     // Create Feature
-//     builder
-//       .addCase(createFeature.pending, (state) => {
-//         state.creating = true;
-//         state.error = null;
-//       })
-//       .addCase(createFeature.fulfilled, (state, action) => {
-//         state.creating = false;
-//         state.features.unshift(action.payload.data.feature);
-//         state.message = action.payload.message || "Feature created successfully";
-//       })
-//       .addCase(createFeature.rejected, (state, action) => {
-//         state.creating = false;
-//         state.error = action.payload;
-//       });
-
-//     // Get Features by Project ID
-//     builder
-//       .addCase(getFeaturesByProjectId.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getFeaturesByProjectId.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.features = action.payload.data.features || [];
-//       })
-//       .addCase(getFeaturesByProjectId.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//         state.features = [];
-//       });
-
-//     // Get Feature by ID
-//     builder
-//       .addCase(getFeatureById.pending, (state) => {
-//         state.loading = true;
-//         state.error = null;
-//       })
-//       .addCase(getFeatureById.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.selectedFeature = action.payload.data.feature;
-//       })
-//       .addCase(getFeatureById.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload;
-//         state.selectedFeature = null;
-//       });
-
-//     // Update Feature
-//     builder
-//       .addCase(updateFeature.pending, (state) => {
-//         state.updating = true;
-//         state.error = null;
-//       })
-//       .addCase(updateFeature.fulfilled, (state, action) => {
-//         state.updating = false;
-//         const updated = action.payload.data.feature;
-//         state.selectedFeature = updated;
-//         const idx = state.features.findIndex((f) => f._id === updated._id);
-//         if (idx !== -1) state.features[idx] = updated;
-//         state.message = action.payload.message || "Feature updated successfully";
-//       })
-//       .addCase(updateFeature.rejected, (state, action) => {
-//         state.updating = false;
-//         state.error = action.payload;
-//       });
-
-//     // Delete Feature
-//     builder
-//       .addCase(deleteFeature.pending, (state) => {
-//         state.deleting = true;
-//         state.error = null;
-//       })
-//       .addCase(deleteFeature.fulfilled, (state, action) => {
-//         state.deleting = false;
-//         state.features = state.features.filter((f) => f._id !== action.payload.deletedId);
-//         if (state.selectedFeature?._id === action.payload.deletedId) state.selectedFeature = null;
-//         state.message = action.payload.message || "Feature deleted successfully";
-//       })
-//       .addCase(deleteFeature.rejected, (state, action) => {
-//         state.deleting = false;
-//         state.error = action.payload;
-//       });
-
-//     // Assign Users to Feature
-//     builder
-//       .addCase(assignUsersToFeature.pending, (state) => {
-//         state.assigningUsers = true;
-//         state.error = null;
-//       })
-//       .addCase(assignUsersToFeature.fulfilled, (state, action) => {
-//         state.assigningUsers = false;
-//         const { featureId, data } = action.payload;
-//         const feature = state.features.find((f) => f._id === featureId);
-//         if (feature) {
-//           feature.assignedTo = data.assignedTo;
-//         }
-//         if (state.selectedFeature?._id === featureId) {
-//           state.selectedFeature.assignedTo = data.assignedTo;
-//         }
-//         state.message = action.payload.message || "Users assigned successfully";
-//       })
-//       .addCase(assignUsersToFeature.rejected, (state, action) => {
-//         state.assigningUsers = false;
-//         state.error = action.payload;
-//       });
-
-//     // Remove User from Feature
-//     builder
-//       .addCase(removeUserFromFeature.pending, (state) => {
-//         state.removingUser = true;
-//         state.error = null;
-//       })
-//       .addCase(removeUserFromFeature.fulfilled, (state, action) => {
-//         state.removingUser = false;
-//         const { featureId, data } = action.payload;
-//         const feature = state.features.find((f) => f._id === featureId);
-//         if (feature) {
-//           feature.assignedTo = data.assignedTo;
-//         }
-//         if (state.selectedFeature?._id === featureId) {
-//           state.selectedFeature.assignedTo = data.assignedTo;
-//         }
-//         state.message = action.payload.message || "User removed successfully";
-//       })
-//       .addCase(removeUserFromFeature.rejected, (state, action) => {
-//         state.removingUser = false;
-//         state.error = action.payload;
-//       });
-
-//     // Add Comment to Feature
-//     builder
-//       .addCase(addCommentToFeature.pending, (state) => {
-//         state.addingComment = true;
-//         state.error = null;
-//       })
-//       .addCase(addCommentToFeature.fulfilled, (state, action) => {
-//         state.addingComment = false;
-//         const { featureId, data } = action.payload;
-//         const feature = state.features.find((f) => f._id === featureId);
-//         if (feature) {
-//           feature.comments = data.comments;
-//         }
-//         if (state.selectedFeature?._id === featureId) {
-//           state.selectedFeature.comments = data.comments;
-//         }
-//         state.message = action.payload.message || "Comment added successfully";
-//       })
-//       .addCase(addCommentToFeature.rejected, (state, action) => {
-//         state.addingComment = false;
-//         state.error = action.payload;
-//       });
-
-//     // Remove Comment from Feature
-//     builder
-//       .addCase(removeCommentFromFeature.pending, (state) => {
-//         state.removingComment = true;
-//         state.error = null;
-//       })
-//       .addCase(removeCommentFromFeature.fulfilled, (state, action) => {
-//         state.removingComment = false;
-//         const { featureId, data } = action.payload;
-//         const feature = state.features.find((f) => f._id === featureId);
-//         if (feature) {
-//           feature.comments = data.comments;
-//         }
-//         if (state.selectedFeature?._id === featureId) {
-//           state.selectedFeature.comments = data.comments;
-//         }
-//         state.message = action.payload.message || "Comment removed successfully";
-//       })
-//       .addCase(removeCommentFromFeature.rejected, (state, action) => {
-//         state.removingComment = false;
-//         state.error = action.payload;
-//       });
-
-//     // Toggle Feature Completion
-//     builder
-//       .addCase(toggleFeatureCompletion.pending, (state) => {
-//         state.togglingCompletion = true;
-//         state.error = null;
-//       })
-//       .addCase(toggleFeatureCompletion.fulfilled, (state, action) => {
-//         state.togglingCompletion = false;
-//         const { featureId, data } = action.payload;
-//         const feature = state.features.find((f) => f._id === featureId);
-//         if (feature) {
-//           feature.isCompleted = data.feature.isCompleted;
-//           feature.status = data.feature.status;
-//         }
-//         if (state.selectedFeature?._id === featureId) {
-//           state.selectedFeature.isCompleted = data.feature.isCompleted;
-//           state.selectedFeature.status = data.feature.status;
-//         }
-//         state.message = action.payload.message || "Feature completion toggled";
-//       })
-//       .addCase(toggleFeatureCompletion.rejected, (state, action) => {
-//         state.togglingCompletion = false;
-//         state.error = action.payload;
-//       });
-//   },
-// });
-
-// export const {
-//   clearMessages,
-//   clearError,
-//   setSelectedProjectId,
-//   setSelectedFeature,
-//   resetFeatureState,
-// } = featureSlice.actions;
-
-// // Selectors
-// export const selectFeatures = (state) => state.feature.features;
-// export const selectSelectedFeature = (state) => state.feature.selectedFeature;
-// export const selectFeatureLoading = (state) => state.feature.loading;
-// export const selectFeatureCreating = (state) => state.feature.creating;
-// export const selectFeatureUpdating = (state) => state.feature.updating;
-// export const selectFeatureDeleting = (state) => state.feature.deleting;
-// export const selectFeatureAssigningUsers = (state) => state.feature.assigningUsers;
-// export const selectFeatureRemovingUser = (state) => state.feature.removingUser;
-// export const selectFeatureAddingComment = (state) => state.feature.addingComment;
-// export const selectFeatureRemovingComment = (state) => state.feature.removingComment;
-// export const selectFeatureTogglingCompletion = (state) => state.feature.togglingCompletion;
-// export const selectFeatureError = (state) => state.feature.error;
-// export const selectFeatureMessage = (state) => state.feature.message;
-// export const selectSelectedProjectId = (state) => state.feature.selectedProjectId;
-
-// export default featureSlice.reducer;
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.SERVER_URL || "http://localhost:5000/api",
+  baseURL: process.env.SERVER_URL || "http://localhost:5000/api/v1",
   withCredentials: true,
   timeout: 10000,
 });
@@ -444,7 +13,8 @@ const getAuthHeaders = (getState) => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Get Project Names (for dropdown)
+// --- Thunks ---
+
 export const getProjectNames = createAsyncThunk(
   "feature/getProjectNames",
   async (_, { rejectWithValue, getState }) => {
@@ -453,16 +23,11 @@ export const getProjectNames = createAsyncThunk(
       const res = await api.get("/features/get-project-name", { headers });
       return res.data;
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to fetch project names";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch project names");
     }
   }
 );
 
-// Create Feature
 export const createFeature = createAsyncThunk(
   "feature/create",
   async (payload, { rejectWithValue, getState }) => {
@@ -471,16 +36,11 @@ export const createFeature = createAsyncThunk(
       const res = await api.post("/features", payload, { headers });
       return res.data;
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to create feature";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to create feature");
     }
   }
 );
 
-// Get Features by Project ID
 export const getFeaturesByProjectId = createAsyncThunk(
   "feature/getByProjectId",
   async (projectId, { rejectWithValue, getState }) => {
@@ -489,16 +49,11 @@ export const getFeaturesByProjectId = createAsyncThunk(
       const res = await api.get(`/features/project/${projectId}`, { headers });
       return res.data;
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to fetch features";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch features");
     }
   }
 );
 
-// Get Feature by ID
 export const getFeatureById = createAsyncThunk(
   "feature/getById",
   async (featureId, { rejectWithValue, getState }) => {
@@ -507,171 +62,227 @@ export const getFeatureById = createAsyncThunk(
       const res = await api.get(`/features/${featureId}`, { headers });
       return res.data;
     } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Failed to fetch feature";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch feature");
     }
   }
 );
 
-// Update Feature
-export const updateFeature = createAsyncThunk(
-  "feature/update",
+export const updateFeatureDetails = createAsyncThunk(
+  "feature/updateDetails",
   async ({ featureId, ...payload }, { rejectWithValue, getState }) => {
     try {
       const headers = getAuthHeaders(getState);
-      const res = await api.patch(`/features/${featureId}`, payload, {
-        headers,
-      });
+      const res = await api.patch(`/features/${featureId}`, payload, { headers });
       return res.data;
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to update feature";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to update feature");
     }
   }
 );
 
-// Delete Feature
 export const deleteFeature = createAsyncThunk(
   "feature/delete",
   async (featureId, { rejectWithValue, getState }) => {
     try {
       const headers = getAuthHeaders(getState);
-      const res = await api.delete(`/features/${featureId}`, { headers });
-      return { ...res.data, deletedId: featureId };
+      await api.delete(`/features/${featureId}`, { headers });
+      return { deletedId: featureId };
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to delete feature";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to delete feature");
     }
   }
 );
 
-// Assign Users to Feature
-export const assignUsersToFeature = createAsyncThunk(
-  "feature/assignUsers",
-  async ({ featureId, userIds }, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.post(
-        `/features/${featureId}/assign-users`,
-        { userIds },
-        { headers }
-      );
-      return { ...res.data, featureId };
-    } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Failed to assign users";
-      return rejectWithValue(message);
-    }
-  }
-);
-
-// Remove User from Feature
-export const removeUserFromFeature = createAsyncThunk(
-  "feature/removeUser",
-  async ({ featureId, userId }, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.post(
-        `/features/${featureId}/remove-user`,
-        { userId },
-        { headers }
-      );
-      return { ...res.data, featureId, userId };
-    } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Failed to remove user";
-      return rejectWithValue(message);
-    }
-  }
-);
-
-// Add Comment to Feature
-export const addCommentToFeature = createAsyncThunk(
-  "feature/addComment",
-  async ({ featureId, text }, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.post(
-        `/features/${featureId}/add-comment`,
-        { text },
-        { headers }
-      );
-      return { ...res.data, featureId };
-    } catch (err) {
-      const message =
-        err.response?.data?.message || err.message || "Failed to add comment";
-      return rejectWithValue(message);
-    }
-  }
-);
-
-// Remove Comment from Feature
-export const removeCommentFromFeature = createAsyncThunk(
-  "feature/removeComment",
-  async ({ featureId, commentId }, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.delete(
-        `/features/${featureId}/comments/${commentId}`,
-        { headers }
-      );
-      return { ...res.data, featureId, commentId };
-    } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to remove comment";
-      return rejectWithValue(message);
-    }
-  }
-);
-
-// Toggle Feature Completion
 export const toggleFeatureCompletion = createAsyncThunk(
   "feature/toggleCompletion",
   async (featureId, { rejectWithValue, getState }) => {
     try {
       const headers = getAuthHeaders(getState);
-      const res = await api.patch(
-        `/features/${featureId}/toggle-completion`,
-        {},
-        { headers }
-      );
-      return { ...res.data, featureId };
+      const res = await api.patch(`/features/${featureId}/toggle-completion`, {}, { headers });
+      return res.data;
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to toggle completion";
-      return rejectWithValue(message);
+      return rejectWithValue(err.response?.data?.message || "Failed to toggle completion");
     }
   }
 );
 
+// --- Checklist (Questions) ---
+
+export const createFeatureQuestion = createAsyncThunk(
+  "feature/createQuestion",
+  async ({ featureId, name, answer }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.post(`/features/${featureId}/questions`, { name, answer }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to add question");
+    }
+  }
+);
+
+export const toggleQuestionCompletion = createAsyncThunk(
+  "feature/toggleQuestion",
+  async ({ featureId, questionId }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/features/${featureId}/questions/${questionId}/toggle-completion`, {}, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to toggle question");
+    }
+  }
+);
+
+export const deleteFeatureQuestion = createAsyncThunk(
+  "feature/deleteQuestion",
+  async ({ featureId, questionId }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.delete(`/features/${featureId}/questions/${questionId}`, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to delete question");
+    }
+  }
+);
+
+export const updateFeatureQuestion = createAsyncThunk(
+  "feature/updateQuestion",
+  async ({ featureId, questionId, name, answer }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/features/${featureId}/questions/${questionId}`, { name, answer }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to update question");
+    }
+  }
+);
+
+// --- Workflow ---
+
+export const addFeatureWorkflow = createAsyncThunk(
+  "feature/addWorkflow",
+  async ({ featureId, flow }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.post(`/features/${featureId}/workflow`, { flow }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to add workflow step");
+    }
+  }
+);
+
+export const updateFeatureWorkflow = createAsyncThunk(
+  "feature/updateWorkflow",
+  async ({ featureId, workflowId, flow }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/features/${featureId}/workflow/${workflowId}`, { flow }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to update workflow step");
+    }
+  }
+);
+
+export const deleteFeatureWorkflow = createAsyncThunk(
+  "feature/deleteWorkflow",
+  async ({ featureId, workflowId }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.delete(`/features/${featureId}/workflow/${workflowId}`, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to delete workflow step");
+    }
+  }
+);
+
+// --- Comments ---
+
+export const addFeatureComment = createAsyncThunk(
+  "feature/addComment",
+  async ({ featureId, text }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.post(`/features/${featureId}/add-comment`, { text }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to add comment");
+    }
+  }
+);
+
+export const deleteFeatureComment = createAsyncThunk(
+  "feature/deleteComment",
+  async ({ featureId, commentId }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.delete(`/features/${featureId}/comments/${commentId}`, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to delete comment");
+    }
+  }
+);
+
+export const updateFeatureComment = createAsyncThunk(
+  "feature/updateComment",
+  async ({ featureId, commentId, text }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/features/${featureId}/update-comment/${commentId}`, { text }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to update comment");
+    }
+  }
+);
+
+// --- Priority, Status, Deadline ---
+
+export const updateFeaturePriority = createAsyncThunk(
+  "feature/updatePriority",
+  async ({ featureId, priority }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/features/${featureId}/change-priority`, { priority }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to update priority");
+    }
+  }
+);
+
+export const updateFeatureStatus = createAsyncThunk(
+  "feature/updateStatus",
+  async ({ featureId, status }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(`/features/${featureId}/change-status`, { status }, { headers });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to update status");
+    }
+  }
+);
+
+// --- Slice ---
+
 const initialState = {
   loading: false,
+  features: [],
+  projectNames: [],
+  selectedFeature: null,
+  error: null,
+  message: null,
   creating: false,
   updating: false,
   deleting: false,
-  assigningUsers: false,
-  removingUser: false,
-  addingComment: false,
-  removingComment: false,
-  togglingCompletion: false,
   loadingProjectNames: false,
-  features: [],
-  projectNames: [], // Added for project names
-  selectedFeature: null,
-  selectedProjectId: null,
-  error: null,
-  message: null,
 };
 
 const featureSlice = createSlice({
@@ -682,275 +293,97 @@ const featureSlice = createSlice({
       state.error = null;
       state.message = null;
     },
-    clearError: (state) => {
-      state.error = null;
-    },
-    setSelectedProjectId: (state, action) => {
-      state.selectedProjectId = action.payload;
-    },
+    resetFeatureState: () => initialState,
     setSelectedFeature: (state, action) => {
       state.selectedFeature = action.payload;
-    },
-    resetFeatureState: () => initialState,
+    }
   },
   extraReducers: (builder) => {
-    // Get Project Names
     builder
-      .addCase(getProjectNames.pending, (state) => {
-        state.loadingProjectNames = true;
-        state.error = null;
-      })
+      // Project Names
+      .addCase(getProjectNames.pending, (state) => { state.loadingProjectNames = true; })
       .addCase(getProjectNames.fulfilled, (state, action) => {
-        // console.log("The projects name is ", action.payload);
         state.loadingProjectNames = false;
-        state.projectNames = action.payload.data || [];
+        state.projectNames = action.payload.data;
       })
       .addCase(getProjectNames.rejected, (state, action) => {
         state.loadingProjectNames = false;
         state.error = action.payload;
-        state.projectNames = [];
-      });
-
-    // Create Feature
-    builder
-      .addCase(createFeature.pending, (state) => {
-        state.creating = true;
-        state.error = null;
       })
-      .addCase(createFeature.fulfilled, (state, action) => {
-        state.creating = false;
-        state.features.unshift(action.payload.data.feature);
-        state.message =
-          action.payload.message || "Feature created successfully";
-      })
-      .addCase(createFeature.rejected, (state, action) => {
-        state.creating = false;
-        state.error = action.payload;
-      });
-
-    // Get Features by Project ID
-    builder
-      .addCase(getFeaturesByProjectId.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+      // Fetch Features
+      .addCase(getFeaturesByProjectId.pending, (state) => { state.loading = true; })
       .addCase(getFeaturesByProjectId.fulfilled, (state, action) => {
         state.loading = false;
-        state.features = action.payload.data.features || [];
+        state.features = action.payload.data.features;
       })
       .addCase(getFeaturesByProjectId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.features = [];
-      });
-
-    // Get Feature by ID
-    builder
-      .addCase(getFeatureById.pending, (state) => {
-        state.loading = true;
-        state.error = null;
       })
-      .addCase(getFeatureById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.selectedFeature = action.payload.data.feature;
+      // Create Feature
+      .addCase(createFeature.pending, (state) => { state.creating = true; })
+      .addCase(createFeature.fulfilled, (state, action) => {
+        state.creating = false;
+        state.features.unshift(action.payload.data.feature);
+        state.message = "Feature created successfully";
       })
-      .addCase(getFeatureById.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(createFeature.rejected, (state, action) => {
+        state.creating = false;
         state.error = action.payload;
-        state.selectedFeature = null;
-      });
-
-    // Update Feature
-    builder
-      .addCase(updateFeature.pending, (state) => {
-        state.updating = true;
-        state.error = null;
       })
-      .addCase(updateFeature.fulfilled, (state, action) => {
-        state.updating = false;
-        const updated = action.payload.data.feature;
-        state.selectedFeature = updated;
-        const idx = state.features.findIndex((f) => f._id === updated._id);
-        if (idx !== -1) state.features[idx] = updated;
-        state.message =
-          action.payload.message || "Feature updated successfully";
-      })
-      .addCase(updateFeature.rejected, (state, action) => {
-        state.updating = false;
-        state.error = action.payload;
-      });
-
-    // Delete Feature
-    builder
-      .addCase(deleteFeature.pending, (state) => {
-        state.deleting = true;
-        state.error = null;
-      })
+      // Delete Feature
+      .addCase(deleteFeature.pending, (state) => { state.deleting = true; })
       .addCase(deleteFeature.fulfilled, (state, action) => {
         state.deleting = false;
-        state.features = state.features.filter(
-          (f) => f._id !== action.payload.deletedId
-        );
-        if (state.selectedFeature?._id === action.payload.deletedId)
-          state.selectedFeature = null;
-        state.message =
-          action.payload.message || "Feature deleted successfully";
+        state.features = state.features.filter(f => f._id !== action.payload.deletedId);
+        if (state.selectedFeature?._id === action.payload.deletedId) state.selectedFeature = null;
+        state.message = "Feature deleted successfully";
       })
       .addCase(deleteFeature.rejected, (state, action) => {
         state.deleting = false;
         state.error = action.payload;
-      });
-
-    // Assign Users to Feature
-    builder
-      .addCase(assignUsersToFeature.pending, (state) => {
-        state.assigningUsers = true;
-        state.error = null;
       })
-      .addCase(assignUsersToFeature.fulfilled, (state, action) => {
-        state.assigningUsers = false;
-        const { featureId, data } = action.payload;
-        const feature = state.features.find((f) => f._id === featureId);
-        if (feature) {
-          feature.assignedTo = data.assignedTo;
+      // Update Feature (All types)
+      .addMatcher(
+        (action) => action.type.endsWith("/pending") && (action.type.startsWith("feature/update") || action.type.startsWith("feature/toggle") || action.type.startsWith("feature/createQuestion") || action.type.startsWith("feature/deleteQuestion") || action.type.startsWith("feature/addWorkflow") || action.type.startsWith("feature/deleteWorkflow") || action.type.startsWith("feature/addComment") || action.type.startsWith("feature/deleteComment")),
+        (state) => { state.updating = true; }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith("/rejected") && (action.type.startsWith("feature/update") || action.type.startsWith("feature/toggle") || action.type.startsWith("feature/createQuestion") || action.type.startsWith("feature/deleteQuestion") || action.type.startsWith("feature/addWorkflow") || action.type.startsWith("feature/deleteWorkflow") || action.type.startsWith("feature/addComment") || action.type.startsWith("feature/deleteComment")),
+        (state, action) => { 
+          state.updating = false;
+          state.error = action.payload;
         }
-        if (state.selectedFeature?._id === featureId) {
-          state.selectedFeature.assignedTo = data.assignedTo;
+      )
+      .addMatcher(
+        (action) => action.type.endsWith("/fulfilled") && (action.type.startsWith("feature/update") || action.type.startsWith("feature/toggle") || action.type.startsWith("feature/createQuestion") || action.type.startsWith("feature/deleteQuestion") || action.type.startsWith("feature/addWorkflow") || action.type.startsWith("feature/deleteWorkflow") || action.type.startsWith("feature/addComment") || action.type.startsWith("feature/deleteComment")),
+        (state, action) => {
+          state.updating = false;
+          if (action.payload.data?.feature || action.payload.data?.questions || action.payload.data?.workFlow || action.payload.data?.comments) {
+            const updatedFeature = action.payload.data.feature || (state.selectedFeature && { ...state.selectedFeature, ...action.payload.data });
+            if (updatedFeature) {
+              const idx = state.features.findIndex(f => f._id === updatedFeature._id);
+              if (idx !== -1) state.features[idx] = updatedFeature;
+              if (state.selectedFeature?._id === updatedFeature._id) state.selectedFeature = updatedFeature;
+            }
+          }
         }
-        state.message = action.payload.message || "Users assigned successfully";
-      })
-      .addCase(assignUsersToFeature.rejected, (state, action) => {
-        state.assigningUsers = false;
-        state.error = action.payload;
-      });
-
-    // Remove User from Feature
-    builder
-      .addCase(removeUserFromFeature.pending, (state) => {
-        state.removingUser = true;
-        state.error = null;
-      })
-      .addCase(removeUserFromFeature.fulfilled, (state, action) => {
-        state.removingUser = false;
-        const { featureId, data } = action.payload;
-        const feature = state.features.find((f) => f._id === featureId);
-        if (feature) {
-          feature.assignedTo = data.assignedTo;
-        }
-        if (state.selectedFeature?._id === featureId) {
-          state.selectedFeature.assignedTo = data.assignedTo;
-        }
-        state.message = action.payload.message || "User removed successfully";
-      })
-      .addCase(removeUserFromFeature.rejected, (state, action) => {
-        state.removingUser = false;
-        state.error = action.payload;
-      });
-
-    // Add Comment to Feature
-    builder
-      .addCase(addCommentToFeature.pending, (state) => {
-        state.addingComment = true;
-        state.error = null;
-      })
-      .addCase(addCommentToFeature.fulfilled, (state, action) => {
-        state.addingComment = false;
-        const { featureId, data } = action.payload;
-        const feature = state.features.find((f) => f._id === featureId);
-        if (feature) {
-          feature.comments = data.comments;
-        }
-        if (state.selectedFeature?._id === featureId) {
-          state.selectedFeature.comments = data.comments;
-        }
-        state.message = action.payload.message || "Comment added successfully";
-      })
-      .addCase(addCommentToFeature.rejected, (state, action) => {
-        state.addingComment = false;
-        state.error = action.payload;
-      });
-
-    // Remove Comment from Feature
-    builder
-      .addCase(removeCommentFromFeature.pending, (state) => {
-        state.removingComment = true;
-        state.error = null;
-      })
-      .addCase(removeCommentFromFeature.fulfilled, (state, action) => {
-        state.removingComment = false;
-        const { featureId, data } = action.payload;
-        const feature = state.features.find((f) => f._id === featureId);
-        if (feature) {
-          feature.comments = data.comments;
-        }
-        if (state.selectedFeature?._id === featureId) {
-          state.selectedFeature.comments = data.comments;
-        }
-        state.message =
-          action.payload.message || "Comment removed successfully";
-      })
-      .addCase(removeCommentFromFeature.rejected, (state, action) => {
-        state.removingComment = false;
-        state.error = action.payload;
-      });
-
-    // Toggle Feature Completion
-    builder
-      .addCase(toggleFeatureCompletion.pending, (state) => {
-        state.togglingCompletion = true;
-        state.error = null;
-      })
-      .addCase(toggleFeatureCompletion.fulfilled, (state, action) => {
-        state.togglingCompletion = false;
-        const { featureId, data } = action.payload;
-        const feature = state.features.find((f) => f._id === featureId);
-        if (feature) {
-          feature.isCompleted = data.feature.isCompleted;
-          feature.status = data.feature.status;
-        }
-        if (state.selectedFeature?._id === featureId) {
-          state.selectedFeature.isCompleted = data.feature.isCompleted;
-          state.selectedFeature.status = data.feature.status;
-        }
-        state.message = action.payload.message || "Feature completion toggled";
-      })
-      .addCase(toggleFeatureCompletion.rejected, (state, action) => {
-        state.togglingCompletion = false;
-        state.error = action.payload;
-      });
+      );
   },
 });
 
-export const {
-  clearMessages,
-  clearError,
-  setSelectedProjectId,
-  setSelectedFeature,
-  resetFeatureState,
-} = featureSlice.actions;
+export const { clearMessages, resetFeatureState, setSelectedFeature } = featureSlice.actions;
 
 // Selectors
 export const selectFeatures = (state) => state.feature.features;
-export const selectProjectNames = (state) => state.feature.projectNames; // Added
+export const selectProjectNames = (state) => state.feature.projectNames;
 export const selectSelectedFeature = (state) => state.feature.selectedFeature;
 export const selectFeatureLoading = (state) => state.feature.loading;
-export const selectProjectNamesLoading = (state) =>
-  state.feature.loadingProjectNames; // Added
 export const selectFeatureCreating = (state) => state.feature.creating;
 export const selectFeatureUpdating = (state) => state.feature.updating;
 export const selectFeatureDeleting = (state) => state.feature.deleting;
-export const selectFeatureAssigningUsers = (state) =>
-  state.feature.assigningUsers;
-export const selectFeatureRemovingUser = (state) => state.feature.removingUser;
-export const selectFeatureAddingComment = (state) =>
-  state.feature.addingComment;
-export const selectFeatureRemovingComment = (state) =>
-  state.feature.removingComment;
-export const selectFeatureTogglingCompletion = (state) =>
-  state.feature.togglingCompletion;
+export const selectProjectNamesLoading = (state) => state.feature.loadingProjectNames;
 export const selectFeatureError = (state) => state.feature.error;
 export const selectFeatureMessage = (state) => state.feature.message;
-export const selectSelectedProjectId = (state) =>
-  state.feature.selectedProjectId;
 
 export default featureSlice.reducer;

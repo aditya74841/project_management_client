@@ -7,11 +7,12 @@ import ProjectDiaryDetail from "@/components/dashboard/project-diary/components/
 export default function DashboardProjectDiaryDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const diaryId = params?.diaryId;
-  const projectId = searchParams.get("projectId");
-  const basePath = projectId
-    ? `/dashboard/project-diary?projectId=${projectId}`
-    : "/dashboard/project-diary";
+  const projectId = params?.projectId;
 
-  return <ProjectDiaryDetail diaryId={diaryId} basePath={basePath} />;
+
+  const basePath = projectId
+    ? `/dashboard/projects`
+    : "/dashboard/projects";
+
+  return <ProjectDiaryDetail projectId={projectId} basePath={basePath} />;
 }

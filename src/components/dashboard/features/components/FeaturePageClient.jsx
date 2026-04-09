@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 
 import FeatureHeader from "./FeatureHeader";
@@ -25,25 +25,23 @@ import {
   selectFeatureDeleting,
   selectFeatureError,
   selectFeatureMessage,
+  setSelectedFeature,
+  selectSelectedFeature,
 } from "@/redux/slices/featureSlice";
 
 import {
   userLogin,
   userProfile,
-  clearMessages as clearAuthMessages,
 } from "@/redux/slices/authSlice";
 
 import { showMessage } from "@/app/utils/showMessage";
 
 const FeaturePageClient = ({ initialData }) => {
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [editingFeature, setEditingFeature] = useState(null);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   // Auth selector
   const {
@@ -60,6 +58,9 @@ const FeaturePageClient = ({ initialData }) => {
   const deleting = useSelector(selectFeatureDeleting);
   const error = useSelector(selectFeatureError);
   const message = useSelector(selectFeatureMessage);
+  const selectedFeature = useSelector(selectSelectedFeature);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("form");
 
   // Project selectors
   const projectNames = useSelector(selectProjectNames);
@@ -94,10 +95,20 @@ const FeaturePageClient = ({ initialData }) => {
   // Get projectId from URL on mount
   useEffect(() => {
     const projectIdFromUrl = searchParams.get("projectId");
+    const addNew = searchParams.get("addNew");
+
     if (projectIdFromUrl) {
       setSelectedProjectId(projectIdFromUrl);
+      
+      if (addNew === "true" && isLoggedIn) {
+        // Wait a small bit for state to settle or trigger immediately
+        setTimeout(() => {
+          dispatch(setSelectedFeature(null));
+          setSheetOpen(true);
+        }, 100);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isLoggedIn, resetForm, setFormData, dispatch]);
 
   // Fetch project names on mount (only if logged in)
   useEffect(() => {
@@ -162,7 +173,8 @@ const FeaturePageClient = ({ initialData }) => {
     }
     resetForm();
     setFormData((prev) => ({ ...prev, projectId: selectedProjectId }));
-    setEditingFeature(null);
+    dispatch(setSelectedFeature(null));
+    setActiveTab("form");
     setSheetOpen(true);
   };
 
@@ -172,7 +184,8 @@ const FeaturePageClient = ({ initialData }) => {
       return;
     }
     populateForm(feature);
-    setEditingFeature(feature);
+    dispatch(setSelectedFeature(feature));
+    setActiveTab("form");
     setSheetOpen(true);
   };
 
@@ -182,7 +195,8 @@ const FeaturePageClient = ({ initialData }) => {
       return;
     }
     populateForm(feature);
-    setEditingFeature(feature);
+    dispatch(setSelectedFeature(feature));
+    setActiveTab("details");
     setSheetOpen(true);
   };
 
@@ -222,11 +236,11 @@ const FeaturePageClient = ({ initialData }) => {
       projectId: selectedProjectId,
     };
 
-    const success = await handleSubmit(dataWithProjectId, editingFeature?._id);
+    const success = await handleSubmit(dataWithProjectId, selectedFeature?._id);
     if (success) {
       setSheetOpen(false);
       resetForm();
-      setEditingFeature(null);
+      dispatch(setSelectedFeature(null));
     }
   };
 
@@ -308,12 +322,12 @@ const FeaturePageClient = ({ initialData }) => {
             loading={deleting}
           />
         ) : featuresLoading ? (
-          <div className="text-center py-12">
+          <div className="rounded-2xl border border-slate-200 bg-white py-12 text-center shadow-sm">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="text-gray-500 mt-4">Loading features...</p>
           </div>
         ) : (
-          <div className="text-center py-12 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-300">
+          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white py-12 text-center text-gray-500 shadow-sm">
             <div className="space-y-2">
               <h3 className="text-lg font-medium">No features found</h3>
               <p>
@@ -321,7 +335,7 @@ const FeaturePageClient = ({ initialData }) => {
               </p>
               <button
                 onClick={handleAddFeature}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="mt-4 rounded-lg bg-cyan-600 px-4 py-2 text-white hover:bg-cyan-700"
               >
                 Add Feature
               </button>
@@ -329,7 +343,7 @@ const FeaturePageClient = ({ initialData }) => {
           </div>
         )
       ) : (
-        <div className="text-center py-12 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-300">
+        <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white py-12 text-center text-gray-500 shadow-sm">
           <h3 className="text-lg font-medium">Select a project</h3>
           <p>Choose a project from the dropdown to view its features</p>
         </div>
@@ -343,16 +357,17 @@ const FeaturePageClient = ({ initialData }) => {
         touched={touched}
         isValid={isValid}
         isSubmitting={creating || updating}
-        isEditing={!!editingFeature}
-        feature={editingFeature}
+        isEditing={!!selectedFeature}
+        feature={selectedFeature}
         onChange={handleChange}
         onTagsChange={handleTagsChange}
         onBlur={handleBlur}
         onSubmit={handleFormSubmit}
+        initialTab={activeTab}
         onCancel={() => {
           setSheetOpen(false);
           resetForm();
-          setEditingFeature(null);
+          dispatch(setSelectedFeature(null));
         }}
       />
     </div>

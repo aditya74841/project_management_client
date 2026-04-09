@@ -61,6 +61,7 @@ const ProjectDiaryPageClient = () => {
         handleBlur,
         handleSubmit,
         resetForm,
+        populateForm,
     } = useProjectDiaryForm();
 
     /* Fetch on mount */
@@ -105,6 +106,12 @@ const ProjectDiaryPageClient = () => {
     const handleAdd = () => {
         resetForm();
         setEditing(null);
+        setSheetOpen(true);
+    };
+
+    const handleEdit = (diary) => {
+        populateForm(diary);
+        setEditing(diary);
         setSheetOpen(true);
     };
 
@@ -153,26 +160,24 @@ const ProjectDiaryPageClient = () => {
 
     return (
         <div className="space-y-6 px-1 py-2">
-            <div className="rounded-[28px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(139,92,246,0.12),_transparent_24%),linear-gradient(180deg,_#ffffff_0%,_#faf7ff_100%)] p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <div className="max-w-3xl space-y-2">
-                    <p className="text-sm font-medium uppercase tracking-[0.24em] text-violet-700">
+                    <p className="text-sm font-medium uppercase tracking-[0.24em] text-cyan-700">
                         Product Thinking Space
                     </p>
                     <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-                        Capture ideas before they get lost.
+                        Project diary
                     </h1>
                     <p className="text-sm leading-6 text-slate-600">
-                        Project Diary is backed by the server for title, description, status, priority,
-                        and all the deeper sections inside the detail page including questions, user flows,
-                        features, tags, links, and tech stack.
+                        Keep product notes, status, questions, user flow, features, tags, links, and tech stack in one simple place.
                     </p>
                 </div>
             </div>
 
             {selectedProjectId ? (
-                <div className="flex flex-col gap-4 rounded-[24px] border border-sky-200 bg-sky-50 p-5 shadow-sm md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-4 rounded-2xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm md:flex-row md:items-center md:justify-between">
                     <div className="space-y-1">
-                        <div className="inline-flex items-center gap-2 text-sm font-semibold text-sky-800">
+                        <div className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-800">
                             <FolderKanban className="h-4 w-4" />
                             Linked Project Diary Flow
                         </div>
@@ -187,7 +192,7 @@ const ProjectDiaryPageClient = () => {
                     <div className="flex flex-wrap gap-3">
                         <Link
                             href="/dashboard/projects"
-                            className="inline-flex h-10 items-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                            className="inline-flex h-10 items-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
                         >
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Projects
@@ -195,7 +200,7 @@ const ProjectDiaryPageClient = () => {
                         <button
                             type="button"
                             onClick={() => router.push("/dashboard/project-diary")}
-                            className="inline-flex h-10 items-center rounded-full bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800"
+                            className="inline-flex h-10 items-center rounded-lg bg-cyan-600 px-4 text-sm font-medium text-white hover:bg-cyan-700"
                         >
                             View All Diaries
                         </button>
@@ -220,6 +225,7 @@ const ProjectDiaryPageClient = () => {
             {filteredDiaries.length ? (
                 <ProjectDiaryGrid
                     diaries={filteredDiaries}
+                    onEdit={handleEdit}
                     onDelete={handleDelete}
                     loading={deleting}
                 />

@@ -17,32 +17,32 @@ const ProjectDiaryStats = ({ diaries }) => {
 
     const statCards = [
         {
-            label: "Total Projects",
+            label: "Total Diaries",
             value: stats.total,
             icon: TrendingUp,
-            gradient: "from-violet-500/20 to-purple-500/20",
-            iconColor: "text-violet-500",
+            panel: "border-cyan-200 bg-cyan-50",
+            iconWrap: "bg-white text-cyan-700",
         },
         {
             label: "Ideas",
             value: stats.idea,
             icon: Lightbulb,
-            gradient: "from-purple-500/20 to-pink-500/20",
-            iconColor: "text-purple-500",
+            panel: "border-slate-200 bg-white",
+            iconWrap: "bg-slate-100 text-slate-700",
         },
         {
             label: "In Progress",
             value: stats.inProgress,
             icon: Zap,
-            gradient: "from-amber-500/20 to-orange-500/20",
-            iconColor: "text-amber-500",
+            panel: "border-amber-200 bg-amber-50",
+            iconWrap: "bg-white text-amber-700",
         },
         {
             label: "Completed",
             value: stats.completed,
             icon: CheckCircle2,
-            gradient: "from-green-500/20 to-emerald-500/20",
-            iconColor: "text-green-500",
+            panel: "border-emerald-200 bg-emerald-50",
+            iconWrap: "bg-white text-emerald-700",
         },
     ];
 
@@ -51,7 +51,7 @@ const ProjectDiaryStats = ({ diaries }) => {
             {statCards.map((stat, idx) => (
                 <Card
                     key={idx}
-                    className={`relative overflow-hidden bg-gradient-to-br ${stat.gradient} border-0 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-${stat.iconColor.split('-')[1]}-500/20`}
+                    className={`border shadow-sm ${stat.panel}`}
                 >
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -59,7 +59,7 @@ const ProjectDiaryStats = ({ diaries }) => {
                                 <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
                                 <p className="text-3xl font-bold mt-1 tracking-tight">{stat.value}</p>
                             </div>
-                            <div className={`p-3 rounded-xl bg-background/60 backdrop-blur-md shadow-sm ${stat.iconColor}`}>
+                            <div className={`rounded-xl p-3 ${stat.iconWrap}`}>
                                 <stat.icon className="h-5 w-5" />
                             </div>
                         </div>

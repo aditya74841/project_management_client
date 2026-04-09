@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { createProjectDiary } from "../../../../redux/slices/projectDiarySlice";
+import { createProjectDiary, updateProjectDiary } from "../../../../redux/slices/projectDiarySlice";
 import {
     validateProjectDiaryForm,
     validateProjectDiaryField,
@@ -61,9 +61,9 @@ export const useProjectDiaryForm = () => {
             };
 
             try {
-                // For now, only create is supported via this hook
-                // Update operations are handled at the detail level
-                if (!id) {
+                if (id) {
+                    await dispatch(updateProjectDiary({ diaryId: id, ...payload })).unwrap();
+                } else {
                     await dispatch(createProjectDiary(payload)).unwrap();
                 }
                 return true;

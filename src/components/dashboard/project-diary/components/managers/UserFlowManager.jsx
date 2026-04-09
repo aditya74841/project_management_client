@@ -5,23 +5,43 @@ import { useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, GitBranch, GripVertical } from "lucide-react";
-import { addUserFlow, removeUserFlow } from "../../../../../redux/slices/projectDiarySlice";
+import { Plus, Trash2, GitBranch, GripVertical, Pencil } from "lucide-react";
+import { addUserFlow, removeUserFlow, updateUserFlow } from "../../../../../redux/slices/projectDiarySlice";
 
 const UserFlowManager = ({ diaryId, userFlows = [] }) => {
     const dispatch = useDispatch();
     const [isAdding, setIsAdding] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [newFlow, setNewFlow] = useState("");
 
-    const handleAdd = async () => {
+    const handleSubmit = async () => {
         if (!newFlow.trim()) return;
 
-        await dispatch(addUserFlow({
-            diaryId,
-            flow: newFlow.trim(),
-        }));
+        if (editingId) {
+            await dispatch(updateUserFlow({
+                diaryId,
+                flowId: editingId,
+                flow: newFlow.trim(),
+            }));
+        } else {
+            await dispatch(addUserFlow({
+                diaryId,
+                flow: newFlow.trim(),
+            }));
+        }
 
+        handleCancel();
+    };
+
+    const handleEdit = (flow) => {
+        setNewFlow(flow.flow);
+        setEditingId(flow._id);
+        setIsAdding(true);
+    };
+
+    const handleCancel = () => {
         setNewFlow("");
+        setEditingId(null);
         setIsAdding(false);
     };
 
@@ -31,7 +51,10 @@ const UserFlowManager = ({ diaryId, userFlows = [] }) => {
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
-            handleAdd();
+            handleSubmit();
+        }
+        if (e.key === "Escape") {
+            handleCancel();
         }
     };
 
@@ -64,10 +87,10 @@ const UserFlowManager = ({ diaryId, userFlows = [] }) => {
                             onKeyDown={handleKeyDown}
                             autoFocus
                         />
-                        <Button size="sm" onClick={handleAdd} disabled={!newFlow.trim()}>
-                            Add
+                        <Button size="sm" onClick={handleSubmit} disabled={!newFlow.trim()}>
+                            {editingId ? "Update" : "Add"}
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
+                        <Button size="sm" variant="ghost" onClick={handleCancel}>
                             Cancel
                         </Button>
                     </div>
@@ -89,14 +112,24 @@ const UserFlowManager = ({ diaryId, userFlows = [] }) => {
                                     {index + 1}
                                 </div>
                                 <p className="flex-1 text-sm">{flow.flow}</p>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => handleRemove(flow._id)}
-                                >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                                <div className="flex gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleEdit(flow)}
+                                    >
+                                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleRemove(flow._id)}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </div>
                             </div>
                         ))}
                     </div>

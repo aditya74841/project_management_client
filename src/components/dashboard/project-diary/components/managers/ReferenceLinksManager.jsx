@@ -5,12 +5,13 @@ import { useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Link2, ExternalLink } from "lucide-react";
-import { addReferenceLink, removeReferenceLink } from "../../../../../redux/slices/projectDiarySlice";
+import { Plus, Trash2, Link2, ExternalLink, Pencil } from "lucide-react";
+import { addReferenceLink, removeReferenceLink, updateReferenceLink } from "../../../../../redux/slices/projectDiarySlice";
 
 const ReferenceLinksManager = ({ diaryId, referenceLinks = [] }) => {
     const dispatch = useDispatch();
     const [isAdding, setIsAdding] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [newLink, setNewLink] = useState({ name: "", url: "" });
     const [error, setError] = useState("");
 
@@ -23,7 +24,7 @@ const ReferenceLinksManager = ({ diaryId, referenceLinks = [] }) => {
         }
     };
 
-    const handleAdd = async () => {
+    const handleSubmit = async () => {
         if (!newLink.name.trim() || !newLink.url.trim()) return;
 
         if (!validateUrl(newLink.url.trim())) {
@@ -31,13 +32,34 @@ const ReferenceLinksManager = ({ diaryId, referenceLinks = [] }) => {
             return;
         }
 
-        await dispatch(addReferenceLink({
-            diaryId,
-            name: newLink.name.trim(),
-            url: newLink.url.trim(),
-        }));
+        if (editingId) {
+            await dispatch(updateReferenceLink({
+                diaryId,
+                linkId: editingId,
+                name: newLink.name.trim(),
+                url: newLink.url.trim(),
+            }));
+        } else {
+            await dispatch(addReferenceLink({
+                diaryId,
+                name: newLink.name.trim(),
+                url: newLink.url.trim(),
+            }));
+        }
 
+        handleCancel();
+    };
+
+    const handleEdit = (link) => {
+        setNewLink({ name: link.name, url: link.url });
+        setEditingId(link._id);
+        setError("");
+        setIsAdding(true);
+    };
+
+    const handleCancel = () => {
         setNewLink({ name: "", url: "" });
+        setEditingId(null);
         setError("");
         setIsAdding(false);
     };
@@ -85,12 +107,12 @@ const ReferenceLinksManager = ({ diaryId, referenceLinks = [] }) => {
                         <div className="flex gap-2">
                             <Button
                                 size="sm"
-                                onClick={handleAdd}
+                                onClick={handleSubmit}
                                 disabled={!newLink.name.trim() || !newLink.url.trim()}
                             >
-                                Add Link
+                                {editingId ? "Update Link" : "Add Link"}
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
+                            <Button size="sm" variant="ghost" onClick={handleCancel}>
                                 Cancel
                             </Button>
                         </div>
@@ -124,14 +146,24 @@ const ReferenceLinksManager = ({ diaryId, referenceLinks = [] }) => {
                                         {link.url}
                                     </p>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => handleRemove(link._id)}
-                                >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                                <div className="flex gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleEdit(link)}
+                                    >
+                                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleRemove(link._id)}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </div>
                             </div>
                         ))}
                     </div>

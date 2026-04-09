@@ -1,132 +1,409 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { 
-  LayoutGrid, 
-  List, 
-  Search, 
-  Plus, 
-  TrendingUp, 
-  CheckCircle2, 
-  Clock, 
-  Layers 
+import {
+  LayoutGrid,
+  List,
+  Search,
+  Plus,
+  FolderOpen,
+  TimerReset,
+  Eye,
+  Layers3,
+  SlidersHorizontal,
+  Filter,
 } from "lucide-react";
+
 import ProjectGrid from "./ProjectGrid";
 import ProjectSheet from "./ProjectSheet";
+import EmptyState from "./EmptyState";
+import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { staticProjects, dashboardStats } from "../utils/staticData";
-import { selectCurrentUser } from "../../../../redux/slices/userClientSlice";
+import { showMessage } from "@/app/utils/showMessage";
 
-const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="group relative overflow-hidden rounded-[24px] border border-white/20 bg-white/40 p-6 backdrop-blur-xl transition-all hover:shadow-lg">
-    <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full bg-${color}-500/10 blur-2xl transition-all group-hover:bg-${color}-500/20`} />
-    <div className="relative flex items-center gap-4">
-      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-${color}-50 border border-${color}-100 text-${color}-600`}>
-        <Icon size={24} />
+import {
+  getProjects,
+  deleteProject,
+  toggleProjectVisibility,
+  changeProjectStatus,
+  selectProjects,
+  selectProjectLoading,
+  selectProjectCreating,
+  selectProjectUpdating,
+  selectProjectDeleting,
+  selectProjectError,
+  selectProjectMessage,
+  clearMessages,
+} from "@/redux/slices/projectSlice";
+
+import { useProjectForm } from "../hooks/useProjectForm";
+
+/* ─── stat card ─── */
+const StatCard = ({ icon: Icon, label, value, panel, iconWrap }) => (
+  <div className={`rounded-2xl border p-5 shadow-sm ${panel}`}>
+    <div className="flex items-start justify-between gap-3">
+      <div className={`rounded-xl p-3 ${iconWrap}`}>
+        <Icon className="h-5 w-5" />
       </div>
-      <div>
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        <h3 className="text-2xl font-bold text-slate-800">{value}</h3>
+      <div className="text-right">
+        <p className="text-3xl font-semibold text-slate-900">{value}</p>
       </div>
+    </div>
+    <div className="mt-4 space-y-1">
+      <p className="text-sm font-semibold text-slate-900">{label}</p>
     </div>
   </div>
 );
 
+/* ─── status dropdown options ─── */
+const statusOptions = [
+  { value: "all", label: "All Statuses" },
+  { value: "draft", label: "Draft" },
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
+  { value: "archived", label: "Archived" },
+];
+
 const ProjectPageClient = () => {
-  const user = useSelector(selectCurrentUser);
-  const [viewType, setViewType] = useState("grid");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const dispatch = useDispatch();
 
-  // Greeting based on time
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+  /* ─── Redux state ─── */
+  const projects     = useSelector(selectProjects);
+  const loading      = useSelector(selectProjectLoading);
+  const creating     = useSelector(selectProjectCreating);
+  const updating     = useSelector(selectProjectUpdating);
+  const deleting     = useSelector(selectProjectDeleting);
+  const error        = useSelector(selectProjectError);
+  const message      = useSelector(selectProjectMessage);
 
-  const filteredProjects = staticProjects.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  /* ─── local UI state ─── */
+  const [viewType, setViewType]         = useState("grid");
+  const [searchQuery, setSearchQuery]   = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sheetOpen, setSheetOpen]       = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  /* ─── form hook ─── */
+  const {
+    formData,
+    setFormData,
+    errors: formErrors,
+    touched,
+    isValid,
+    handleChange,
+    handleBlur,
+    handleSubmit: formSubmit,
+    resetForm,
+  } = useProjectForm();
+
+  /* ─── fetch projects on mount ─── */
+  useEffect(() => {
+    dispatch(getProjects());
+  }, [dispatch]);
+
+  /* ─── toast on message/error changes ─── */
+  useEffect(() => {
+    if (message) {
+      showMessage(message, "success");
+      dispatch(clearMessages());
+    }
+  }, [message, dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      showMessage(error, "error");
+      dispatch(clearMessages());
+    }
+  }, [error, dispatch]);
+
+  /* ─── computed stats from real data ─── */
+  const stats = useMemo(() => [
+    {
+      label: "All Projects",
+      value: projects.length,
+      icon: FolderOpen,
+      panel: "border-slate-200 bg-white",
+      iconWrap: "bg-cyan-50 text-cyan-700",
+    },
+    {
+      label: "Draft",
+      value: projects.filter((p) => p.status === "draft").length,
+      icon: TimerReset,
+      panel: "border-amber-200 bg-amber-50",
+      iconWrap: "bg-white text-amber-700",
+    },
+    {
+      label: "Visible",
+      value: projects.filter((p) => p.isShown).length,
+      icon: Eye,
+      panel: "border-emerald-200 bg-emerald-50",
+      iconWrap: "bg-white text-emerald-700",
+    },
+    {
+      label: "Active",
+      value: projects.filter((p) => p.status === "active").length,
+      icon: Layers3,
+      panel: "border-cyan-200 bg-cyan-50",
+      iconWrap: "bg-white text-cyan-700",
+    },
+  ], [projects]);
+
+  /* ─── filtered projects ─── */
+  const filteredProjects = useMemo(() => {
+    let result = projects;
+
+    // status filter
+    if (statusFilter !== "all") {
+      result = result.filter((p) => p.status === statusFilter);
+    }
+
+    // search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.description && p.description.toLowerCase().includes(q))
+      );
+    }
+
+    return result;
+  }, [projects, statusFilter, searchQuery]);
+
+  /* ─── handlers ─── */
+  const handleOpenCreate = useCallback(() => {
+    setEditingProject(null);
+    resetForm();
+    setSheetOpen(true);
+  }, [resetForm]);
+
+  const handleOpenEdit = useCallback((project) => {
+    setEditingProject(project);
+    setFormData({
+      name: project.name || "",
+      description: project.description || "",
+      deadline: project.deadline ? project.deadline.split("T")[0] : "",
+      status: project.status || "active",
+    });
+    // Use setTimeout to avoid Radix UI FocusScope collision between closing DropdownMenu and opening Sheet
+    setTimeout(() => {
+      setSheetOpen(true);
+    }, 150);
+  }, [setFormData]);
+
+  const handleSheetSubmit = useCallback(async (data) => {
+    const projectId = editingProject?._id || null;
+    const success = await formSubmit(data, projectId, {
+      quickCreate: !editingProject,
+    });
+
+    if (success) {
+      setSheetOpen(false);
+      setEditingProject(null);
+      resetForm();
+      // Refresh projects list
+      dispatch(getProjects());
+    }
+  }, [editingProject, formSubmit, resetForm, dispatch]);
+
+  const handleSheetCancel = useCallback(() => {
+    setSheetOpen(false);
+    setEditingProject(null);
+    resetForm();
+  }, [resetForm]);
+
+  const handleToggleVisibility = useCallback((projectId) => {
+    dispatch(toggleProjectVisibility(projectId));
+  }, [dispatch]);
+
+  const handleChangeStatus = useCallback((projectId, status) => {
+    dispatch(changeProjectStatus({ projectId, status }));
+  }, [dispatch]);
+
+  const handleDeleteClick = useCallback((projectId) => {
+    const project = projects.find((p) => p._id === projectId);
+    // Use setTimeout to avoid Radix UI FocusScope collision
+    setTimeout(() => {
+      setDeleteTarget(project || { _id: projectId, name: "this project" });
+    }, 150);
+  }, [projects]);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
+    try {
+      await dispatch(deleteProject(deleteTarget._id)).unwrap();
+      setDeleteTarget(null);
+    } catch {
+      // error handled by Redux → toast
+    }
+  }, [deleteTarget, dispatch]);
+
+  /* ─── loading skeleton ─── */
+  if (loading && !projects.length) {
+    return (
+      <div className="space-y-8 px-6 py-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-10 w-72 rounded-xl bg-slate-200" />
+          <div className="h-6 w-96 rounded-lg bg-slate-100" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 rounded-2xl bg-slate-100" />
+            ))}
+          </div>
+          <div className="h-14 rounded-2xl bg-slate-100" />
+          <div className="grid gap-8 md:grid-cols-2">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-72 rounded-2xl bg-slate-100" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen space-y-8 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-slate-50 via-white to-blue-50/30 px-6 py-10">
-      {/* Header Section */}
-      <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+    <div className="space-y-6 px-6 py-8">
+      {/* ─── Header ─── */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
-            {greeting}, {user?.name?.split(" ")[0] || "Product Manager"} ⚡️
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">
+            Project Workspace
           </p>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Project Overview
           </h1>
-          <p className="max-w-md text-slate-500">
-            Manage your product lifecycle with precision. Track ideas from inception to completion.
+          <p className="max-w-2xl text-sm text-slate-600">
+            Focus on project data first. Keep the workspace simple while you build out features and diary entries.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <div className="flex rounded-xl bg-slate-100 p-1">
-            <button 
+          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+            <button
               onClick={() => setViewType("grid")}
-              className={`rounded-lg p-2 transition-all ${viewType === "grid" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`rounded-lg p-2 transition-all ${
+                viewType === "grid"
+                  ? "bg-white text-cyan-700 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
             >
               <LayoutGrid size={20} />
             </button>
-            <button 
+            <button
               onClick={() => setViewType("list")}
-              className={`rounded-lg p-2 transition-all ${viewType === "list" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+              className={`rounded-lg p-2 transition-all ${
+                viewType === "list"
+                  ? "bg-white text-cyan-700 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
             >
               <List size={20} />
             </button>
           </div>
-          <Button 
-            onClick={() => setSheetOpen(true)}
-            className="h-11 rounded-xl bg-slate-900 px-6 text-white shadow-lg transition-all hover:bg-slate-800 hover:shadow-indigo-500/25"
+          <Button
+            onClick={handleOpenCreate}
+            className="h-11 rounded-lg bg-cyan-600 px-6 text-white hover:bg-cyan-700"
           >
             <Plus className="mr-2 h-5 w-5" />
             New Project
           </Button>
         </div>
       </div>
-
-      {/* Stats Row */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Layers} label="Total Projects" value={dashboardStats.totalProjects} color="indigo" />
-        <StatCard icon={TrendingUp} label="Avg. Progress" value={`${dashboardStats.avgProgress}%`} color="emerald" />
-        <StatCard icon={CheckCircle2} label="Completed" value={dashboardStats.completedProjects} color="sky" />
-        <StatCard icon={Clock} label="In Pipeline" value={dashboardStats.activeProjects} color="amber" />
       </div>
 
-      {/* Filter Bar */}
-      <div className="relative group">
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-          <Search size={18} />
+      {/* ─── Stats ─── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((s) => (
+          <StatCard key={s.label} {...s} />
+        ))}
+      </div>
+
+      {/* ─── Search + Filter ─── */}
+      <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
+        <div className="group relative">
+          <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-slate-400 transition-colors group-focus-within:text-indigo-500">
+            <Search size={18} />
+          </div>
+          <Input
+            type="text"
+            placeholder="Search projects by name or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-12 rounded-xl border-slate-200 bg-white pl-12 text-sm shadow-sm focus-visible:border-cyan-600 focus-visible:ring-cyan-100"
+          />
         </div>
-        <Input 
-          type="text"
-          placeholder="Search projects by name or category..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-14 rounded-2xl border-white/40 bg-white/60 pl-12 text-lg shadow-sm backdrop-blur-md transition-all focus-visible:ring-2 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500"
-        />
+
+        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 shadow-sm">
+          <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-12 w-full cursor-pointer bg-transparent text-sm text-slate-700 outline-none"
+          >
+            {statusOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Project Grid */}
+      {/* ─── Count indicator ─── */}
+      <div className="flex items-center gap-2 text-sm text-slate-500">
+        <Filter className="h-4 w-4" />
+        Showing {filteredProjects.length} project{filteredProjects.length === 1 ? "" : "s"}
+        {statusFilter !== "all" && ` • ${statusFilter}`}
+        {searchQuery && ` • matching "${searchQuery}"`}
+      </div>
+
+      {/* ─── Project Grid / Empty ─── */}
       <div className="pb-10">
-        <ProjectGrid 
-          projects={filteredProjects} 
-          viewType={viewType}
-          onEdit={() => {}}
-          onDelete={() => {}}
-        />
+        {filteredProjects.length === 0 && !loading ? (
+          <EmptyState onAddProject={handleOpenCreate} />
+        ) : (
+          <ProjectGrid
+            projects={filteredProjects}
+            viewType={viewType}
+            onEdit={handleOpenEdit}
+            onDelete={handleDeleteClick}
+            onToggle={handleToggleVisibility}
+            onChangeStatus={handleChangeStatus}
+          />
+        )}
       </div>
 
-      <ProjectSheet 
-        open={sheetOpen} 
-        onOpenChange={setSheetOpen}
-        formData={{}}
-        onSubmit={() => setSheetOpen(false)}
-        onCancel={() => setSheetOpen(false)}
+      {/* ─── Create / Edit Sheet ─── */}
+      <ProjectSheet
+        open={sheetOpen}
+        onOpenChange={(open) => {
+          if (!open) handleSheetCancel();
+        }}
+        formData={formData}
+        errors={formErrors}
+        touched={touched}
+        isValid={isValid}
+        isSubmitting={creating || updating}
+        isEditing={!!editingProject}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        onSubmit={handleSheetSubmit}
+        onCancel={handleSheetCancel}
+      />
+
+      {/* ─── Delete Confirmation ─── */}
+      <DeleteConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        projectName={deleteTarget?.name || ""}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={deleting}
       />
     </div>
   );

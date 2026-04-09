@@ -23,7 +23,8 @@ import {
     Archive,
     ArrowUpRight,
     Tag,
-    Code
+    Code,
+    Pencil
 } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -40,7 +41,7 @@ const PRIORITY_CONFIG = {
     high: { label: "High", className: "bg-red-500/10 text-red-500" },
 };
 
-const ProjectDiaryCard = ({ diary, onDelete }) => {
+const ProjectDiaryCard = ({ diary, onEdit, onDelete }) => {
     const router = useRouter();
     const statusConfig = STATUS_CONFIG[diary.status] || STATUS_CONFIG.idea;
     const priorityConfig = PRIORITY_CONFIG[diary.priority] || PRIORITY_CONFIG.medium;
@@ -57,10 +58,7 @@ const ProjectDiaryCard = ({ diary, onDelete }) => {
     };
 
     return (
-        <Card className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 bg-gradient-to-br from-card to-card/90 backdrop-blur-md">
-            {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
+        <Card className="border border-slate-200 bg-white shadow-sm">
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
@@ -73,7 +71,7 @@ const ProjectDiaryCard = ({ diary, onDelete }) => {
                                 {priorityConfig.label}
                             </Badge>
                         </div>
-                        <CardTitle className="text-lg font-semibold truncate group-hover:text-primary transition-colors">
+                        <CardTitle className="text-lg font-semibold truncate text-slate-900">
                             {diary.title}
                         </CardTitle>
                     </div>
@@ -88,6 +86,10 @@ const ProjectDiaryCard = ({ diary, onDelete }) => {
                             <DropdownMenuItem onClick={handleView}>
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEdit(diary)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit Details
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -167,11 +169,11 @@ const ProjectDiaryCard = ({ diary, onDelete }) => {
             <CardFooter className="pt-3 border-t border-border/50">
                 <Button
                     variant="ghost"
-                    className="w-full group/btn hover:bg-primary hover:text-primary-foreground transition-all"
+                    className="w-full border border-cyan-200 text-cyan-700 hover:bg-cyan-50 hover:text-cyan-800"
                     onClick={handleView}
                 >
                     <span>View Project</span>
-                    <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                    <ArrowUpRight className="ml-2 h-4 w-4" />
                 </Button>
             </CardFooter>
         </Card>

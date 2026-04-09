@@ -15,12 +15,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Layers, CheckCircle2, Clock, Loader2 } from "lucide-react";
+import { Plus, Trash2, Layers, CheckCircle2, Clock, Loader2, Pencil } from "lucide-react";
 import {
     addFeature,
     removeFeature,
     toggleFeatureCompletion,
     updateFeatureStatus,
+    updateFeatureDetails,
 } from "../../../../../redux/slices/projectDiarySlice";
 
 const PRIORITY_OPTIONS = [
@@ -37,6 +38,7 @@ const STATUS_OPTIONS = [
 const FeatureManager = ({ diaryId, features = [] }) => {
     const dispatch = useDispatch();
     const [isAdding, setIsAdding] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [newFeature, setNewFeature] = useState({
         name: "",
         description: "",
@@ -44,18 +46,43 @@ const FeatureManager = ({ diaryId, features = [] }) => {
         status: "pending",
     });
 
-    const handleAdd = async () => {
+    const handleSubmit = async () => {
         if (!newFeature.name.trim()) return;
 
-        await dispatch(addFeature({
-            diaryId,
-            name: newFeature.name.trim(),
-            description: newFeature.description.trim(),
-            priority: newFeature.priority,
-            status: newFeature.status,
-        }));
+        if (editingId) {
+            await dispatch(updateFeatureDetails({
+                diaryId,
+                featureId: editingId,
+                name: newFeature.name.trim(),
+                description: newFeature.description.trim(),
+            }));
+        } else {
+            await dispatch(addFeature({
+                diaryId,
+                name: newFeature.name.trim(),
+                description: newFeature.description.trim(),
+                priority: newFeature.priority,
+                status: newFeature.status,
+            }));
+        }
 
+        handleCancel();
+    };
+
+    const handleEdit = (feature) => {
+        setNewFeature({
+            name: feature.name,
+            description: feature.description || "",
+            priority: feature.priority,
+            status: feature.status,
+        });
+        setEditingId(feature._id);
+        setIsAdding(true);
+    };
+
+    const handleCancel = () => {
         setNewFeature({ name: "", description: "", priority: "musthave", status: "pending" });
+        setEditingId(null);
         setIsAdding(false);
     };
 
@@ -154,10 +181,10 @@ const FeatureManager = ({ diaryId, features = [] }) => {
                             </Select>
                         </div>
                         <div className="flex gap-2">
-                            <Button size="sm" onClick={handleAdd} disabled={!newFeature.name.trim()}>
-                                Add Feature
+                            <Button size="sm" onClick={handleSubmit} disabled={!newFeature.name.trim()}>
+                                {editingId ? "Update Feature" : "Add Feature"}
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
+                            <Button size="sm" variant="ghost" onClick={handleCancel}>
                                 Cancel
                             </Button>
                         </div>
@@ -207,7 +234,7 @@ const FeatureManager = ({ diaryId, features = [] }) => {
                                         value={feature.status}
                                         onValueChange={(value) => handleStatusChange(feature._id, value)}
                                     >
-                                        <SelectTrigger className="w-[120px] h-8 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <SelectTrigger className="w-[120px] h-8 text-xs opacity-40 group-hover:opacity-100 transition-opacity">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -218,14 +245,24 @@ const FeatureManager = ({ diaryId, features = [] }) => {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={() => handleRemove(feature._id)}
-                                    >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
+                                    <div className="flex gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8"
+                                            onClick={() => handleEdit(feature)}
+                                        >
+                                            <Pencil className="h-4 w-4 text-muted-foreground" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8"
+                                            onClick={() => handleRemove(feature._id)}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </div>
                                 </div>
                             );
                         })}

@@ -57,7 +57,20 @@ const FeatureForm = ({
           onChange={onChange}
           onBlur={onBlur}
           placeholder="Describe what this feature does..."
-          helpText="Optional - Max 500 characters"
+          helpText="Optional - Max 1000 characters"
+        />
+
+        <FormField
+          id="benefits"
+          name="benefits"
+          label="Key Benefits"
+          type="textarea"
+          value={formData.benefits}
+          error={touched.benefits ? errors.benefits : null}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder="What are the main benefits of this feature?"
+          helpText="Optional - Helps justify the feature"
         />
 
         {/* Priority and Status Row */}

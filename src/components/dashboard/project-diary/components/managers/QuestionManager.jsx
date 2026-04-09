@@ -6,25 +6,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
-import { addQuestion, removeQuestion } from "../../../../../redux/slices/projectDiarySlice";
+import { Plus, Trash2, HelpCircle, ChevronDown, ChevronUp, Pencil } from "lucide-react";
+import { addQuestion, removeQuestion, updateQuestion } from "../../../../../redux/slices/projectDiarySlice";
 
 const QuestionManager = ({ diaryId, questions = [] }) => {
     const dispatch = useDispatch();
     const [isAdding, setIsAdding] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [newQuestion, setNewQuestion] = useState({ name: "", answer: "" });
     const [expanded, setExpanded] = useState({});
 
-    const handleAdd = async () => {
+    const handleSubmit = async () => {
         if (!newQuestion.name.trim()) return;
 
-        await dispatch(addQuestion({
-            diaryId,
-            name: newQuestion.name.trim(),
-            answer: newQuestion.answer.trim(),
-        }));
+        if (editingId) {
+            await dispatch(updateQuestion({
+                diaryId,
+                questionId: editingId,
+                name: newQuestion.name.trim(),
+                answer: newQuestion.answer.trim(),
+            }));
+        } else {
+            await dispatch(addQuestion({
+                diaryId,
+                name: newQuestion.name.trim(),
+                answer: newQuestion.answer.trim(),
+            }));
+        }
 
+        handleCancel();
+    };
+
+    const handleEdit = (q) => {
+        setNewQuestion({ name: q.name, answer: q.answer || "" });
+        setEditingId(q._id);
+        setIsAdding(true);
+    };
+
+    const handleCancel = () => {
         setNewQuestion({ name: "", answer: "" });
+        setEditingId(null);
         setIsAdding(false);
     };
 
@@ -67,13 +88,14 @@ const QuestionManager = ({ diaryId, questions = [] }) => {
                             placeholder="Answer (optional)"
                             value={newQuestion.answer}
                             onChange={(e) => setNewQuestion((p) => ({ ...p, answer: e.target.value }))}
+                            className="min-h-[80px]"
                             rows={2}
                         />
                         <div className="flex gap-2">
-                            <Button size="sm" onClick={handleAdd} disabled={!newQuestion.name.trim()}>
-                                Add Question
+                            <Button size="sm" onClick={handleSubmit} disabled={!newQuestion.name.trim()}>
+                                {editingId ? "Update Question" : "Add Question"}
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
+                            <Button size="sm" variant="ghost" onClick={handleCancel}>
                                 Cancel
                             </Button>
                         </div>
@@ -110,14 +132,24 @@ const QuestionManager = ({ diaryId, questions = [] }) => {
                                         </p>
                                     )}
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => handleRemove(q._id)}
-                                >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                                <div className="flex gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleEdit(q)}
+                                    >
+                                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleRemove(q._id)}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     ))

@@ -134,6 +134,28 @@ export const toggleProjectVisibility = createAsyncThunk(
   }
 );
 
+/* Change project status */
+export const changeProjectStatus = createAsyncThunk(
+  "project/changeStatus",
+  async ({ projectId, status }, { rejectWithValue, getState }) => {
+    try {
+      const headers = getAuthHeaders(getState);
+      const res = await api.patch(
+        `/projects/${projectId}/change-status`,
+        { status },
+        { headers }
+      );
+      return { ...res.data, projectId };
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to change project status";
+      return rejectWithValue(msg);
+    }
+  }
+);
+
 /* Member management */
 export const addMemberToProject = createAsyncThunk(
   "project/addMember",
@@ -347,6 +369,17 @@ const projectSlice = createSlice({
         s.toggling = false;
       });
 
+    /* ---------- change status ---------- */
+    builder
+      .addCase(changeProjectStatus.fulfilled, (s, a) => {
+        const { projectId, data } = a.payload;
+        const proj = s.projects.find((p) => p._id === projectId);
+        if (proj) proj.status = data.status;
+        if (s.selectedProject?._id === projectId)
+          s.selectedProject.status = data.status;
+        s.message = a.payload.message || "Project status changed";
+      });
+
     /* ---------- members ---------- */
     builder
       .addCase(addMemberToProject.fulfilled, (s, a) => {
@@ -398,5 +431,6 @@ export const selectProjectUpdating = (s) => s.project.updating;
 export const selectProjectDeleting = (s) => s.project.deleting;
 export const selectProjectError = (s) => s.project.error;
 export const selectProjectMessage = (s) => s.project.message;
+export const selectProjectToggling = (s) => s.project.toggling;
 
 export default projectSlice.reducer;
