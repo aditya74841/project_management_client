@@ -18,6 +18,8 @@ export const useProjectForm = () => {
     description: "",
     deadline: "",
     status: "active",
+    tags: "",
+    techStack: "",
   });
   const [errors, setErrors]   = useState({});
   const [touched, setTouched] = useState({});
@@ -42,13 +44,21 @@ export const useProjectForm = () => {
     setTouched((p) => ({ ...p, [e.target.name]: true }));
   }, []);
 
+  /**
+   * Parse comma-separated string into a trimmed array of non-empty strings.
+   */
+  const parseCSV = (str) =>
+    str
+      ? str.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
   const handleSubmit = useCallback(
     async (data, id, options = {}) => {
       const { quickCreate = false } = options;
       setTouched(
         quickCreate
           ? { name: true }
-          : { name: true, description: true, deadline: true, status: true }
+          : { name: true, description: true, deadline: true, status: true, tags: true, techStack: true }
       );
       if (!validateForm()) return false;
 
@@ -62,6 +72,8 @@ export const useProjectForm = () => {
             description: data.description.trim(),
             deadline: data.deadline || null,
             status: data.status,
+            tags: parseCSV(data.tags),
+            techStack: parseCSV(data.techStack),
           };
 
       try {
@@ -78,7 +90,7 @@ export const useProjectForm = () => {
   );
 
   const resetForm = useCallback(() => {
-    setFormData({ name: "", description: "", deadline: "", status: "active" });
+    setFormData({ name: "", description: "", deadline: "", status: "active", tags: "", techStack: "" });
     setErrors({});
     setTouched({});
   }, []);

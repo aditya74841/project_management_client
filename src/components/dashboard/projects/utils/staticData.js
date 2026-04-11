@@ -4,9 +4,8 @@ export const staticProjects = [
     name: "Nova AI Platform",
     description: "Enterprise-grade machine learning orchestration platform for automated data pipeline management and model monitoring in real-time environments.",
     status: "active",
-    progress: 78,
-    category: "Machine Learning",
-    isShown: true,
+    tags: ["machine-learning", "enterprise", "data-pipeline"],
+    techStack: ["Python", "TensorFlow", "Kubernetes"],
     members: [
       { id: "u1", name: "Alex Chen", avatar: "https://i.pravatar.cc/150?u=u1" },
       { id: "u2", name: "Sarah Miller", avatar: "https://i.pravatar.cc/150?u=u2" },
@@ -19,9 +18,8 @@ export const staticProjects = [
     name: "E-Commerce Redesign",
     description: "Complete visual and UX overhaul of the main customer facing mobile application with a focus on quick-checkout and personalized product discovery.",
     status: "active",
-    progress: 32,
-    category: "Web & Mobile",
-    isShown: true,
+    tags: ["ux", "mobile", "e-commerce"],
+    techStack: ["React Native", "Node.js", "Stripe"],
     members: [
       { id: "u4", name: "Liu Wei", avatar: "https://i.pravatar.cc/150?u=u4" },
       { id: "u2", name: "Sarah Miller", avatar: "https://i.pravatar.cc/150?u=u2" }
@@ -33,9 +31,8 @@ export const staticProjects = [
     name: "FinTech Mobile App",
     description: "Building the core banking infrastructure for a new digital-first financial service providing global currency exchange and wealth management.",
     status: "completed",
-    progress: 100,
-    category: "Finance",
-    isShown: true,
+    tags: ["fintech", "banking", "mobile"],
+    techStack: ["React", "Go", "PostgreSQL"],
     members: [
       { id: "u5", name: "James Bond", avatar: "https://i.pravatar.cc/150?u=u5" },
       { id: "u6", name: "Emma Watson", avatar: "https://i.pravatar.cc/150?u=u6" },
@@ -48,9 +45,8 @@ export const staticProjects = [
     name: "Cloud Dashboard 2.0",
     description: "Next generation cloud monitoring tools with predictive scaling recommendations and multi-cloud cost optimization dashboards.",
     status: "draft",
-    progress: 15,
-    category: "Infrastructure",
-    isShown: false,
+    tags: ["infrastructure", "monitoring", "cloud"],
+    techStack: ["Vue.js", "AWS", "Terraform"],
     members: [
       { id: "u8", name: "Robert Downey", avatar: "https://i.pravatar.cc/150?u=u8" }
     ],
@@ -60,7 +56,7 @@ export const staticProjects = [
 
 export const dashboardStats = {
   totalProjects: 4,
-  activeProjects: 3,
+  activeProjects: 2,
   completedProjects: 1,
-  avgProgress: 56,
+  draftProjects: 1,
 };

@@ -2,7 +2,7 @@
 
 import React from "react";
 import {
-  Eye,
+  CheckCircle2,
   FolderOpen,
   Layers3,
   TimerReset,
@@ -27,17 +27,17 @@ const DashboardStats = ({ projects }) => {
       iconWrap: "bg-white text-amber-700",
     },
     {
-      label: "Visible",
-      value: projects.filter((p) => p.isShown).length,
-      helper: "Ready to be surfaced outside the dashboard",
-      icon: Eye,
+      label: "Completed",
+      value: projects.filter((p) => p.status === "completed").length,
+      helper: "Successfully delivered and finalized",
+      icon: CheckCircle2,
       panel: "border-emerald-200 bg-emerald-50",
       iconWrap: "bg-white text-emerald-700",
     },
     {
-      label: "With Description",
-      value: projects.filter((p) => p.description?.trim()).length,
-      helper: "Already documented beyond the name",
+      label: "Active",
+      value: projects.filter((p) => p.status === "active").length,
+      helper: "Currently in progress",
       icon: Layers3,
       panel: "border-sky-200 bg-sky-50",
       iconWrap: "bg-white text-sky-700",

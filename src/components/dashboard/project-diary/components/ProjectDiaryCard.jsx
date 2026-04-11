@@ -54,7 +54,7 @@ const ProjectDiaryCard = ({ diary, onEdit, onDelete }) => {
 
     const handleView = () => {
         const query = diary.projectId ? `?projectId=${diary.projectId}` : "";
-        router.push(`/dashboard/project-diary/${diary._id}${query}`);
+        router.push(`/dashboard/project-diary/view/${diary._id}${query}`);
     };
 
     return (

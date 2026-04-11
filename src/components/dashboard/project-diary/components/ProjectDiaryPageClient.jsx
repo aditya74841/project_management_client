@@ -29,11 +29,11 @@ import {
 } from "@/redux/slices/projectDiarySlice";
 import { getProjects, selectProjects } from "@/redux/slices/projectSlice";
 
-const ProjectDiaryPageClient = () => {
+const ProjectDiaryPageClient = ({ projectId: propProjectId }) => {
     const dispatch = useDispatch();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const selectedProjectId = searchParams.get("projectId");
+    const selectedProjectId = propProjectId || searchParams.get("projectId");
 
     /* Redux state */
     const diaries = useSelector(selectDiaries);

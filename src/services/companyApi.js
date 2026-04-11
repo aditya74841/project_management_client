@@ -5,7 +5,7 @@ class CompanyApiService {
   constructor() {
     // Create axios instance for company operations
     this.api = axios.create({
-      baseURL: process.env.SERVER_URL || "http://localhost:5000/api",
+      baseURL: process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:8080/api/v1",
       withCredentials: true,
       timeout: 10000,
     });

@@ -6,7 +6,7 @@ import axios from "axios";
 /*  Axios instance                                   */
 /* ------------------------------------------------- */
 const api = axios.create({
-    baseURL: process.env.SERVER_URL || "http://localhost:5000/api",
+    baseURL: process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:8080/api/v1",
     withCredentials: true,
     timeout: 10000,
 });
@@ -179,6 +179,98 @@ export const updateQuestion = createAsyncThunk(
             return res.data;
         } catch (err) {
             const msg = err.response?.data?.message || err.message || "Failed to update question";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+/* ------------------------------------------------- */
+/*  Async thunks - Ideas                             */
+/* ------------------------------------------------- */
+
+export const addIdea = createAsyncThunk(
+    "projectDiary/addIdea",
+    async ({ diaryId, idea }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.post(`/project-diaries/${diaryId}/ideas`, { idea }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to add idea";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+export const removeIdea = createAsyncThunk(
+    "projectDiary/removeIdea",
+    async ({ diaryId, ideaId }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.delete(`/project-diaries/${diaryId}/ideas/${ideaId}`, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to remove idea";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+export const updateIdea = createAsyncThunk(
+    "projectDiary/updateIdea",
+    async ({ diaryId, ideaId, idea }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.patch(`/project-diaries/${diaryId}/ideas/${ideaId}`, { idea }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to update idea";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+/* ------------------------------------------------- */
+/*  Async thunks - Project Updates                   */
+/* ------------------------------------------------- */
+
+export const addProjectUpdate = createAsyncThunk(
+    "projectDiary/addProjectUpdate",
+    async ({ diaryId, update }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.post(`/project-diaries/${diaryId}/project-updates`, { update }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to add project update";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+export const removeProjectUpdate = createAsyncThunk(
+    "projectDiary/removeProjectUpdate",
+    async ({ diaryId, updateId }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.delete(`/project-diaries/${diaryId}/project-updates/${updateId}`, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to remove project update";
+            return rejectWithValue(msg);
+        }
+    }
+);
+
+export const updateProjectUpdate = createAsyncThunk(
+    "projectDiary/updateProjectUpdate",
+    async ({ diaryId, updateId, update }, { rejectWithValue, getState }) => {
+        try {
+            const headers = getAuthHeaders(getState);
+            const res = await api.patch(`/project-diaries/${diaryId}/project-updates/${updateId}`, { update }, { headers });
+            return res.data;
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || "Failed to update project update";
             return rejectWithValue(msg);
         }
     }
@@ -623,6 +715,48 @@ const projectDiarySlice = createSlice({
                 if (idx !== -1) s.diaries[idx] = updated;
             })
             .addCase(updateUserFlow.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            });
+
+        /* ---------- ideas ---------- */
+        builder
+            .addCase(addIdea.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(removeIdea.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(updateIdea.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            });
+
+        /* ---------- project updates ---------- */
+        builder
+            .addCase(addProjectUpdate.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(removeProjectUpdate.fulfilled, (s, a) => {
+                const updated = a.payload.data.projectDiary;
+                s.selectedDiary = updated;
+                const idx = s.diaries.findIndex((d) => d._id === updated._id);
+                if (idx !== -1) s.diaries[idx] = updated;
+            })
+            .addCase(updateProjectUpdate.fulfilled, (s, a) => {
                 const updated = a.payload.data.projectDiary;
                 s.selectedDiary = updated;
                 const idx = s.diaries.findIndex((d) => d._id === updated._id);

@@ -1,22 +1,6 @@
 // redux/slices/projectSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-/* ------------------------------------------------- */
-/*  Axios instance                                   */
-/* ------------------------------------------------- */
-const api = axios.create({
-  baseURL: process.env.SERVER_URL || "http://localhost:5000/api",
-  withCredentials: true,
-  timeout: 10000,
-});
-
-/* Pull token from auth slice */
-const getAuthHeaders = (getState) => {
-  const { auth } = getState();
-  const token = auth.accessToken;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import api from "@/services/api";
 
 /* ------------------------------------------------- */
 /*  Async thunks                                     */
@@ -25,11 +9,10 @@ const getAuthHeaders = (getState) => {
 /* Create project */
 export const createProject = createAsyncThunk(
   "project/create",
-  async (payload, { rejectWithValue, getState }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.post("/projects", payload, { headers });
-      return res.data; // { project, message }
+      const res = await api.post("/projects", payload);
+      return res.data; // { data: { project }, message }
     } catch (err) {
       const msg =
         err.response?.data?.message ||
@@ -42,12 +25,10 @@ export const createProject = createAsyncThunk(
 
 export const getProjects = createAsyncThunk(
   "project/getAll",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.get("/projects", { headers }); // GET same path
-
-      return res.data; // { projects, message }
+      const res = await api.get("/projects");
+      return res.data; // { data: { projects, pagination, filters }, message }
     } catch (err) {
       const msg =
         err.response?.data?.message ||
@@ -61,11 +42,10 @@ export const getProjects = createAsyncThunk(
 /* Get single project by ID */
 export const getProjectById = createAsyncThunk(
   "project/getById",
-  async (projectId, { rejectWithValue, getState }) => {
+  async (projectId, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.get(`/projects/${projectId}`, { headers });
-      return res.data; // { project, message }
+      const res = await api.get(`/projects/${projectId}`);
+      return res.data; // { data: { project }, message }
     } catch (err) {
       const msg =
         err.response?.data?.message || err.message || "Failed to fetch project";
@@ -77,13 +57,10 @@ export const getProjectById = createAsyncThunk(
 /* Update project */
 export const updateProject = createAsyncThunk(
   "project/update",
-  async ({ projectId, ...payload }, { rejectWithValue, getState }) => {
+  async ({ projectId, ...payload }, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.patch(`/projects/${projectId}`, payload, {
-        headers,
-      });
-      return res.data; // { project, message }
+      const res = await api.patch(`/projects/${projectId}`, payload);
+      return res.data; // { data: { project }, message }
     } catch (err) {
       const msg =
         err.response?.data?.message ||
@@ -97,10 +74,9 @@ export const updateProject = createAsyncThunk(
 /* Delete project */
 export const deleteProject = createAsyncThunk(
   "project/delete",
-  async (projectId, { rejectWithValue, getState }) => {
+  async (projectId, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.delete(`/projects/${projectId}`, { headers });
+      const res = await api.delete(`/projects/${projectId}`);
       return { ...res.data, deletedId: projectId }; // keep the id for reducer
     } catch (err) {
       const msg =
@@ -112,38 +88,14 @@ export const deleteProject = createAsyncThunk(
   }
 );
 
-/* Toggle visibility */
-export const toggleProjectVisibility = createAsyncThunk(
-  "project/toggleVisibility",
-  async (projectId, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.patch(
-        `/projects/${projectId}/toggle-visibility`,
-        {},
-        { headers }
-      );
-      return { ...res.data, projectId };
-    } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to toggle visibility";
-      return rejectWithValue(msg);
-    }
-  }
-);
-
 /* Change project status */
 export const changeProjectStatus = createAsyncThunk(
   "project/changeStatus",
-  async ({ projectId, status }, { rejectWithValue, getState }) => {
+  async ({ projectId, status }, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
       const res = await api.patch(
         `/projects/${projectId}/change-status`,
-        { status },
-        { headers }
+        { status }
       );
       return { ...res.data, projectId };
     } catch (err) {
@@ -159,13 +111,11 @@ export const changeProjectStatus = createAsyncThunk(
 /* Member management */
 export const addMemberToProject = createAsyncThunk(
   "project/addMember",
-  async ({ projectId, userId }, { rejectWithValue, getState }) => {
+  async ({ projectId, userId }, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
       const res = await api.post(
         `/projects/${projectId}/members`,
-        { userId },
-        { headers }
+        { userId }
       );
       return { ...res.data, projectId };
     } catch (err) {
@@ -178,59 +128,15 @@ export const addMemberToProject = createAsyncThunk(
 
 export const removeMemberFromProject = createAsyncThunk(
   "project/removeMember",
-  async ({ projectId, userId }, { rejectWithValue, getState }) => {
+  async ({ projectId, userId }, { rejectWithValue }) => {
     try {
-      const headers = getAuthHeaders(getState);
       const res = await api.delete(`/projects/${projectId}/members`, {
-        headers,
         data: { userId }, // axios delete with body
       });
       return { ...res.data, projectId, userId };
     } catch (err) {
       const msg =
         err.response?.data?.message || err.message || "Failed to remove member";
-      return rejectWithValue(msg);
-    }
-  }
-);
-
-/* Feature management */
-export const assignFeatureToProject = createAsyncThunk(
-  "project/assignFeature",
-  async ({ projectId, featureId }, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.post(
-        `/projects/${projectId}/features`,
-        { featureId },
-        { headers }
-      );
-      return { ...res.data, projectId };
-    } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to assign feature";
-      return rejectWithValue(msg);
-    }
-  }
-);
-
-export const unassignFeatureFromProject = createAsyncThunk(
-  "project/unassignFeature",
-  async ({ projectId, featureId }, { rejectWithValue, getState }) => {
-    try {
-      const headers = getAuthHeaders(getState);
-      const res = await api.delete(`/projects/${projectId}/features`, {
-        headers,
-        data: { featureId },
-      });
-      return { ...res.data, projectId, featureId };
-    } catch (err) {
-      const msg =
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to unassign feature";
       return rejectWithValue(msg);
     }
   }
@@ -244,9 +150,8 @@ const initialState = {
   creating: false,
   updating: false,
   deleting: false,
-  toggling: false,
-  projects: [], // list (if you later add a list endpoint)
-  selectedProject: null, // current project (by id)
+  projects: [],
+  selectedProject: null,
   error: null,
   message: null,
 };
@@ -291,7 +196,7 @@ const projectSlice = createSlice({
       })
       .addCase(getProjects.fulfilled, (s, a) => {
         s.loading = false;
-        s.projects = a.payload.data.projects || []; // adjust to API shape
+        s.projects = a.payload.data.projects || [];
         s.message = a.payload.message || null;
       })
       .addCase(getProjects.rejected, (s, a) => {
@@ -353,22 +258,6 @@ const projectSlice = createSlice({
         s.error = a.payload;
       });
 
-    /* ---------- toggle visibility ---------- */
-    builder
-      .addCase(toggleProjectVisibility.pending, (s) => {
-        s.toggling = true;
-      })
-      .addCase(toggleProjectVisibility.fulfilled, (s, a) => {
-        s.toggling = false;
-        const proj = s.projects.find((p) => p._id === a.payload.projectId);
-        if (proj) proj.isShown = a.payload.data.isShown;
-        if (s.selectedProject?._id === a.payload.projectId)
-          s.selectedProject.isShown = a.payload.data.isShown;
-      })
-      .addCase(toggleProjectVisibility.rejected, (s) => {
-        s.toggling = false;
-      });
-
     /* ---------- change status ---------- */
     builder
       .addCase(changeProjectStatus.fulfilled, (s, a) => {
@@ -396,23 +285,6 @@ const projectSlice = createSlice({
         if (s.selectedProject?._id === projectId)
           s.selectedProject.members = data.members;
       });
-
-    /* ---------- features ---------- */
-    builder
-      .addCase(assignFeatureToProject.fulfilled, (s, a) => {
-        const { projectId, data } = a.payload;
-        const proj = s.projects.find((p) => p._id === projectId);
-        if (proj) proj.features = data.features;
-        if (s.selectedProject?._id === projectId)
-          s.selectedProject.features = data.features;
-      })
-      .addCase(unassignFeatureFromProject.fulfilled, (s, a) => {
-        const { projectId, data } = a.payload;
-        const proj = s.projects.find((p) => p._id === projectId);
-        if (proj) proj.features = data.features;
-        if (s.selectedProject?._id === projectId)
-          s.selectedProject.features = data.features;
-      });
   },
 });
 
@@ -431,6 +303,5 @@ export const selectProjectUpdating = (s) => s.project.updating;
 export const selectProjectDeleting = (s) => s.project.deleting;
 export const selectProjectError = (s) => s.project.error;
 export const selectProjectMessage = (s) => s.project.message;
-export const selectProjectToggling = (s) => s.project.toggling;
 
 export default projectSlice.reducer;

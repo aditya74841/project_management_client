@@ -91,7 +91,7 @@ import axios from "axios";
 
 // Create axios instance
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:8080/api/v1",
   withCredentials: true,
   timeout: 10000,
 });
@@ -157,7 +157,7 @@ api.interceptors.response.use(
       try {
         // Call refresh endpoint
         const { data } = await axios.post(
-          `${process.env.USER_SERVER_URL || "http://localhost:5000/api"}/refresh-token`,
+          `${process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:8080/api/v1"}/refresh-token`,
           {},
           { withCredentials: true }
         );

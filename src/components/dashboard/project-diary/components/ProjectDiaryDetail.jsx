@@ -47,6 +47,8 @@ import { showMessage } from "@/app/utils/showMessage";
 import FeatureManager from "./managers/FeatureManager";
 import QuestionManager from "./managers/QuestionManager";
 import UserFlowManager from "./managers/UserFlowManager";
+import IdeaManager from "./managers/IdeaManager";
+import ProjectUpdateManager from "./managers/ProjectUpdateManager";
 import TagManager from "./managers/TagManager";
 import TechStackManager from "./managers/TechStackManager";
 import ReferenceLinksManager from "./managers/ReferenceLinksManager";
@@ -64,6 +66,10 @@ import {
     addFeature,
     removeFeature,
     updateFeatureStatus,
+    addIdea,
+    removeIdea,
+    addProjectUpdate,
+    removeProjectUpdate,
     addTag,
     removeTag,
     addReferenceLink,
@@ -96,7 +102,7 @@ const PRIORITY_OPTIONS = [
     { value: "high", label: "High", color: "bg-red-500/10 text-red-500" },
 ];
 
-const ProjectDiaryDetail = ({ projectId, basePath = "/dashboard/projects" }) => {
+const ProjectDiaryDetail = ({ projectId, diaryId, basePath = "/dashboard/projects" }) => {
     const router = useRouter();
     const dispatch = useDispatch();
 
@@ -123,10 +129,12 @@ const ProjectDiaryDetail = ({ projectId, basePath = "/dashboard/projects" }) => 
 
     /* Fetch diary on mount */
     useEffect(() => {
-        if (projectId) {
+        if (diaryId) {
+            dispatch(getProjectDiaryById(diaryId));
+        } else if (projectId) {
             dispatch(getOrCreateDiaryForProject(projectId));
         }
-    }, [dispatch, projectId]);
+    }, [dispatch, projectId, diaryId]);
 
     /* Show toast messages from Redux */
     useEffect(() => {
@@ -222,11 +230,17 @@ const ProjectDiaryDetail = ({ projectId, basePath = "/dashboard/projects" }) => 
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push(basePath)}
+                        onClick={() => {
+                            if (projectId) {
+                                router.push(`/dashboard/project-diary/${projectId}`);
+                            } else {
+                                router.push(basePath);
+                            }
+                        }}
                         className="mb-4"
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back
+                        Back to List
                     </Button>
 
                     <div className="flex items-center gap-3 flex-wrap mb-2">
@@ -308,12 +322,14 @@ const ProjectDiaryDetail = ({ projectId, basePath = "/dashboard/projects" }) => 
                 {/* Left Column */}
                 <div className="space-y-6">
                     <FeatureManager diaryId={diary._id} features={diary.features || []} />
+                    <ProjectUpdateManager diaryId={diary._id} updates={diary.projectUpdate || []} />
                     <QuestionManager diaryId={diary._id} questions={diary.questions || []} />
                     <UserFlowManager diaryId={diary._id} userFlows={diary.userFlow || []} />
                 </div>
                 
                 {/* Right Column */}
                 <div className="space-y-6">
+                    <IdeaManager diaryId={diary._id} ideas={diary.ideas || []} />
                     <TechStackManager diaryId={diary._id} techStack={diary.techStack || []} />
                     <TagManager diaryId={diary._id} tags={diary.tags || []} />
                     <ReferenceLinksManager diaryId={diary._id} referenceLinks={diary.referenceLinks || []} />

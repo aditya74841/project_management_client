@@ -8,12 +8,11 @@ import {
   MoreVertical,
   Users,
   Clock,
-  Layers,
   Edit3,
   Trash2,
-  Eye,
-  EyeOff,
   Activity,
+  Tag,
+  Code2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,7 +87,7 @@ const formatDate = (date) => {
 /* ═══════════════════════════════════════════════════
    CARD VIEW
    ═══════════════════════════════════════════════════ */
-const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) => {
+const ProjectCard = ({ project, onEdit, onDelete, onChangeStatus }) => {
   const router = useRouter();
   const initials = project.name
     .split(" ")
@@ -99,7 +98,8 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) =>
 
   const cfg = statusConfig[project.status] || statusConfig.active;
   const memberCount = project.members?.length || 0;
-  const featureCount = project.features?.length || 0;
+  const tags = project.tags || [];
+  const techStack = project.techStack || [];
 
   return (
     <div
@@ -133,18 +133,6 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) =>
                 className="rounded-xl p-3"
               >
                 <Edit3 className="mr-3 h-4 w-4" /> Edit Details
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => onToggle(project._id)}
-                className="rounded-xl p-3"
-              >
-                {project.isShown ? (
-                  <EyeOff className="mr-3 h-4 w-4" />
-                ) : (
-                  <Eye className="mr-3 h-4 w-4" />
-                )}
-                {project.isShown ? "Hide Project" : "Show Project"}
               </DropdownMenuItem>
 
               {/* Status Sub-menu */}
@@ -186,11 +174,6 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) =>
               <div className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
               {project.status}
             </span>
-            {project.isShown && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
-                <Eye size={10} /> visible
-              </span>
-            )}
           </div>
           <h3 className="text-2xl font-bold tracking-tight text-slate-800">
             {project.name}
@@ -199,6 +182,46 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) =>
             {project.description || "No description added yet."}
           </p>
         </div>
+
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Tag size={12} className="text-slate-400" />
+            {tags.slice(0, 4).map((tag, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+              >
+                {tag}
+              </span>
+            ))}
+            {tags.length > 4 && (
+              <span className="text-[10px] font-medium text-slate-400">
+                +{tags.length - 4}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Tech Stack */}
+        {techStack.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Code2 size={12} className="text-indigo-400" />
+            {techStack.slice(0, 4).map((tech, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center rounded-full border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600"
+              >
+                {tech}
+              </span>
+            ))}
+            {techStack.length > 4 && (
+              <span className="text-[10px] font-medium text-indigo-400">
+                +{techStack.length - 4}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bottom Section */}
@@ -207,9 +230,6 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) =>
         <div className="flex items-center gap-5 text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
             <Users size={13} /> {memberCount} member{memberCount !== 1 ? "s" : ""}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Layers size={13} /> {featureCount} feature{featureCount !== 1 ? "s" : ""}
           </span>
           {project.deadline && (
             <span className="flex items-center gap-1.5">
@@ -258,7 +278,7 @@ const ProjectCard = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) =>
 /* ═══════════════════════════════════════════════════
    LIST VIEW
    ═══════════════════════════════════════════════════ */
-const ProjectListRow = ({ project, onEdit, onDelete, onToggle, onChangeStatus }) => {
+const ProjectListRow = ({ project, onEdit, onDelete, onChangeStatus }) => {
   const router = useRouter();
   const initials = project.name
     .split(" ")
@@ -269,6 +289,7 @@ const ProjectListRow = ({ project, onEdit, onDelete, onToggle, onChangeStatus })
 
   const cfg = statusConfig[project.status] || statusConfig.active;
   const memberCount = project.members?.length || 0;
+  const tags = project.tags || [];
 
   return (
     <div className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -295,6 +316,11 @@ const ProjectListRow = ({ project, onEdit, onDelete, onToggle, onChangeStatus })
                 <Clock size={12} /> {formatDate(project.deadline)}
               </span>
             )}
+            {tags.length > 0 && (
+              <span className="flex items-center gap-1">
+                <Tag size={12} /> {tags.length} tag{tags.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -314,10 +340,6 @@ const ProjectListRow = ({ project, onEdit, onDelete, onToggle, onChangeStatus })
           <DropdownMenuContent align="end" className="w-48 rounded-xl p-1.5 shadow-xl">
             <DropdownMenuItem onClick={() => onEdit(project)} className="rounded-lg p-2.5">
               <Edit3 className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onToggle(project._id)} className="rounded-lg p-2.5">
-              {project.isShown ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-              {project.isShown ? "Hide" : "Show"}
             </DropdownMenuItem>
 
             <DropdownMenuSub>
@@ -365,7 +387,7 @@ const ProjectListRow = ({ project, onEdit, onDelete, onToggle, onChangeStatus })
 /* ═══════════════════════════════════════════════════
    MAIN GRID COMPONENT
    ═══════════════════════════════════════════════════ */
-const ProjectGrid = ({ projects, viewType, onEdit, onDelete, onToggle, onChangeStatus }) => {
+const ProjectGrid = ({ projects, viewType, onEdit, onDelete, onChangeStatus }) => {
   if (viewType === "list") {
     return (
       <div className="space-y-4">
@@ -375,7 +397,6 @@ const ProjectGrid = ({ projects, viewType, onEdit, onDelete, onToggle, onChangeS
             project={project}
             onEdit={onEdit}
             onDelete={onDelete}
-            onToggle={onToggle}
             onChangeStatus={onChangeStatus}
           />
         ))}
@@ -391,7 +412,6 @@ const ProjectGrid = ({ projects, viewType, onEdit, onDelete, onToggle, onChangeS
           project={project}
           onEdit={onEdit}
           onDelete={onDelete}
-          onToggle={onToggle}
           onChangeStatus={onChangeStatus}
         />
       ))}

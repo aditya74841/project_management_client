@@ -4,10 +4,8 @@ import React from "react";
 import {
   CalendarDays,
   ClipboardList,
-  Eye,
   FileText,
   FolderKanban,
-  LockKeyhole,
   CheckCircle2,
   Package,
   Layers,
@@ -16,7 +14,9 @@ import {
   AlignLeft,
   Activity,
   Calendar,
-  Users
+  Users,
+  Tag,
+  Code2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -166,11 +166,32 @@ const ProjectForm = ({
               </div>
             </div>
 
-            <InfoCard 
-              icon={LockKeyhole}
-              title="Visibility Control"
-              description="Project visibility and team accessibility can be toggled directly from the project's dashboard card."
-              color="emerald"
+            {/* Tags */}
+            <ProjectFormField
+              id="tags"
+              name="tags"
+              label="Tags"
+              icon={Tag}
+              value={formData.tags}
+              error={touched.tags ? errors.tags : null}
+              onChange={onChange}
+              onBlur={onBlur}
+              placeholder="e.g. frontend, api, mvp"
+              helpText="Comma-separated labels to categorize this project."
+            />
+
+            {/* Tech Stack */}
+            <ProjectFormField
+              id="techStack"
+              name="techStack"
+              label="Tech Stack"
+              icon={Code2}
+              value={formData.techStack}
+              error={touched.techStack ? errors.techStack : null}
+              onChange={onChange}
+              onBlur={onBlur}
+              placeholder="e.g. React, Node.js, MongoDB"
+              helpText="Comma-separated technologies used in this project."
             />
           </div>
         )}

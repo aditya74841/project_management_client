@@ -53,7 +53,7 @@ export default function DashboardHomeClient() {
   }, [dispatch, projects.length]);
 
   const draftProjects = projects.filter((project) => project.status === "draft");
-  const visibleProjects = projects.filter((project) => project.isShown);
+  const activeProjects = projects.filter((project) => project.status === "active");
 
   return (
     <div className="space-y-8">
@@ -116,12 +116,12 @@ export default function DashboardHomeClient() {
           </p>
         </div>
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
-          <p className="text-sm font-medium text-emerald-700">Visible projects</p>
+          <p className="text-sm font-medium text-emerald-700">Active projects</p>
           <p className="mt-3 text-4xl font-semibold text-emerald-950">
-            {loading && !projects.length ? "..." : visibleProjects.length}
+            {loading && !projects.length ? "..." : activeProjects.length}
           </p>
           <p className="mt-2 text-sm text-emerald-800/80">
-            Projects currently exposed for downstream usage and embeds.
+            Projects currently in progress and being worked on.
           </p>
         </div>
       </section>

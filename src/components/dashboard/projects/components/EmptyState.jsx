@@ -16,7 +16,7 @@ const EmptyState = ({ onAddProject }) => (
       </h3>
       <p className="text-sm leading-7 text-slate-600">
         You do not need to fill everything up front anymore. Create the project shell now, then
-        return later for description, deadlines, visibility, and the rest.
+        return later for description, deadlines, tags, and the rest.
       </p>
     </div>
     <Button

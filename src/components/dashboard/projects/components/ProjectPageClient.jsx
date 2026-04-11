@@ -9,7 +9,7 @@ import {
   Plus,
   FolderOpen,
   TimerReset,
-  Eye,
+  CheckCircle2,
   Layers3,
   SlidersHorizontal,
   Filter,
@@ -26,7 +26,6 @@ import { showMessage } from "@/app/utils/showMessage";
 import {
   getProjects,
   deleteProject,
-  toggleProjectVisibility,
   changeProjectStatus,
   selectProjects,
   selectProjectLoading,
@@ -136,9 +135,9 @@ const ProjectPageClient = () => {
       iconWrap: "bg-white text-amber-700",
     },
     {
-      label: "Visible",
-      value: projects.filter((p) => p.isShown).length,
-      icon: Eye,
+      label: "Completed",
+      value: projects.filter((p) => p.status === "completed").length,
+      icon: CheckCircle2,
       panel: "border-emerald-200 bg-emerald-50",
       iconWrap: "bg-white text-emerald-700",
     },
@@ -187,6 +186,8 @@ const ProjectPageClient = () => {
       description: project.description || "",
       deadline: project.deadline ? project.deadline.split("T")[0] : "",
       status: project.status || "active",
+      tags: (project.tags || []).join(", "),
+      techStack: (project.techStack || []).join(", "),
     });
     // Use setTimeout to avoid Radix UI FocusScope collision between closing DropdownMenu and opening Sheet
     setTimeout(() => {
@@ -214,10 +215,6 @@ const ProjectPageClient = () => {
     setEditingProject(null);
     resetForm();
   }, [resetForm]);
-
-  const handleToggleVisibility = useCallback((projectId) => {
-    dispatch(toggleProjectVisibility(projectId));
-  }, [dispatch]);
 
   const handleChangeStatus = useCallback((projectId, status) => {
     dispatch(changeProjectStatus({ projectId, status }));
@@ -371,7 +368,6 @@ const ProjectPageClient = () => {
             viewType={viewType}
             onEdit={handleOpenEdit}
             onDelete={handleDeleteClick}
-            onToggle={handleToggleVisibility}
             onChangeStatus={handleChangeStatus}
           />
         )}

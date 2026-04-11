@@ -37,6 +37,26 @@ export const validateProjectForm = (formData) => {
         errors.deadline = "Deadline must be a valid date";
       }
     }
+
+    /* ---------- Tags (optional, comma-separated string) ---------- */
+    if (formData.tags && typeof formData.tags === "string") {
+      const tagList = formData.tags.split(",").map((t) => t.trim()).filter(Boolean);
+      if (tagList.some((t) => t.length > 50)) {
+        errors.tags = "Each tag must be 50 characters or fewer";
+      } else if (tagList.length > 20) {
+        errors.tags = "Maximum 20 tags allowed";
+      }
+    }
+
+    /* ---------- Tech Stack (optional, comma-separated string) ---------- */
+    if (formData.techStack && typeof formData.techStack === "string") {
+      const techList = formData.techStack.split(",").map((t) => t.trim()).filter(Boolean);
+      if (techList.some((t) => t.length > 50)) {
+        errors.techStack = "Each technology must be 50 characters or fewer";
+      } else if (techList.length > 20) {
+        errors.techStack = "Maximum 20 technologies allowed";
+      }
+    }
   
     return {
       isValid: Object.keys(errors).length === 0,
@@ -51,4 +71,3 @@ export const validateProjectForm = (formData) => {
     const temp = { ...existingData, [fieldName]: value };
     return validateProjectForm(temp).errors[fieldName] || null;
   };
-  
