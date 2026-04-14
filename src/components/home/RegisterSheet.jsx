@@ -5,20 +5,12 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  Eye,
-  EyeOff,
   Mail,
   Lock,
   ArrowRight,
   User,
-  AlertCircle,
   UserPlus,
   CheckCircle,
   Sparkles,
@@ -27,13 +19,10 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  userRegister,
-  clearMessages,
-  clearRegistrationSuccess,
-} from "@/redux/slices/authSlice";
 import { AuthSheetFrame } from "./AuthSheetFrame";
+import { useAuthStore } from "@/store/authStore";
+import { useUiStore } from "@/store/uiStore";
+import { Button, Input } from "../ui-core";
 
 const registerSchema = z
   .object({
@@ -57,27 +46,19 @@ const registerSchema = z
     message: "Passwords do not match",
   });
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 14 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.32 } },
-};
-
 export default function RegisterSheet({ isOpen, onOpenChange }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const dispatch = useDispatch();
-  const { loading, error, message, registrationSuccess } = useSelector(
-    (state) => state.auth
-  );
+  const [isSuccess, setIsSuccess] = useState(false);
+  
+  // ─── Global State ───
+  const { register: registerAction, isLoading, message, clearMessages } = useAuthStore();
+  const ui = useUiStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
-    setError,
   } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -88,65 +69,33 @@ export default function RegisterSheet({ isOpen, onOpenChange }) {
     },
   });
 
-  const watchedValues = watch();
-
-  useEffect(() => {
-    if (registrationSuccess) {
-      reset();
-      const timer = setTimeout(() => {
-        onOpenChange(false);
-        dispatch(clearRegistrationSuccess());
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [registrationSuccess, reset, onOpenChange, dispatch]);
-
-  useEffect(() => {
-    if (error && typeof error === "string" && error.toLowerCase().includes("email")) {
-      setError("email", {
-        type: "server",
-        message: error,
-      });
-    }
-  }, [error, setError]);
-
+  // Handle Sheet Close
   useEffect(() => {
     if (!isOpen) {
-      dispatch(clearMessages());
+      clearMessages();
+      setIsSuccess(false);
       reset();
     }
-  }, [isOpen, dispatch, reset]);
+  }, [isOpen, clearMessages, reset]);
 
   const onSubmit = async (data) => {
-    try {
-      await dispatch(
-        userRegister({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          role: "USER",
-          phoneNumber: null,
-        })
-      ).unwrap();
-    } catch (err) {
-      console.error("Registration failed:", err);
+    const success = await registerAction({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    });
+    
+    if (success) {
+      setIsSuccess(true);
+      setTimeout(() => {
+        ui.closeAllAuthSheets();
+        ui.openLogin();
+      }, 2500);
     }
   };
 
-  const isFormValid =
-    watchedValues.name &&
-    watchedValues.email &&
-    watchedValues.password &&
-    watchedValues.confirmPassword &&
-    Object.keys(errors).length === 0;
-
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <span />
-      </SheetTrigger>
-
       <SheetContent className="w-full overflow-y-auto border-0 p-0 shadow-2xl sm:max-w-5xl">
         <SheetHeader className="sr-only">
           <SheetTitle>Create Account</SheetTitle>
@@ -161,7 +110,7 @@ export default function RegisterSheet({ isOpen, onOpenChange }) {
           highlights={[
             "Built for solo builders and teams who want project tracking in one place.",
             "Strong password guidance is built in before the account is created.",
-            "Your account starts as a standard user so onboarding stays simple.",
+            "Standardized Zen Prism foundational security.",
           ]}
           footer={
             <p className="text-xs text-slate-500">
@@ -169,255 +118,95 @@ export default function RegisterSheet({ isOpen, onOpenChange }) {
             </p>
           }
         >
-          <AnimatePresence>
-            {registrationSuccess ? (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                className="mb-5 rounded-3xl border border-emerald-200 bg-emerald-50 p-5"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="rounded-2xl bg-white p-2 shadow-sm">
-                    <CheckCircle className="h-5 w-5 text-emerald-600" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-emerald-900">
-                      Account created successfully
-                    </p>
-                    <p className="text-sm leading-6 text-emerald-700">
-                      {message}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {error && !errors.email ? (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                className="mb-5 rounded-3xl border border-red-200 bg-red-50 p-5"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="rounded-2xl bg-white p-2 shadow-sm">
-                    <AlertCircle className="h-5 w-5 text-red-600" />
-                  </div>
-                  <p className="text-sm leading-6 text-red-700">{error}</p>
-                </div>
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">
-                Full name
-              </Label>
-              <div className="relative">
-                <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  {...register("name")}
-                  placeholder="Enter your full name"
-                  disabled={loading || registrationSuccess}
-                  className={`h-13 rounded-2xl border bg-white pl-11 pr-4 text-[15px] shadow-sm transition focus-visible:ring-4 focus-visible:ring-amber-100 ${
-                    errors.name
-                      ? "border-red-300 focus-visible:ring-red-100"
-                      : "border-slate-200 focus-visible:border-amber-400"
-                  }`}
-                />
-              </div>
-              {errors.name ? (
-                <p className="flex items-center gap-2 text-sm text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  {errors.name.message}
-                </p>
-              ) : null}
-            </motion.div>
-
-            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">
-                Email address
-              </Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  {...register("email")}
-                  type="email"
-                  placeholder="you@company.com"
-                  disabled={loading || registrationSuccess}
-                  className={`h-13 rounded-2xl border bg-white pl-11 pr-4 text-[15px] shadow-sm transition focus-visible:ring-4 focus-visible:ring-amber-100 ${
-                    errors.email
-                      ? "border-red-300 focus-visible:ring-red-100"
-                      : "border-slate-200 focus-visible:border-amber-400"
-                  }`}
-                />
-              </div>
-              {errors.email ? (
-                <p className="flex items-center gap-2 text-sm text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  {errors.email.message}
-                </p>
-              ) : (
-                <p className="text-xs text-slate-500">
-                  Use an address you can access easily for future account recovery.
-                </p>
-              )}
-            </motion.div>
-
-            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="grid gap-5 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">
-                  Password
-                </Label>
-                <div className="relative">
-                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <Input
-                    {...register("password")}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create password"
-                    disabled={loading || registrationSuccess}
-                    className={`h-13 rounded-2xl border bg-white pl-11 pr-12 text-[15px] shadow-sm transition focus-visible:ring-4 focus-visible:ring-amber-100 ${
-                      errors.password
-                        ? "border-red-300 focus-visible:ring-red-100"
-                        : "border-slate-200 focus-visible:border-amber-400"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((value) => !value)}
-                    className="absolute right-3 top-1/2 rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                    disabled={loading || registrationSuccess}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.password ? (
-                  <p className="flex items-center gap-2 text-sm text-red-600">
-                    <AlertCircle className="h-4 w-4" />
-                    {errors.password.message}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">
-                  Confirm password
-                </Label>
-                <div className="relative">
-                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <Input
-                    {...register("confirmPassword")}
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Repeat password"
-                    disabled={loading || registrationSuccess}
-                    className={`h-13 rounded-2xl border bg-white pl-11 pr-12 text-[15px] shadow-sm transition focus-visible:ring-4 focus-visible:ring-amber-100 ${
-                      errors.confirmPassword
-                        ? "border-red-300 focus-visible:ring-red-100"
-                        : "border-slate-200 focus-visible:border-amber-400"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((value) => !value)}
-                    className="absolute right-3 top-1/2 rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                    disabled={loading || registrationSuccess}
-                    aria-label={
-                      showConfirmPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.confirmPassword ? (
-                  <p className="flex items-center gap-2 text-sm text-red-600">
-                    <AlertCircle className="h-4 w-4" />
-                    {errors.confirmPassword.message}
-                  </p>
-                ) : null}
-              </div>
-            </motion.div>
-
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4"
+          {isSuccess && (
+            <div
+              className="mb-6 rounded-3xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 p-6 flex items-start gap-4"
             >
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-white p-2 shadow-sm">
-                  <Sparkles className="h-4 w-4 text-amber-700" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-slate-800">
-                    Password rule
-                  </p>
-                  <p className="text-xs leading-5 text-slate-600">
-                    Use at least 8 characters with uppercase, lowercase, and a number for a stronger first setup.
-                  </p>
-                </div>
+              <div className="p-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm text-emerald-600 dark:text-emerald-400">
+                <CheckCircle className="w-5 h-5" />
               </div>
-            </motion.div>
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-emerald-900 dark:text-emerald-100">Registration Successful</p>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                  {message || "Your account has been created. We're redirecting you to sign in..."}
+                </p>
+              </div>
+            </div>
+          )}
 
-            <motion.div variants={itemVariants} initial="hidden" animate="visible">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div>
+              <Input
+                label="Full Name"
+                {...register("name")}
+                placeholder="John Doe"
+                icon={<User className="w-4 h-4 text-slate-400" />}
+                error={errors.name?.message}
+                className="pl-11"
+                disabled={isLoading || isSuccess}
+              />
+            </div>
+
+            <div>
+              <Input
+                label="Email Address"
+                {...register("email")}
+                placeholder="john@example.com"
+                icon={<Mail className="w-4 h-4 text-slate-400" />}
+                error={errors.email?.message}
+                className="pl-11"
+                disabled={isLoading || isSuccess}
+              />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Input
+                label="Password"
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                icon={<Lock className="w-4 h-4 text-slate-400" />}
+                error={errors.password?.message}
+                className="pl-11"
+                disabled={isLoading || isSuccess}
+              />
+              <Input
+                label="Confirm Password"
+                {...register("confirmPassword")}
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                icon={<Lock className="w-4 h-4 text-slate-400" />}
+                error={errors.confirmPassword?.message}
+                className="pl-11"
+                disabled={isLoading || isSuccess}
+              />
+            </div>
+
+            <div 
+              className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 flex items-start gap-3"
+            >
+               <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-primary">
+                  <Sparkles className="w-4 h-4" />
+               </div>
+               <div className="space-y-1">
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Pro Tip</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Use a strong password with symbols and numbers to ensure your project data stays protected within the Zen Prism network.
+                  </p>
+               </div>
+            </div>
+
+            <div className="pt-2">
               <Button
                 type="submit"
-                disabled={!isFormValid || loading || isSubmitting || registrationSuccess}
-                className="h-13 w-full rounded-2xl bg-[linear-gradient(135deg,#292524_0%,#a16207_52%,#f59e0b_100%)] text-base font-semibold text-white shadow-[0_18px_34px_rgba(146,64,14,0.22)] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full h-12 text-base"
+                isLoading={isSubmitting || isLoading}
+                disabled={isSuccess}
               >
-                <AnimatePresence mode="wait">
-                  {loading || isSubmitting ? (
-                    <motion.div
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      Creating your account...
-                    </motion.div>
-                  ) : registrationSuccess ? (
-                    <motion.div
-                      key="success-button"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-3"
-                    >
-                      <CheckCircle className="h-5 w-5" />
-                      Account Created
-                    </motion.div>
-                  ) : (
-                    <motion.span
-                      key="register"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-3"
-                    >
-                      <UserPlus className="h-5 w-5" />
-                      Create Account
-                      <ArrowRight className="h-5 w-5" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                Create Account
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-            </motion.div>
+            </div>
           </form>
         </AuthSheetFrame>
       </SheetContent>

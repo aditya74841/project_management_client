@@ -5,19 +5,13 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
   Mail,
   Lock,
   ArrowRight,
-  AlertCircle,
   Shield,
   KeyRound,
 } from "lucide-react";
@@ -26,26 +20,23 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/validations/auth";
 import { AuthSheetFrame } from "./AuthSheetFrame";
+import { useAuthStore } from "@/store/authStore";
+import { useUiStore } from "@/store/uiStore";
+import { Button, Input } from "../ui-core";
+import { useRouter } from "next/navigation";
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 14 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.32 } },
-};
-
-export default function LoginSheet({
-  isOpen,
-  onOpenChange,
-  onLogin,
-  onForgotPasswordClick,
-  isLoading = false,
-}) {
+export default function LoginSheet({ isOpen, onOpenChange }) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+
+  // ─── Global State ───
+  const { login, isLoading: authLoading } = useAuthStore();
+  const ui = useUiStore();
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
@@ -55,37 +46,31 @@ export default function LoginSheet({
     },
   });
 
-  const watchedValues = watch();
-
-  const handleDemoAutoFill = () => {
-    setValue("emailOrPhone", "aditya@gmail.com");
-    setValue("password", "aditya90060");
-  };
-
-  const handleDemoAdminAutoFill = () => {
-    setValue("emailOrPhone", "email1@gmail.com");
-    setValue("password", "changethepassword");
-  };
-
-  const onSubmit = async (data) => {
-    try {
-      await onLogin(data);
-    } catch (error) {
-      console.error("Login error:", error);
+  // Demo Helpers
+  const handleDemoAutoFill = (type) => {
+    if (type === "user") {
+      setValue("emailOrPhone", "aditya@gmail.com");
+      setValue("password", "Aditya90060@");
+    } else {
+      setValue("emailOrPhone", "email1@gmail.com");
+      setValue("password", "changethepassword");
     }
   };
 
-  const isFormValid =
-    watchedValues.emailOrPhone &&
-    watchedValues.password &&
-    Object.keys(errors).length === 0;
+  const onSubmit = async (data) => {
+    const success = await login({
+      email: data.emailOrPhone,
+      password: data.password
+    });
+
+    if (success) {
+      ui.closeAllAuthSheets();
+      router.push("/dashboard");
+    }
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetTrigger asChild>
-        <span />
-      </SheetTrigger>
-
       <SheetContent className="w-full overflow-y-auto border-0 p-0 shadow-2xl sm:max-w-5xl">
         <SheetHeader className="sr-only">
           <SheetTitle>Sign In</SheetTitle>
@@ -100,7 +85,7 @@ export default function LoginSheet({
           highlights={[
             "Protected sessions with refresh-token support already wired into the app.",
             "Jump back into active projects without hunting through separate tools.",
-            "Use your email or phone number, whichever is easier to reach for.",
+            "Standardized Zen Prism security layers.",
           ]}
           footer={
             <p className="text-xs text-slate-500">
@@ -108,165 +93,77 @@ export default function LoginSheet({
             </p>
           }
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="grid gap-3">
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={handleDemoAutoFill}
-                  className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-xs font-semibold text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
-                >
-                  <KeyRound className="h-4 w-4" />
-                  Fill Demo User
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDemoAdminAutoFill}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                >
-                  <Shield className="h-4 w-4" />
-                  Fill Demo Admin
-                </button>
-              </div>
-            </motion.div>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => handleDemoAutoFill("user")}
+                className="inline-flex items-center gap-2 rounded-full border border-sky-200 dark:border-sky-500/20 bg-sky-50 dark:bg-sky-500/10 px-4 py-2 text-xs font-semibold text-sky-800 dark:text-sky-300 transition hover:bg-sky-100 dark:hover:bg-sky-500/20"
+              >
+                <KeyRound className="h-4 w-4" />
+                Fill Demo User
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoAutoFill("admin")}
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                <Shield className="h-4 w-4" />
+                Fill Demo Admin
+              </button>
+            </div>
 
-            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">
-                Email or Phone
-              </Label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  {...register("emailOrPhone")}
-                  placeholder="name@company.com or phone number"
-                  className={`h-13 rounded-2xl border bg-white pl-11 pr-4 text-[15px] shadow-sm transition focus-visible:ring-4 focus-visible:ring-sky-100 ${
-                    errors.emailOrPhone
-                      ? "border-red-300 focus-visible:ring-red-100"
-                      : "border-slate-200 focus-visible:border-sky-400"
-                  }`}
-                  aria-invalid={!!errors.emailOrPhone}
-                />
-              </div>
-              {errors.emailOrPhone ? (
-                <p className="flex items-center gap-2 text-sm text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  {errors.emailOrPhone.message}
-                </p>
-              ) : (
-                <p className="text-xs text-slate-500">
-                  We support either a valid email address or a 10-15 digit phone number.
-                </p>
-              )}
-            </motion.div>
+            <div>
+              <Input
+                label="Email or Phone"
+                {...register("emailOrPhone")}
+                placeholder="name@company.com"
+                error={errors.emailOrPhone?.message}
+                className="pl-11"
+                icon={<Mail className="w-4 h-4 text-slate-400" />}
+              />
+            </div>
 
-            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold text-slate-700">
-                  Password
-                </Label>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Password</label>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (onForgotPasswordClick) onForgotPasswordClick();
-                  }}
-                  className="text-xs font-semibold text-sky-700 transition hover:text-sky-900"
+                  onClick={ui.openForgotPassword}
+                  className="text-xs font-semibold text-primary hover:underline"
                 >
                   Forgot password?
                 </button>
               </div>
               <div className="relative">
-                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <Input
                   {...register("password")}
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  className={`h-13 rounded-2xl border bg-white pl-11 pr-12 text-[15px] shadow-sm transition focus-visible:ring-4 focus-visible:ring-sky-100 ${
-                    errors.password
-                      ? "border-red-300 focus-visible:ring-red-100"
-                      : "border-slate-200 focus-visible:border-sky-400"
-                  }`}
-                  aria-invalid={!!errors.password}
+                  placeholder="••••••••"
+                  error={errors.password?.message}
+                  className="pl-11 pr-12"
+                  icon={<Lock className="w-4 h-4 text-slate-400" />}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-3 top-1/2 rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-[10px] p-2 text-slate-400 hover:text-slate-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.password ? (
-                <p className="flex items-center gap-2 text-sm text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  {errors.password.message}
-                </p>
-              ) : (
-                <p className="text-xs text-slate-500">
-                  Keep it private. You can reveal the password briefly if you need to verify it.
-                </p>
-              )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4"
-            >
-              <div className="flex items-start gap-3">
-                <div className="rounded-2xl bg-white p-2 shadow-sm">
-                  <Shield className="h-4 w-4 text-sky-700" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-slate-800">
-                    Session note
-                  </p>
-                  <p className="text-xs leading-5 text-slate-600">
-                    We’ll keep your session active so you can move between dashboard areas with less friction.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants} initial="hidden" animate="visible">
+            <div className="pt-2">
               <Button
                 type="submit"
-                disabled={!isFormValid || isSubmitting || isLoading}
-                className="h-13 w-full rounded-2xl bg-[linear-gradient(135deg,#0f172a_0%,#155e75_55%,#06b6d4_100%)] text-base font-semibold text-white shadow-[0_18px_34px_rgba(8,47,73,0.24)] transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full h-12 text-base"
+                isLoading={isSubmitting || authLoading}
               >
-                <AnimatePresence mode="wait">
-                  {isSubmitting || isLoading ? (
-                    <motion.div
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                      Signing you in...
-                    </motion.div>
-                  ) : (
-                    <motion.span
-                      key="signin"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-3"
-                    >
-                      Enter Workspace
-                      <ArrowRight className="h-5 w-5" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                Enter Workspace
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-            </motion.div>
+            </div>
           </form>
         </AuthSheetFrame>
       </SheetContent>

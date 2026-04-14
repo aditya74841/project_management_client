@@ -12,7 +12,7 @@ function DashboardLayoutContent({ children }) {
 
   if (minimal) {
     return (
-      <div className="flex h-screen w-screen overflow-hidden bg-white">
+      <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
         <main className="flex-1 overflow-auto">
           {children}
         </main>
@@ -22,12 +22,12 @@ function DashboardLayoutContent({ children }) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden">
+      <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
         {/* Sidebar */}
         <AppSidebar />
 
         {/* Right side (TopNavbar + main content) */}
-        <div className="flex flex-col flex-1 min-w-0 bg-gray-50">
+        <div className="flex flex-col flex-1 min-w-0 bg-background/50">
           {/* Top Navbar */}
           <TopNavbar />
 

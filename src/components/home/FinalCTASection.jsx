@@ -1,60 +1,109 @@
 "use client";
 
+import React from "react";
+import { motion } from "framer-motion";
+import { Rocket, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { Button } from "../ui-core";
+import { useUiStore } from "@/store/uiStore";
+
+/**
+ * Zen Prism Final CTA
+ * Optimized for high conversion with global UI triggering.
+ */
 export default function FinalCTASection() {
+  const ui = useUiStore();
+
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.5))]"></div>
+    <section className="py-32 relative overflow-hidden">
+      {/* High-Contrast Background */}
+      <div className="absolute inset-0 bg-slate-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-slate-900 to-slate-950" />
       
+      {/* Decorative Assets */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-            Ready to manage projects without the context switch?
-          </h2>
-          <p className="text-xl text-blue-100 mb-10 leading-relaxed">
-            Join hundreds of developers and students who've embedded their project management directly into their apps. Start free in under 2 minutes.
-          </p>
+        <div className="max-w-4xl mx-auto text-center space-y-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 text-white/60 text-[10px] font-black uppercase tracking-[0.2em]"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            Join the elite builders
+          </motion.div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <button className="group relative overflow-hidden rounded-full bg-white text-blue-700 px-10 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200">
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Get Started Free
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
-            </button>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.05]"
+          >
+            Ready to ship <br />
+            <span className="text-primary">faster than ever?</span>
+          </motion.h2>
 
-            <button className="px-10 py-4 rounded-full border-2 border-white text-white font-semibold hover:bg-white hover:text-blue-700 transition-all duration-200">
-              View Live Demo
-            </button>
-          </div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed"
+          >
+            Don't let scattered tools slow down your momentum. Embed your workflow, 
+            focus your energy, and launch your vision today.
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-blue-100">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Free forever plan
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              No credit card needed
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Setup in under 2 minutes
-            </div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-6"
+          >
+            <Button
+              variant="primary"
+              size="lg"
+              className="h-16 px-12 text-lg font-black group"
+              onClick={ui.openRegister}
+            >
+              Start Free Now
+              <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="lg"
+              className="h-16 px-12 text-lg font-bold text-white hover:bg-white/5"
+            >
+              Contact Sales
+            </Button>
+          </motion.div>
+
+          {/* Trust Indicators */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-wrap justify-center items-center gap-x-10 gap-y-6 pt-12"
+          >
+            {[
+              "No credit card required",
+              "Unlimited free tier",
+              "Secure data encryption"
+            ].map((text, i) => (
+              <div key={i} className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{text}</span>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
-
-      {/* Floating Elements */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-      <div className="absolute bottom-10 right-10 w-32 h-32 bg-cyan-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '1s' }}></div>
     </section>
   );
 }

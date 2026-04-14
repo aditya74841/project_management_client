@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAuthStore } from "@/store/authStore";
+import { useProjectStore } from "@/store/projectStore";
 import {
   ArrowRight,
   FolderKanban,
@@ -11,13 +12,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  getProjects,
-  selectProjects,
-  selectProjectLoading,
-} from "@/redux/slices/projectSlice";
+import { Button } from "@/components/ui-core";
 
 const quickLinks = [
   {
@@ -41,16 +36,14 @@ const quickLinks = [
 ];
 
 export default function DashboardHomeClient() {
-  const dispatch = useDispatch();
-  const projects = useSelector(selectProjects);
-  const loading = useSelector(selectProjectLoading);
-  const profile = useSelector((state) => state.auth.profile);
+  const { user } = useAuthStore();
+  const { projects, loading, fetchProjects } = useProjectStore();
 
   useEffect(() => {
     if (!projects.length) {
-      dispatch(getProjects());
+      fetchProjects();
     }
-  }, [dispatch, projects.length]);
+  }, [fetchProjects, projects.length]);
 
   const draftProjects = projects.filter((project) => project.status === "draft");
   const activeProjects = projects.filter((project) => project.status === "active");
@@ -67,7 +60,7 @@ export default function DashboardHomeClient() {
             </div>
             <div className="space-y-3">
               <h1 className="text-4xl font-semibold tracking-tight">
-                Welcome back{profile?.name ? `, ${profile.name}` : ""}.
+                Welcome back{user?.name ? `, ${user.name}` : ""}.
               </h1>
               <p className="max-w-xl text-sm leading-7 text-slate-100/86 sm:text-base">
                 Land here first, get your bearings, then move into projects or features.

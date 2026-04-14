@@ -1,41 +1,30 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, use } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import ProjectDetail from "@/components/dashboard/projects/components/ProjectDetail";
+import { useProjectStore } from "@/store/projectStore";
+import ProjectDetail from "@/features/projects/components/ProjectDetail";
+import ProjectSheet from "@/features/projects/components/ProjectSheet";
+import DeleteConfirmDialog from "@/features/projects/components/DeleteConfirmDialog";
 import LoadingState from "@/components/dashboard/LoadingState";
-import { showMessage } from "@/app/utils/showMessage";
-import ProjectSheet from "@/components/dashboard/projects/components/ProjectSheet";
-import DeleteConfirmDialog from "@/components/dashboard/projects/components/DeleteConfirmDialog";
+import { useProjectForm } from "@/features/projects/hooks/useProjectForm";
 
-import {
-  getProjectById,
-  deleteProject,
-  changeProjectStatus,
-  selectSelectedProject,
-  selectProjectLoading,
-  selectProjectUpdating,
-  selectProjectDeleting,
-  selectProjectError,
-  selectProjectMessage,
-  clearMessages,
-} from "@/redux/slices/projectSlice";
-
-import { useProjectForm } from "@/components/dashboard/projects/hooks/useProjectForm";
 
 export default function ProjectPage({ params }) {
   const { projectId } = use(params);
-  const dispatch = useDispatch();
   const router = useRouter();
 
-  /* ─── Redux state ─── */
-  const project = useSelector(selectSelectedProject);
-  const loading = useSelector(selectProjectLoading);
-  const updating = useSelector(selectProjectUpdating);
-  const deleting = useSelector(selectProjectDeleting);
-  const error = useSelector(selectProjectError);
-  const message = useSelector(selectProjectMessage);
+  /* ─── Zustand store ─── */
+  const {
+    selectedProject: project,
+    loading,
+    updating,
+    deleting,
+    fetchProjectById,
+    changeProjectStatus,
+    deleteProject,
+  } = useProjectStore();
+
 
   /* ─── Local UI state ─── */
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -57,24 +46,10 @@ export default function ProjectPage({ params }) {
   /* ─── Fetch project on mount ─── */
   useEffect(() => {
     if (projectId) {
-      dispatch(getProjectById(projectId));
+      fetchProjectById(projectId);
     }
-  }, [dispatch, projectId]);
+  }, [projectId, fetchProjectById]);
 
-  /* ─── Toast on messages ─── */
-  useEffect(() => {
-    if (message) {
-      showMessage(message, "success");
-      dispatch(clearMessages());
-    }
-  }, [message, dispatch]);
-
-  useEffect(() => {
-    if (error) {
-      showMessage(error, "error");
-      dispatch(clearMessages());
-    }
-  }, [error, dispatch]);
 
   /* ─── Handlers ─── */
   const handleOpenEdit = useCallback(() => {
@@ -85,7 +60,10 @@ export default function ProjectPage({ params }) {
       deadline: project.deadline ? project.deadline.split("T")[0] : "",
       status: project.status || "active",
       tags: (project.tags || []).join(", "),
-      techStack: (project.techStack || []).join(", "),
+      techStack: (project.techStack || []).map(cat => {
+        if (typeof cat === "string") return cat;
+        return (cat.tech || []).map(t => t.name).join(", ");
+      }).filter(Boolean).join(", "),
     });
     setSheetOpen(true);
   }, [project, setFormData]);
@@ -94,33 +72,39 @@ export default function ProjectPage({ params }) {
     const success = await formSubmit(data, projectId);
     if (success) {
       setSheetOpen(false);
-      // Refresh project data
-      dispatch(getProjectById(projectId));
+      // Data in store is refreshed automatically inside the store's updateProject
     }
-  }, [projectId, formSubmit, dispatch]);
+  }, [projectId, formSubmit]);
 
   const handleSheetCancel = useCallback(() => {
     setSheetOpen(false);
-    resetForm();
-  }, [resetForm]);
+  }, []);
+
+  // Unified Cleanup Effect: Handles state reset after drawer closing animation completes
+  useEffect(() => {
+    if (!sheetOpen) {
+      const timer = setTimeout(() => {
+        resetForm();
+      }, 400); // Wait for Radix UI transition (300ms-400ms)
+      return () => clearTimeout(timer);
+    }
+  }, [sheetOpen, resetForm]);
 
   const handleChangeStatus = useCallback((id, status) => {
-    dispatch(changeProjectStatus({ projectId: id, status }));
-  }, [dispatch]);
+    changeProjectStatus(id, status);
+  }, [changeProjectStatus]);
 
   const handleDeleteClick = useCallback(() => {
     setDeleteDialogOpen(true);
   }, []);
 
   const handleDeleteConfirm = useCallback(async () => {
-    try {
-      await dispatch(deleteProject(projectId)).unwrap();
+    const success = await deleteProject(projectId);
+    if (success) {
       setDeleteDialogOpen(false);
       router.push("/dashboard/projects");
-    } catch {
-      // error handled by Redux
     }
-  }, [projectId, dispatch, router]);
+  }, [projectId, deleteProject, router]);
 
   if (loading && !project) {
     return <LoadingState />;
@@ -129,11 +113,11 @@ export default function ProjectPage({ params }) {
   if (!project && !loading) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center text-center">
-        <h2 className="text-2xl font-bold text-slate-800">Project Not Found</h2>
-        <p className="text-slate-500 mt-2">The project you're looking for doesn't exist or has been removed.</p>
+        <h2 className="text-2xl font-bold text-foreground">Project Not Found</h2>
+        <p className="text-muted-foreground mt-2">The project you're looking for doesn't exist or has been removed.</p>
         <button
           onClick={() => router.push("/dashboard/projects")}
-          className="mt-6 text-indigo-600 font-bold hover:underline"
+          className="mt-6 text-primary font-bold hover:underline"
         >
           Go back to projects
         </button>
@@ -142,7 +126,7 @@ export default function ProjectPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-background text-foreground">
       <ProjectDetail
         project={project}
         onEdit={handleOpenEdit}

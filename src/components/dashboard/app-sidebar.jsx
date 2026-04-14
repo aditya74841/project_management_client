@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -7,6 +8,11 @@ import {
   Users,
   Settings,
   Home,
+  ChevronRight,
+  FolderOpen,
+  UserCircle,
+  Database,
+  Layers
 } from "lucide-react";
 
 import {
@@ -18,131 +24,168 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarHeader,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
-import { useSelector } from "react-redux";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { useAuthStore } from "@/store/authStore";
 
-const allItems = [
-  // {
-  //   title: "Dashboard",
-  //   url: "/dashboard",
-  //   icon: LayoutDashboard,
-  //   roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
-  // },
-  // {
-  //   title: "Audits",
-  //   url: "/dashboard/audits",
-  //   icon: ClipboardList,
-  //   roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
-  // },
-  // {
-  //   title: "Responses",
-  //   url: "/dashboard/responses",
-  //   icon: FileText,
-  //   roles: ["ADMIN", "USER", "SUPERADMIN"], // Available to both roles
-  // },
-  // {
-  //   title: "Stores",
-  //   url: "/dashboard/stores",
-  //   icon: Store,
-  //   roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
-  // },
+const navGroups = [
   {
-    title: "Company",
-    url: "/dashboard/company",
-    icon: Home,
-    roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
+    label: "Main",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+        roles: ["ADMIN", "USER", "SUPERADMIN"],
+      },
+    ],
   },
   {
-    title: "User",
-    url: "/dashboard/users",
-    icon: Users,
-    roles: ["ADMIN", "SUPERADMIN"], // Only available to ADMIN
+    label: "Workspace",
+    items: [
+      {
+        title: "Projects & Features",
+        icon: Layers,
+        roles: ["USER", "ADMIN", "SUPERADMIN"],
+        isSub: true,
+        children: [
+          { title: "All Projects", url: "/dashboard/projects" },
+          { title: "Feature Boards", url: "/dashboard/features" },
+          { title: "Project Diary", url: "/dashboard/project-diary" },
+        ],
+      },
+    ],
   },
   {
-    title: "Projects",
-    url: "/dashboard/projects",
-    icon: Users,
-    roles: ["USER","ADMIN", "SUPERADMIN"], // Only available to ADMIN
-  },
-  {
-    title: "Features",
-    url: "/dashboard/features",
-    icon: Users,
-    roles: ["USER","ADMIN", "SUPERADMIN"], // Only available to ADMIN
-  },
-  {
-    title: "Diary",
-    url: "/dashboard/project-diary",
-    icon: ClipboardList,
-    roles: ["USER", "ADMIN", "SUPERADMIN"],
+    label: "Administration",
+    items: [
+       {
+        title: "Management",
+        icon: Database,
+        roles: ["ADMIN", "SUPERADMIN"],
+        isSub: true,
+        children: [
+          { title: "Company Profile", url: "/dashboard/company" },
+          { title: "Team / Users", url: "/dashboard/users" },
+        ],
+      },
+    ],
   },
 ];
 
-export function AppSidebar() {
-  const { profile, isLoggedIn } = useSelector((state) => state.auth);
-  // console.log("The profile from sidebar component is ", profile);
+const NavItem = ({ item }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  // Filter items based on user role
-  const filteredItems = allItems.filter((item) =>
-    item.roles.includes(profile?.role)
-  );
+  if (!item.isSub) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-accent rounded-xl text-foreground font-medium py-5">
+          <a href={item.url}>
+            {item.icon && <item.icon className="w-4.5 h-4.5" />}
+            <span className="text-sm tracking-tight">{item.title}</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
 
   return (
-    <Sidebar className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white shadow-2xl min-h-screen border-r border-white/10">
-      <SidebarContent className="p-6 space-y-8">
-        {/* Logo / Title */}
-        <div className="text-center relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-20"></div>
-          <div className="relative bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-            <h1 className="text-2xl font-bold text-white">AuditPro</h1>
-            <p className="text-xs text-blue-300/80 mt-1 font-medium">
-              {profile?.role === "ADMIN" ? "Admin Dashboard" : "User Dashboard"}
-            </p>
+    <SidebarMenuItem>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="group/collapsible">
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton 
+            onClick={() => setIsOpen(!isOpen)}
+            tooltip={item.title} 
+            className="hover:bg-accent rounded-xl text-foreground font-medium py-5"
+          >
+            {item.icon && <item.icon className="w-4.5 h-4.5" />}
+            <span className="text-sm">{item.title}</span>
+            <ChevronRight className={`ml-auto h-4 w-4 transition-transform duration-200 text-muted-foreground ${isOpen ? 'rotate-90' : ''}`} />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent open={isOpen}>
+          <SidebarMenuSub className="border-l border-primary/10 ml-6 py-1 space-y-0.5 mt-0.5">
+            {item.children.map((subItem) => (
+              <SidebarMenuSubItem key={subItem.title}>
+                <SidebarMenuSubButton asChild className="hover:bg-accent rounded-lg text-muted-foreground hover:text-foreground">
+                  <a href={subItem.url}>
+                    <span>{subItem.title}</span>
+                  </a>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </Collapsible>
+    </SidebarMenuItem>
+  );
+};
+
+export function AppSidebar() {
+  const { user } = useAuthStore();
+
+  const filterByRole = (items) => {
+    return items.filter(item => item.roles.includes(user?.role));
+  };
+
+  return (
+    <Sidebar className="border-r border-border bg-sidebar shadow-xl">
+      <SidebarHeader className="p-4">
+        <div className="flex items-center gap-3 px-2 py-3 rounded-2xl bg-primary/5 border border-primary/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20">
+             <Layers className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-black tracking-tight text-foreground uppercase">Zen Prism</span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">
+               {user?.role?.toLowerCase() || "guest"} node
+            </span>
           </div>
         </div>
+      </SidebarHeader>
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-blue-300/90 uppercase text-xs font-bold tracking-widest px-3 mb-4 flex items-center gap-2">
-            <div className="w-1 h-4 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full"></div>
-            Navigation
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-3">
-              {filteredItems.map((item, index) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className="group w-full flex items-center gap-4 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 text-sm font-medium text-white hover:text-white border border-white/5 hover:border-white/20 backdrop-blur-sm hover:shadow-lg hover:shadow-blue-500/20 hover:scale-[1.02] transform"
-                  >
-                    <a href={item.url}>
-                      <div className="relative">
-                        <item.icon className="w-5 h-5 text-blue-300 group-hover:text-blue-200 transition-colors duration-300" />
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                      </div>
-                      <span className="group-hover:translate-x-1 transition-transform duration-300 text-blue-500">
-                        {item.title}
-                      </span>
-                      <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-1 h-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"></div>
-                      </div>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="px-3 py-2 space-y-4">
+        {navGroups.map((group) => {
+          const filteredItems = filterByRole(group.items);
+          if (filteredItems.length === 0) return null;
 
-        {/* Bottom accent */}
-        <div className="mt-auto pt-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"></div>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-blue-500/60">
-              Version 2.0 • {profile?.role || "Guest"}
-            </p>
-          </div>
-        </div>
+          return (
+            <SidebarGroup key={group.label} className="p-0">
+              <SidebarGroupLabel className="px-3 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">
+                {group.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {filteredItems.map((item) => (
+                    <NavItem key={item.title} item={item} />
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
+
+      <SidebarFooter className="p-4 border-t border-border/50">
+        <div className="flex items-center gap-3 px-2 py-0.5">
+           <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center border border-border">
+              <UserCircle className="w-4 h-4 text-muted-foreground" />
+           </div>
+           <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{user?.name}</p>
+              <p className="text-[10px] text-muted-foreground font-medium tracking-tight">Active Session</p>
+           </div>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

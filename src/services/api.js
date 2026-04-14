@@ -1,102 +1,21 @@
-// // src/services/api.js
-// import axios from "axios";
-// import store from "@/app/store";
-// import { setAccessToken, handleLogout } from "@/components/HomePage/store";
-
-// // Create axios instance
-// const api = axios.create({
-//   baseURL: process.env.USER_SERVER_URL,
-//   withCredentials: true, // ensures refresh token cookie is sent
-// });
-
-// // Flag to avoid multiple refresh calls
-// let isRefreshing = false;
-// let failedQueue = [];
-
-// const processQueue = (error, token = null) => {
-//   failedQueue.forEach((prom) => {
-//     if (error) {
-//       prom.reject(error);
-//     } else {
-//       prom.resolve(token);
-//     }
-//   });
-
-//   failedQueue = [];
-// };
-
-// // Add response interceptor
-// api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
-
-//     // If 401 → try refresh
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       if (isRefreshing) {
-//         // queue requests until refresh finishes
-//         return new Promise((resolve, reject) => {
-//           failedQueue.push({ resolve, reject });
-//         })
-//           .then((token) => {
-//             originalRequest.headers["Authorization"] = `Bearer ${token}`;
-//             return api(originalRequest);
-//           })
-//           .catch((err) => Promise.reject(err));
-//       }
-
-//       originalRequest._retry = true;
-//       isRefreshing = true;
-
-//       try {
-//         // Call refresh endpoint
-//         const { data } = await axios.post(
-//           `${process.env.USER_SERVER_URL}/refresh-token`,
-//           {},
-//           { withCredentials: true }
-//         );
-
-//         const newAccessToken = data?.data?.accessToken;
-
-//         if (newAccessToken) {
-//           // ✅ Save in Redux
-//           store.dispatch(setAccessToken(newAccessToken));
-
-//           // ✅ Process queued requests
-//           processQueue(null, newAccessToken);
-
-//           // ✅ Retry the failed request with new token
-//           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-//           return api(originalRequest);
-//         }
-//       } catch (err) {
-//         processQueue(err, null);
-//         store.dispatch(handleLogout()); // logout if refresh fails
-//         return Promise.reject(err);
-//       } finally {
-//         isRefreshing = false;
-//       }
-//     }
-
-//     return Promise.reject(error);
-//   }
-// );
-
-// export default api;
-
-
-
-// src/services/api.js
 import axios from "axios";
+import { useLoadingStore } from "@/store/useLoadingStore";
 
-// Create axios instance
+/**
+ * Global API Service
+ * Centralized Axios instance with advanced interceptors for
+ * authentication, error handling, and response normalization.
+ */
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:8080/api/v1",
   withCredentials: true,
-  timeout: 10000,
+  timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Flag to avoid multiple refresh calls
+// Flag to prevent multiple refresh calls simultaneously
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -111,21 +30,22 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Request interceptor to add token
 api.interceptors.request.use(
   (config) => {
-    // Get token from localStorage (since we can't import store here)
-    const persistedAuth = localStorage.getItem('persist:auth');
-    if (persistedAuth) {
+    // Global Loading Pulse
+    useLoadingStore.getState().startRequest();
+
+    // 1. Attempt to get token from storage
+    // Note: We use a standardized key 'auth-storage' for Zustand persistence later
+    const persistedData = localStorage.getItem("auth-storage");
+    if (persistedData) {
       try {
-        const authData = JSON.parse(persistedAuth);
-        const accessToken = authData.accessToken ? JSON.parse(authData.accessToken) : null;
-        
-        if (accessToken) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
+        const { state } = JSON.parse(persistedData);
+        if (state?.accessToken) {
+          config.headers.Authorization = `Bearer ${state.accessToken}`;
         }
-      } catch (error) {
-        console.error('Error parsing auth token:', error);
+      } catch (err) {
+        console.error("API: Auth Header Attachment Failed", err);
       }
     }
     return config;
@@ -133,12 +53,18 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for token refresh
+/* ─── Response Interceptor ─── */
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    useLoadingStore.getState().stopRequest();
+    // Automatically extract data to reduce boilerplate in components
+    return response.data;
+  },
   async (error) => {
+    useLoadingStore.getState().stopRequest();
     const originalRequest = error.config;
 
+    // Handle 401 Unauthorized (Token Expired)
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -155,45 +81,45 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call refresh endpoint
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_USER_SERVER_URL || "http://localhost:8080/api/v1"}/refresh-token`,
+        // Attempt Token Refresh
+        const refreshResponse = await axios.post(
+          `${api.defaults.baseURL}/users/refresh-token`,
           {},
           { withCredentials: true }
         );
 
-        const newAccessToken = data?.data?.accessToken;
+        const newAccessToken = refreshResponse.data?.data?.accessToken;
 
         if (newAccessToken) {
-          // Update localStorage directly
-          const persistedAuth = localStorage.getItem('persist:auth');
-          if (persistedAuth) {
-            const authData = JSON.parse(persistedAuth);
-            authData.accessToken = JSON.stringify(newAccessToken);
-            localStorage.setItem('persist:auth', JSON.stringify(authData));
+          // Update storage manually if needed (Zustand usually handles this, 
+          // but we ensure immediate availability for the queue)
+          const persistedData = localStorage.getItem("auth-storage");
+          if (persistedData) {
+            const parsed = JSON.parse(persistedData);
+            parsed.state.accessToken = newAccessToken;
+            localStorage.setItem("auth-storage", JSON.stringify(parsed));
           }
 
-          // Process queued requests
           processQueue(null, newAccessToken);
-
-          // Retry the failed request with new token
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         }
-      } catch (err) {
-        processQueue(err, null);
-        
-        // Clear auth data on refresh failure
-        // localStorage.removeItem('persist:auth');
-        // window.location.href = '/';
-        
-        return Promise.reject(err);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        // Critical: Handle Refresh Failure (Logout)
+        // We trigger an event that the Auth store can listen to
+        window.dispatchEvent(new Event("auth-session-expired"));
+
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(error);
+    // Enhance error message for the UI
+    const message = error.response?.data?.message || "An unexpected network error occurred.";
+    return Promise.reject({ ...error, message });
   }
 );
 
