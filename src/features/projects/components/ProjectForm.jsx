@@ -15,7 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { Button, Input } from "@/components/ui-core";
+import { Button, Input, Textarea } from "@/components/ui-core";
 
 const statusOptions = [
   { value: "draft", label: "Draft" },
@@ -71,93 +71,65 @@ const ProjectForm = ({
           />
 
           {!createMode && (
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
-                  Lifecycle State
-                </label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors">
-                    <Activity size={16} />
+            <>
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                    Lifecycle State
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors">
+                      <Activity size={16} />
+                    </div>
+                    <select
+                      id="status"
+                      name="status"
+                      value={formData.status}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      className="h-12 w-full pl-11 pr-4 rounded-2xl border border-border bg-background text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 appearance-none cursor-pointer transition-all"
+                    >
+                      {statusOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    className="h-12 w-full pl-11 pr-4 rounded-2xl border border-border bg-background text-sm font-bold text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 appearance-none cursor-pointer transition-all"
-                  >
-                    {statusOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
                 </div>
+
+                <Input
+                  label="Target Milestone"
+                  id="deadline"
+                  name="deadline"
+                  type="date"
+                  value={formData.deadline}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  error={touched.deadline ? errors.deadline : null}
+                  icon={<Calendar className="w-4 h-4 !text-gray-500 dark:!text-gray-100 cursor-pointer" />}
+                />
               </div>
 
-              <Input
-                label="Target Milestone"
-                id="deadline"
-                name="deadline"
-                type="date"
-                value={formData.deadline}
-                onChange={onChange}
-                onBlur={onBlur}
-                error={touched.deadline ? errors.deadline : null}
-                icon={<Calendar className="w-4 h-4 text-muted-foreground" />}
-              />
-            </div>
+              {/* Strategic Narrative Section — full width, outside the grid */}
+              <section className="space-y-8">
+                <SectionLabel icon={AlignLeft} label="Strategic Narrative" />
+                <Textarea
+                  label="Executive Summary"
+                  id="description"
+
+                  name="description"
+                  placeholder="Define the vision, core objectives, and strategic alignment..."
+                  value={formData.description}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  error={touched.description ? errors.description : null}
+                  icon={<AlignLeft className="w-4 h-4 text-muted-foreground" />}
+                />
+              </section>
+            </>
           )}
         </section>
-
-        {/* Narrative Section */}
-        <section className="space-y-8">
-          <SectionLabel icon={AlignLeft} label="Strategic Narrative" />
-          <Input
-            label="Executive Summary"
-            id="description"
-            name="description"
-            placeholder="Define the vision, core objectives, and strategic alignment..."
-            value={formData.description}
-            onChange={onChange}
-            onBlur={onBlur}
-            error={touched.description ? errors.description : null}
-            icon={<AlignLeft className="w-4 h-4 text-muted-foreground" />}
-          />
-        </section>
-
-        {/* Technical Registry Section */}
-        {/* {!createMode && (
-          <section className="space-y-8">
-            <SectionLabel icon={Code2} label="Technical Taxonomy" />
-            <div className="grid gap-6 sm:grid-cols-2">
-               <Input
-                  label="Architecture"
-                  id="techStack"
-                  name="techStack"
-                  placeholder="e.g. React, Node.js, PostgreSQL"
-                  value={formData.techStack}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  error={touched.techStack ? errors.techStack : null}
-                  icon={<Code2 className="w-4 h-4 text-slate-400" />}
-               />
-               <Input
-                  label="Metadata Tags"
-                  id="tags"
-                  name="tags"
-                  placeholder="e.g. backend, priority, prototype"
-                  value={formData.tags}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                  error={touched.tags ? errors.tags : null}
-                  icon={<Tag className="w-4 h-4 text-slate-400" />}
-               />
-            </div>
-          </section>
-        )} */}
       </div>
 
       {/* Global Actions */}

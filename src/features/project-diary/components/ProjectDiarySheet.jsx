@@ -58,6 +58,8 @@ const ProjectDiarySheet = ({
     onBlur,
     onSubmit,
     onCancel,
+    projects = [],
+    isProjectFixed = false,
 }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -67,10 +69,10 @@ const ProjectDiarySheet = ({
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent 
-                className="w-full overflow-y-auto border-l border-slate-100 bg-white p-0 shadow-2xl sm:max-w-xl"
+                className="w-full overflow-y-auto border-l border-border bg-card p-0 shadow-2xl sm:max-w-xl"
             >
                 {/* Header Section */}
-                <div className="sticky top-0 z-20 border-b border-slate-50 bg-white/80 px-10 py-10 backdrop-blur-xl flex justify-between items-center">
+                <div className="sticky top-0 z-20 border-b border-border bg-card/80 px-10 py-10 backdrop-blur-xl flex justify-between items-center">
                     <SheetHeader className="p-0 text-left">
                         <div className="space-y-2">
                             <div className="flex items-center gap-2.5">
@@ -91,7 +93,7 @@ const ProjectDiarySheet = ({
                     
                     <button 
                         onClick={onCancel}
-                        className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-90"
+                        className="p-3 rounded-2xl bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all active:scale-90"
                     >
                         <X size={24} />
                     </button>
@@ -99,6 +101,36 @@ const ProjectDiarySheet = ({
 
                 {/* Form Logic */}
                 <form id="project-diary-form" onSubmit={handleSubmit} className="px-10 py-12 space-y-10">
+                    {!isEditing && (
+                        <div className="space-y-2 pb-4">
+                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+                                Target Project
+                            </label>
+                            <Select
+                                value={formData.projectId}
+                                onValueChange={(value) => onSelectChange("projectId", value)}
+                                disabled={isProjectFixed}
+                            >
+                                <SelectTrigger className="h-14 rounded-[1.5rem] border-border bg-muted/20 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-black text-sm text-foreground">
+                                    <SelectValue placeholder="Select Project Node" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl border-border p-2 shadow-2xl bg-card max-h-[300px]">
+                                    {projects.map((p) => (
+                                        <SelectItem key={p._id} value={p._id} className="rounded-xl py-3 font-bold text-xs focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
+                                            {p.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.projectId && (
+                                <p className="text-[10px] font-bold text-rose-500 ml-1">{errors.projectId}</p>
+                            )}
+                            {isProjectFixed && (
+                                <p className="text-[9px] font-medium text-muted-foreground ml-1 italic">Locked to current project context.</p>
+                            )}
+                        </div>
+                    )}
+
                     <Input
                         label="Entry Designation"
                         id="title"
@@ -126,17 +158,17 @@ const ProjectDiarySheet = ({
 
                     <div className="grid grid-cols-2 gap-6 pt-4">
                         <div className="space-y-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">
+                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
                                 Lifecycle State
                             </label>
                             <Select
                                 value={formData.status}
                                 onValueChange={(value) => onSelectChange("status", value)}
                             >
-                                <SelectTrigger className="h-12 rounded-2xl border-slate-200 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold text-slate-700">
+                                <SelectTrigger className="h-12 rounded-2xl border-border bg-background focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold text-foreground">
                                     <SelectValue placeholder="Stage" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-xl">
+                                <SelectContent className="rounded-2xl border-border p-2 shadow-xl">
                                     {STATUS_OPTIONS.map((opt) => (
                                         <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-2.5 font-bold text-xs uppercase tracking-widest focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
                                             {opt.label}
@@ -147,17 +179,17 @@ const ProjectDiarySheet = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-500 ml-1">
+                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
                                 Criticality
                             </label>
                             <Select
                                 value={formData.priority}
                                 onValueChange={(value) => onSelectChange("priority", value)}
                             >
-                                <SelectTrigger className="h-12 rounded-2xl border-slate-200 focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold text-slate-700">
+                                <SelectTrigger className="h-12 rounded-2xl border-border bg-background focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all font-bold text-foreground">
                                     <SelectValue placeholder="Impact" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-xl">
+                                <SelectContent className="rounded-2xl border-border p-2 shadow-xl">
                                     {PRIORITY_OPTIONS.map((opt) => (
                                         <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-2.5 font-bold text-xs uppercase tracking-widest focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
                                             {opt.label}
@@ -169,7 +201,7 @@ const ProjectDiarySheet = ({
                     </div>
 
                     {/* Quick Access Actions */}
-                    <div className="flex gap-4 pt-10 border-t border-slate-50">
+                    <div className="flex gap-4 pt-10 border-t border-border">
                         <Button
                             type="button"
                             variant="outline"
@@ -192,9 +224,9 @@ const ProjectDiarySheet = ({
                 </form>
 
                 {/* Perspective Metadata */}
-                <div className="px-10 py-8 border-t border-slate-50 bg-slate-50/50">
-                    <div className="flex items-center gap-4 text-slate-400">
-                        <div className="p-2 bg-white rounded-xl shadow-sm">
+                <div className="px-10 py-8 border-t border-border bg-muted/30">
+                    <div className="flex items-center gap-4 text-muted-foreground">
+                        <div className="p-2 bg-background rounded-xl shadow-sm border border-border">
                             <Sparkles className="w-4 h-4 text-primary" />
                         </div>
                         <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed max-w-sm">

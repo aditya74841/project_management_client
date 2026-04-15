@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, MoreVertical, Edit3, Trash2 } from "lucide-react";
+import { ArrowRight, MoreVertical, Edit3, Trash2, Edit } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -85,7 +85,16 @@ const ProjectListRow = ({ project }) => {
           >
             <ArrowRight size={18} />
           </Button>
-
+          <Button
+            onClick={() => {
+              setTimeout(() => openEditSheet(project), 100);
+            }}
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
+          >
+            <Edit size={18} />
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground">
@@ -93,14 +102,7 @@ const ProjectListRow = ({ project }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52 rounded-xl p-2 border-border bg-popover shadow-2xl">
-              <DropdownMenuItem
-                onSelect={(e) => {
-                  setTimeout(() => openEditSheet(project), 100);
-                }}
-                className="rounded-lg gap-2 cursor-pointer font-bold"
-              >
-                <Edit3 size={14} className="text-muted-foreground" /> Edit Details
-              </DropdownMenuItem>
+
 
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="rounded-lg gap-2 font-bold">
@@ -126,6 +128,7 @@ const ProjectListRow = ({ project }) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onSelect={(e) => {
+                  e.preventDefault();
                   setTimeout(() => setDeleteTarget(project), 100);
                 }}
                 className="rounded-lg gap-2 text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"

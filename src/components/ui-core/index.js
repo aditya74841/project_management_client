@@ -92,3 +92,4 @@ export const Textarea = ({ label, error, className, ...props }) => (
 
 // 5. Page Layout Core (Consolidated)
 export * from "./PageHub";
+export * from "./GlobalLoader";

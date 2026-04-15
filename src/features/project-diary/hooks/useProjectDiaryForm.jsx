@@ -11,8 +11,8 @@ import {
  * Fully synchronized with the global diaryStore.
  */
 export const useProjectDiaryForm = () => {
-    const { 
-        createDiary, 
+    const {
+        createDiary,
         updateDiary,
         isSheetOpen,
         openCreateSheet,
@@ -25,8 +25,9 @@ export const useProjectDiaryForm = () => {
         description: "",
         status: "idea",
         priority: "medium",
+        projectId: "",
     });
-    
+
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
 
@@ -46,7 +47,7 @@ export const useProjectDiaryForm = () => {
         (e) => {
             const { name, value } = e.target;
             setFormData((p) => ({ ...p, [name]: value }));
-            
+
             // Real-time validation
             const err = validateProjectDiaryField(name, value, formData);
             setErrors((prev) => ({ ...prev, [name]: err }));
@@ -78,9 +79,10 @@ export const useProjectDiaryForm = () => {
      */
     const handleSubmit = useCallback(
         async (data, id) => {
+            console.log("The data and Id is", data, id)
             // Mark all core fields as touched
             setTouched({ title: true, description: true, status: true, priority: true });
-            
+
             if (!validateForm()) return false;
 
             const payload = {
@@ -94,7 +96,7 @@ export const useProjectDiaryForm = () => {
             // Call global store actions
             return id
                 ? await updateDiary(id, payload)
-                : await createDiary(payload);
+                : await createDiary(payload.projectId || null, payload);
         },
         [validateForm, createDiary, updateDiary]
     );
@@ -103,7 +105,7 @@ export const useProjectDiaryForm = () => {
      * Form State Reset
      */
     const resetForm = useCallback(() => {
-        setFormData({ title: "", description: "", status: "idea", priority: "medium" });
+        setFormData({ title: "", description: "", status: "idea", priority: "medium", projectId: "" });
         setErrors({});
         setTouched({});
     }, []);
@@ -117,6 +119,7 @@ export const useProjectDiaryForm = () => {
             description: diary.description || "",
             status: diary.status || "idea",
             priority: diary.priority || "medium",
+            projectId: diary.projectId || "",
         });
         setErrors({});
         setTouched({});

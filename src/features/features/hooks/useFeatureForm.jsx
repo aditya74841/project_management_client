@@ -6,7 +6,6 @@ import { useFeatureStore } from "@/store/featureStore";
 const initialFormState = {
   title: "",
   description: "",
-  benefits: "",
   priority: "medium",
   status: "pending",
   deadline: new Date().toISOString().split("T")[0],
@@ -65,7 +64,6 @@ export const useFeatureForm = () => {
     setFormData({
       title: feature.title || "",
       description: feature.description || "",
-      benefits: feature.benefits || "",
       priority: feature.priority || "medium",
       status: feature.status || "pending",
       deadline: feature.deadline ? new Date(feature.deadline).toISOString().split("T")[0] : "",

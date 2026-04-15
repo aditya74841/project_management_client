@@ -216,8 +216,8 @@ const FeaturePageClient = () => {
                  className="w-full h-14 pl-16 pr-6 rounded-2xl border-2 border-slate-100 bg-white text-sm font-bold text-slate-900 outline-none focus:border-primary transition-all appearance-none cursor-pointer"
                >
                   <option value="">Select a registry node...</option>
-                  {projects.map((p) => (
-                    <option key={p._id} value={p._id}>{p.name}</option>
+                  {projects.map((p, index) => (
+                    <option key={p._id || index} value={p._id}>{p.name}</option>
                   ))}
                </select>
             </div>

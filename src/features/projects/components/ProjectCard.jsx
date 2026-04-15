@@ -96,6 +96,7 @@ const ProjectCard = ({ project }) => {
           <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2.5 border-border bg-popover shadow-2xl">
               <DropdownMenuItem 
                 onSelect={(e) => {
+                  e.preventDefault();
                   setTimeout(() => openEditSheet(project), 100);
                 }} 
                 className="rounded-xl gap-3 py-3 cursor-pointer"
@@ -129,6 +130,7 @@ const ProjectCard = ({ project }) => {
             <DropdownMenuSeparator className="my-2 bg-muted" />
             <DropdownMenuItem
               onSelect={(e) => {
+                e.preventDefault();
                 setTimeout(() => setDeleteTarget(project), 100);
               }}
               className="rounded-xl gap-3 py-3 text-rose-500 focus:text-rose-500 focus:bg-rose-500/10 cursor-pointer"
@@ -193,6 +195,13 @@ const ProjectCard = ({ project }) => {
         </div>
 
         <div className="flex gap-2">
+           <button 
+              onClick={() => router.push(`/dashboard/project-diary?projectId=${project._id}`)}
+              className="h-10 px-4 rounded-xl bg-indigo-600/10 text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
+           >
+              <BookText size={14} />
+              Open Diary
+           </button>
            <button 
               onClick={() => router.push(`/dashboard/projects/${project._id}`)}
               className="h-10 px-5 rounded-xl bg-slate-950 text-white font-black text-[11px] uppercase tracking-widest flex items-center gap-2 hover:bg-primary transition-colors shadow-lg shadow-slate-950/20 active:scale-95"

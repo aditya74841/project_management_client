@@ -21,6 +21,7 @@ import {
     Box
 } from "lucide-react";
 import { Button, Input, Textarea } from "@/components/ui-core";
+import { cn } from "@/lib/utils";
 
 const STATUS_OPTIONS = [
     { value: "pending", label: "Registry Pending" },
@@ -76,7 +77,7 @@ const FeatureForm = ({
                 className="h-14 text-sm"
             />
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-1 gap-8">
                 <Textarea
                     label="Technical Vision"
                     id="description"
@@ -88,46 +89,36 @@ const FeatureForm = ({
                     error={touched.description ? errors.description : null}
                     className="min-h-[160px]"
                 />
-
-                <Textarea
-                    label="Strategic Benefits"
-                    id="benefits"
-                    name="benefits"
-                    placeholder="Identify key value propositions and user impact..."
-                    value={formData.benefits}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    error={touched.benefits ? errors.benefits : null}
-                    className="min-h-[160px]"
-                />
             </div>
 
             {/* Registry Metadata */}
-            <div className="grid md:grid-cols-3 gap-8 pt-4">
-                <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                        Criticality
-                    </label>
-                    <Select
-                        value={formData.priority}
-                        onValueChange={(v) => onChange({ target: { name: "priority", value: v } })}
-                    >
-                        <SelectTrigger className="h-14 rounded-2xl border-2 border-slate-100 bg-white font-bold text-slate-700 focus:ring-4 focus:ring-primary/5 transition-all">
-                            <SelectValue placeholder="Impact" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-2xl">
-                            {PRIORITY_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 font-bold text-[10px] uppercase tracking-widest focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
-                                    {opt.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+            <div className={cn("grid gap-8 pt-4", isEditing ? "grid-cols-1" : "grid-cols-3")}>
+                {!isEditing && (
+                   <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                           Criticality
+                       </label>
+                       <Select
+                           value={formData.priority}
+                           onValueChange={(v) => onChange({ target: { name: "priority", value: v } })}
+                       >
+                           <SelectTrigger className="h-14 rounded-2xl border-2 border-slate-100 bg-white font-bold text-slate-700 focus:ring-4 focus:ring-primary/5 transition-all">
+                               <SelectValue placeholder="Impact" />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-2xl">
+                               {PRIORITY_OPTIONS.map((opt) => (
+                                   <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 font-bold text-[10px] uppercase tracking-widest focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
+                                       {opt.label}
+                                   </SelectItem>
+                               ))}
+                           </SelectContent>
+                       </Select>
+                   </div>
+                )}
 
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                        Target Phase
+                        Target Deadline
                     </label>
                     <Input
                         id="deadline"
@@ -141,57 +132,61 @@ const FeatureForm = ({
                     />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
-                        Status Registry
-                    </label>
-                    <Select
-                        value={formData.status}
-                        onValueChange={(v) => onChange({ target: { name: "status", value: v } })}
-                        disabled={!isEditing}
-                    >
-                        <SelectTrigger className="h-14 rounded-2xl border-2 border-slate-100 bg-white font-bold text-slate-700 focus:ring-4 focus:ring-primary/5 transition-all disabled:bg-slate-50 disabled:text-slate-400">
-                            <SelectValue placeholder="Phase" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-2xl">
-                            {STATUS_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 font-bold text-[10px] uppercase tracking-widest focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
-                                    {opt.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                {!isEditing && (
+                   <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                           Status Registry
+                       </label>
+                       <Select
+                           value={formData.status}
+                           onValueChange={(v) => onChange({ target: { name: "status", value: v } })}
+                           disabled={!isEditing}
+                       >
+                           <SelectTrigger className="h-14 rounded-2xl border-2 border-slate-100 bg-white font-bold text-slate-700 focus:ring-4 focus:ring-primary/5 transition-all disabled:bg-slate-50 disabled:text-slate-400">
+                               <SelectValue placeholder="Phase" />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-2xl">
+                               {STATUS_OPTIONS.map((opt) => (
+                                   <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 font-bold text-[10px] uppercase tracking-widest focus:bg-primary/5 focus:text-primary mb-1 last:mb-0">
+                                       {opt.label}
+                                   </SelectItem>
+                               ))}
+                           </SelectContent>
+                       </Select>
+                   </div>
+                )}
             </div>
 
             {/* Categorization Tags */}
-            <div className="space-y-3 pt-4">
-                <Input
-                    label="Categorization Registry (Tags)"
-                    id="tags"
-                    name="tags"
-                    value={Array.isArray(formData.tags) ? formData.tags.join(", ") : ""}
-                    onChange={onTagsChange}
-                    onBlur={onBlur}
-                    placeholder="e.g. backend, architecture, api..."
-                    icon={<Tag className="w-4 h-4 text-slate-400" />}
-                    className="h-14"
-                />
-                <div className="flex items-center gap-4 px-1">
-                   <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                       Separate with commas for decentralized indexing.
-                   </p>
-                   {formData.tags?.length > 0 && (
-                      <div className="flex gap-2">
-                         {formData.tags.map((t, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black uppercase text-slate-500 tracking-tighter">
-                               {t}
-                            </span>
-                         ))}
-                      </div>
-                   )}
-                </div>
-            </div>
+            {!isEditing && (
+               <div className="space-y-3 pt-4">
+                   <Input
+                       label="Categorization Registry (Tags)"
+                       id="tags"
+                       name="tags"
+                       value={Array.isArray(formData.tags) ? formData.tags.join(", ") : ""}
+                       onChange={onTagsChange}
+                       onBlur={onBlur}
+                       placeholder="e.g. backend, architecture, api..."
+                       icon={<Tag className="w-4 h-4 text-slate-400" />}
+                       className="h-14"
+                   />
+                   <div className="flex items-center gap-4 px-1">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                          Separate with commas for decentralized indexing.
+                      </p>
+                      {formData.tags?.length > 0 && (
+                         <div className="flex gap-2">
+                            {formData.tags.map((t, idx) => (
+                               <span key={idx} className="px-2 py-0.5 rounded-md bg-slate-100 text-[8px] font-black uppercase text-slate-500 tracking-tighter">
+                                  {t}
+                               </span>
+                            ))}
+                         </div>
+                      )}
+                   </div>
+               </div>
+            )}
 
             {/* Formal Action Registry */}
             <div className="flex gap-4 pt-10 border-t border-slate-50">

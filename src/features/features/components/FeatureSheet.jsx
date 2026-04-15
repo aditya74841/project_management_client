@@ -55,7 +55,7 @@ const FeatureSheet = ({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
-        className="w-full max-w-2xl sm:max-w-3xl bg-white p-0 border-l border-slate-100 shadow-2xl overflow-hidden flex flex-col"
+        className="w-full max-w-2xl sm:max-w-3xl bg-card p-0 border-l border-border shadow-2xl overflow-hidden flex flex-col"
         side="right"
       >
         <div className="flex-1 overflow-y-auto no-scrollbar">
@@ -65,19 +65,19 @@ const FeatureSheet = ({
                 <div className="flex justify-between items-start mb-12">
                    <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                         <div className="w-12 h-12 rounded-[1.25rem] bg-indigo-600 shadow-xl shadow-indigo-100 flex items-center justify-center text-white">
-                            <Zap size={22} fill="white" />
+                         <div className="w-12 h-12 rounded-[1.25rem] bg-primary shadow-xl shadow-primary/20 flex items-center justify-center text-background">
+                            <Zap size={22} fill="currentColor" />
                          </div>
                          <div className="space-y-0.5">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
                                Execution Registry Core
                             </p>
-                            <SheetTitle className="text-3xl font-black text-slate-900 tracking-tight">
+                            <SheetTitle className="text-3xl font-black text-foreground tracking-tight">
                                {isEditing ? "Refine Milestone" : "Define Feature"}
                             </SheetTitle>
                          </div>
                       </div>
-                      <SheetDescription className="text-sm font-medium text-slate-400 max-w-md">
+                      <SheetDescription className="text-sm font-medium text-muted-foreground/60 max-w-md leading-relaxed">
                          {isEditing
                            ? "Optimize the technical requirements and strategic alignment for this registry node."
                            : "Initialize a new development track for your project's feature distribution."}
@@ -86,7 +86,7 @@ const FeatureSheet = ({
 
                    <button 
                      onClick={onCancel}
-                     className="p-3 rounded-2xl bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-95"
+                     className="p-3 rounded-2xl bg-muted text-muted-foreground/30 hover:text-foreground hover:bg-muted/80 transition-all active:scale-95 border border-transparent hover:border-border"
                    >
                      <X size={24} />
                    </button>
@@ -110,10 +110,10 @@ const FeatureSheet = ({
                 </div>
                 
                 {feature && (
-                   <div className="mt-12 pt-8 border-t border-slate-50">
+                   <div className="mt-12 pt-8 border-t border-border/50">
                       <button 
                         onClick={() => setTabValue("details")}
-                        className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-primary transition-all group"
+                        className="flex items-center gap-2 text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest hover:text-primary transition-all group"
                       >
                         <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                         Back to Analysis Details
@@ -122,15 +122,15 @@ const FeatureSheet = ({
                 )}
              </div>
           ) : (
-            <div className="h-full flex flex-col bg-slate-50/30">
+            <div className="h-full flex flex-col bg-muted/20">
                <div className="flex-1 overflow-y-auto no-scrollbar">
                   <FeatureDetails feature={feature} />
                </div>
-               <div className="p-8 bg-white border-t border-slate-100 shadow-[0_-10px_30px_rgba(0,0,0,0.02)] relative z-10">
+               <div className="p-8 bg-card border-t border-border shadow-[0_-10px_30px_rgba(0,0,0,0.02)] relative z-10">
                   <Button 
                     variant="outline"
                     onClick={() => setTabValue("form")}
-                    className="w-full h-14 rounded-2xl gap-3 font-black text-[11px] uppercase tracking-widest border-2 border-slate-100 hover:border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
+                    className="w-full h-14 rounded-2xl gap-3 font-black text-[11px] uppercase tracking-widest border-2 border-border/50 hover:border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
                   >
                     <Settings2 className="w-4 h-4" />
                     Modify Technical Configuration

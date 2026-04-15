@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import LoadingState from "@/components/dashboard/LoadingState";
-import ProjectDiaryPageClient from "@/components/dashboard/project-diary/components/ProjectDiaryPageClient";
+import ProjectDiaryPageClient from "@/features/project-diary/components/ProjectDiaryPageClient";
 
 export const metadata = {
   title: "Project Diary | Dashboard",

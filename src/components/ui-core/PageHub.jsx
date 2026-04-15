@@ -34,7 +34,7 @@ export const PageHeader = ({ title, subtitle, actions, icon: Icon }) => (
             <Icon className="w-6 h-6" />
           </div>
         )}
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
           {title}
         </h1>
       </div>
@@ -44,7 +44,7 @@ export const PageHeader = ({ title, subtitle, actions, icon: Icon }) => (
         </p>
       )}
     </div>
-    
+
     {actions && (
       <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-500">
         {actions}

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import ProjectDiaryDetail from "@/components/dashboard/project-diary/components/ProjectDiaryDetail";
+import ProjectDiaryDetail from "@/features/project-diary/components/ProjectDiaryDetail";
 
 export default function DiaryViewPage() {
   const params = useParams();

@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
  */
 const ProjectDiaryEmptyState = ({ onAddDiary }) => {
     return (
-        <div className="flex flex-col items-center justify-center min-h-[500px] p-8 text-center bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-100 mt-6">
+        <div className="flex flex-col items-center justify-center min-h-[500px] p-8 text-center bg-muted/50 rounded-[3rem] border-2 border-dashed border-border mt-6">
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -19,7 +19,7 @@ const ProjectDiaryEmptyState = ({ onAddDiary }) => {
                 className="relative mb-8"
             >
                 <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-                <div className="relative w-24 h-24 bg-white rounded-[2rem] shadow-xl flex items-center justify-center text-primary border border-slate-100">
+                <div className="relative w-24 h-24 bg-card rounded-[2rem] shadow-xl flex items-center justify-center text-primary border border-border">
                     <BookOpen size={40} strokeWidth={1.5} />
                     <div className="absolute -top-2 -right-2 p-1.5 bg-primary rounded-xl text-white shadow-lg">
                         <Sparkles size={16} />
@@ -33,10 +33,10 @@ const ProjectDiaryEmptyState = ({ onAddDiary }) => {
                 transition={{ delay: 0.2 }}
                 className="max-w-md space-y-4"
             >
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl font-black text-foreground tracking-tight">
                     Registry Nodes Empty
                 </h3>
-                <p className="text-slate-500 font-medium leading-relaxed">
+                <p className="text-muted-foreground font-medium leading-relaxed">
                     Every revolutionary project starts with a single perspective. 
                     Initialize your first diary entry to begin documenting your engineering journey.
                 </p>
@@ -54,12 +54,12 @@ const ProjectDiaryEmptyState = ({ onAddDiary }) => {
                 </div>
 
                 <div className="pt-8 flex items-center justify-center gap-6">
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        <span className="w-1.5 h-1.5 rounded-full bg-border" />
                         Strategic Alignment
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                        <span className="w-1.5 h-1.5 rounded-full bg-border" />
                         Feature Tracking
                     </div>
                 </div>

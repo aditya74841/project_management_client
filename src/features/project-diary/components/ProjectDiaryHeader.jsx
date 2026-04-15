@@ -40,14 +40,14 @@ const ProjectDiaryHeader = ({
     onPriorityChange,
 }) => {
     return (
-        <div className="flex flex-col items-start justify-between gap-6 rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm sm:flex-row sm:items-center">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-[2rem] border border-border bg-card p-6 shadow-sm sm:flex-row sm:items-center">
             <div className="flex items-center gap-4">
-                <div className="rounded-2xl bg-indigo-50 p-3 shadow-sm">
-                    <BookOpen className="h-6 w-6 text-indigo-600" />
+                <div className="rounded-2xl bg-primary/10 p-3 shadow-sm">
+                    <BookOpen className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight leading-tight">Registry Feed</h2>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <h2 className="text-xl font-black text-foreground tracking-tight leading-tight">Registry Feed</h2>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                         {diaryCount} Active Perspective{diaryCount === 1 ? "" : "s"}
                     </p>
                 </div>
@@ -56,7 +56,7 @@ const ProjectDiaryHeader = ({
             <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                 <div className="flex flex-1 sm:flex-initial gap-3">
                     <Select value={statusFilter} onValueChange={onStatusChange}>
-                        <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-xl border-slate-100 bg-slate-50/50 font-bold text-xs uppercase tracking-widest text-slate-500">
+                        <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-xl border-border bg-muted/30 font-bold text-xs uppercase tracking-widest text-muted-foreground focus:ring-primary/20">
                            <Filter size={14} className="mr-2" />
                            <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -70,7 +70,7 @@ const ProjectDiaryHeader = ({
                     </Select>
 
                     <Select value={priorityFilter} onValueChange={onPriorityChange}>
-                        <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-xl border-slate-100 bg-slate-50/50 font-bold text-xs uppercase tracking-widest text-slate-500">
+                        <SelectTrigger className="h-10 w-full sm:w-[160px] rounded-xl border-border bg-muted/30 font-bold text-xs uppercase tracking-widest text-muted-foreground focus:ring-primary/20">
                             <SelectValue placeholder="Priority" />
                         </SelectTrigger>
                         <SelectContent className="rounded-2xl border-slate-100 p-2 shadow-xl">

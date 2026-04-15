@@ -333,6 +333,67 @@ export const useProjectStore = create(
           toast.error(err.message || "Failed to remove technology");
         }
       },
+
+      // ─── Links ───
+      addLink: async (projectId, name, url) => {
+        try {
+          const res = await api.post(`/projects/${projectId}/links`, { name, url });
+          const newLinks = res.data?.projectLinks?.links;
+          set((s) => ({
+            selectedProject: s.selectedProject?._id === projectId
+              ? { ...s.selectedProject, links: newLinks }
+              : s.selectedProject,
+            projects: s.projects.map(p =>
+              p._id === projectId ? { ...p, links: newLinks } : p
+            ),
+          }));
+          toast.success("Link added");
+          return true;
+        } catch (err) {
+          toast.error(err.message || "Failed to add link");
+          return false;
+        }
+      },
+
+      updateLink: async (projectId, linkId, name, url) => {
+        try {
+          const res = await api.patch(`/projects/${projectId}/links/${linkId}`, { name, url });
+          const newLinks = res.data?.project?.links;
+          set((s) => ({
+            selectedProject: s.selectedProject?._id === projectId
+              ? { ...s.selectedProject, links: newLinks }
+              : s.selectedProject,
+            projects: s.projects.map(p =>
+              p._id === projectId ? { ...p, links: newLinks } : p
+            ),
+          }));
+          toast.success("Link updated");
+          return true;
+        } catch (err) {
+          toast.error(err.message || "Failed to update link");
+          return false;
+        }
+      },
+
+      removeLink: async (projectId, linkId) => {
+        try {
+          const res = await api.delete(`/projects/${projectId}/links/${linkId}`);
+          const newLinks = res.data?.project?.links;
+          set((s) => ({
+            selectedProject: s.selectedProject?._id === projectId
+              ? { ...s.selectedProject, links: newLinks }
+              : s.selectedProject,
+            projects: s.projects.map(p =>
+              p._id === projectId ? { ...p, links: newLinks } : p
+            ),
+          }));
+          toast.success("Link removed");
+          return true;
+        } catch (err) {
+          toast.error(err.message || "Failed to remove link");
+          return false;
+        }
+      },
     }),
     {
       name: "project-ui-storage",
