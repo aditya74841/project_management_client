@@ -22,7 +22,6 @@ export const IframeAuthProvider = ({ children }) => {
 
             // ── Normal features iframe handshake (parent → iframe) ──
             if (type === "AUTH_HANDSHAKE" && payload?.accessToken) {
-                console.log("IframeAuthProvider: Received AUTH_HANDSHAKE");
                 dispatch(setExternalAuth({
                     accessToken: payload.accessToken,
                     refreshToken: payload.refreshToken || "",
@@ -37,7 +36,6 @@ export const IframeAuthProvider = ({ children }) => {
             // ── Reverse handshake: parent asks "do you have a token?" ──
             // Used by experimentclient's hidden auth-check iframe
             if (type === "REQUEST_TOKEN") {
-                console.log("IframeAuthProvider: Received REQUEST_TOKEN — replying with token status");
                 if (isLoggedIn && accessToken) {
                     event.source.postMessage(
                         {
@@ -55,12 +53,11 @@ export const IframeAuthProvider = ({ children }) => {
             }
 
             if (type === "LOGOUT_HANDSHAKE") {
-                console.log("IframeAuthProvider: Received LOGOUT_HANDSHAKE from host");
                 dispatch(handleLogout());
             }
 
             if (type === "CREATE_FEATURE" && payload?.projectId) {
-                console.log("IframeAuthProvider: Received CREATE_FEATURE request", payload);
+                // Feature creation logic
             }
         };
 
@@ -77,7 +74,6 @@ export const IframeAuthProvider = ({ children }) => {
     // 2. Watch for local logout and broadcast to Parent
     useEffect(() => {
         if (!isLoggedIn && window.parent !== window) {
-            console.log("IframeAuthProvider: Local logout detected, broadcasting to host");
             window.parent.postMessage({ type: "LOGOUT_BROADCAST" }, "*");
         }
     }, [isLoggedIn]);

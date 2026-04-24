@@ -43,7 +43,6 @@ class CompanyApiService {
           ...authHeaders,
         };
         
-        console.log(`🏢 Company API: ${config.method?.toUpperCase()} ${config.url}`);
         return config;
       },
       (error) => {
@@ -54,7 +53,6 @@ class CompanyApiService {
 
     this.api.interceptors.response.use(
       (response) => {
-        console.log(`✅ Company API Success: ${response.config.url}`);
         return response;
       },
       (error) => {

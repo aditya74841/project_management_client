@@ -117,8 +117,8 @@ export const useProjectStore = create(
         set({ loading: true });
         try {
           const res = await api.get("/projects");
-          // Res is already normalized by api.js
-          set({ projects: res.data?.projects || [], loading: false });
+          const validProjects = (res.data?.projects || []).filter(p => p && p._id);
+          set({ projects: validProjects, loading: false });
         } catch (err) {
           toast.error(err.message || "Failed to fetch projects");
           set({ loading: false });
@@ -130,10 +130,18 @@ export const useProjectStore = create(
         try {
           const res = await api.post("/projects", payload);
           const newProject = res.data?.project;
-          set((s) => ({
-            projects: newProject ? [newProject, ...s.projects] : s.projects,
-            creating: false,
-          }));
+          
+          set((s) => {
+            if (!newProject || !newProject._id) return { ...s, creating: false };
+            
+            // Avoid duplicates if already present
+            const exists = s.projects.some(p => p._id === newProject._id);
+            return {
+              projects: exists ? s.projects : [newProject, ...s.projects],
+              creating: false,
+            };
+          });
+          
           toast.success(res.message || "Project created successfully");
           return true;
         } catch (err) {
@@ -148,12 +156,15 @@ export const useProjectStore = create(
         try {
           const res = await api.patch(`/projects/${projectId}`, payload);
           const updated = res.data?.project;
-          set((s) => ({
-            projects: updated
-              ? s.projects.map((p) => (p._id === updated._id ? updated : p))
-              : s.projects,
-            updating: false,
-          }));
+          
+          set((s) => {
+            if (!updated || !updated._id) return { ...s, updating: false };
+            return {
+              projects: s.projects.map((p) => (p._id === updated._id ? updated : p)),
+              updating: false,
+            };
+          });
+          
           toast.success(res.message || "Project updated successfully");
           return true;
         } catch (err) {
@@ -204,7 +215,7 @@ export const useProjectStore = create(
           toast.success(res.message || "Status updated");
         } catch (err) {
           toast.error(err.message || "Failed to change status");
-          get().fetchProjects(); // re-sync
+          get().fetchProjects();
         }
       },
 

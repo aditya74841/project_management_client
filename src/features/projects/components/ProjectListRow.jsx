@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
-// import { useProjectStore } from "@/features/projects/store";
 import { statusConfig, statusLabels } from "@/features/projects/config/statusConfig";
 import { useProjectStore } from "@/store/projectStore";
 
@@ -103,7 +102,6 @@ const ProjectListRow = ({ project }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52 rounded-xl p-2 border-border bg-popover shadow-2xl">
 
-
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="rounded-lg gap-2 font-bold">
                   <Activity size={14} className="text-muted-foreground" /> State Change
@@ -127,8 +125,7 @@ const ProjectListRow = ({ project }) => {
 
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
+                onSelect={() => {
                   setTimeout(() => setDeleteTarget(project), 100);
                 }}
                 className="rounded-lg gap-2 text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"

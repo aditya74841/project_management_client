@@ -1,6 +1,5 @@
 
 import { Suspense } from 'react';
-// import FeaturePageClient from './components/FeaturePageClient';
 import LoadingState from '@/components/dashboard/LoadingState';
 import FeaturePageClient from '@/components/dashboard/features/components/FeaturePageClient';
 

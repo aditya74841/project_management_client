@@ -37,8 +37,8 @@ const ProgressBar = ({ value, color = "bg-primary" }) => (
   <div className="w-full space-y-2">
     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-muted-foreground">
       <span className="flex items-center gap-1.5">
-         <Activity className="w-3 h-3 text-primary" />
-         Velocity
+        <Activity className="w-3 h-3 text-primary" />
+        Velocity
       </span>
       <span className="text-foreground">{value}%</span>
     </div>
@@ -62,10 +62,10 @@ const ProjectCard = ({ project }) => {
     project.progress !== undefined
       ? project.progress
       : project.status === "completed"
-      ? 100
-      : project.status === "active"
-      ? 65
-      : 15;
+        ? 100
+        : project.status === "active"
+          ? 65
+          : 15;
 
   return (
     <motion.div
@@ -80,7 +80,7 @@ const ProjectCard = ({ project }) => {
       {/* Header Area */}
       <div className="flex justify-between items-start mb-6">
         <div className={cn(
-          "px-4 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm transition-colors", 
+          "px-4 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm transition-colors",
           cfg.badge
         )}>
           <div className={cn("w-2 h-2 rounded-full animate-pulse", cfg.dot)} />
@@ -94,23 +94,22 @@ const ProjectCard = ({ project }) => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2.5 border-border bg-popover shadow-2xl">
-              <DropdownMenuItem 
-                onSelect={(e) => {
-                  e.preventDefault();
-                  setTimeout(() => openEditSheet(project), 100);
-                }} 
-                className="rounded-xl gap-3 py-3 cursor-pointer"
-              >
-                <Edit3 size={16} className="text-muted-foreground" /> 
-                <span className="font-bold text-sm">Edit Registration</span>
-              </DropdownMenuItem>
-  
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="rounded-xl gap-3 py-3">
-                  <Activity size={16} className="text-muted-foreground" />
-                  <span className="font-bold text-sm">Phase Transition</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className="rounded-2xl p-2 border-border bg-popover shadow-xl">
+            <DropdownMenuItem
+              onSelect={() => {
+                setTimeout(() => openEditSheet(project), 100);
+              }}
+              className="rounded-xl gap-3 py-3 cursor-pointer"
+            >
+              <Edit3 size={16} className="text-muted-foreground" />
+              <span className="font-bold text-sm">Edit Registration</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger className="rounded-xl gap-3 py-3">
+                <Activity size={16} className="text-muted-foreground" />
+                <span className="font-bold text-sm">Phase Transition</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="rounded-2xl p-2 border-border bg-popover shadow-xl">
                 {statusLabels.map((s) => (
                   <DropdownMenuItem
                     key={s}
@@ -184,7 +183,7 @@ const ProjectCard = ({ project }) => {
         <div className="flex -space-x-3">
           {(project.members || [1, 2]).slice(0, 3).map((_, i) => (
             <div key={i} className="w-9 h-9 rounded-2xl border-2 border-card bg-muted flex items-center justify-center text-[10px] font-black text-foreground shadow-sm relative group/avatar">
-               <Users size={14} className="text-muted-foreground" />
+              <Users size={14} className="text-muted-foreground" />
             </div>
           ))}
           {(project.members?.length || 0) > 3 && (
@@ -195,20 +194,20 @@ const ProjectCard = ({ project }) => {
         </div>
 
         <div className="flex gap-2">
-           <button 
-              onClick={() => router.push(`/dashboard/project-diary?projectId=${project._id}`)}
-              className="h-10 px-4 rounded-xl bg-indigo-600/10 text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
-           >
-              <BookText size={14} />
-              Open Diary
-           </button>
-           <button 
-              onClick={() => router.push(`/dashboard/projects/${project._id}`)}
-              className="h-10 px-5 rounded-xl bg-slate-950 text-white font-black text-[11px] uppercase tracking-widest flex items-center gap-2 hover:bg-primary transition-colors shadow-lg shadow-slate-950/20 active:scale-95"
-           >
-              Open Hub
-              <ChevronRight size={14} />
-           </button>
+          <button
+            onClick={() => router.push(`/dashboard/project-diary?projectId=${project._id}`)}
+            className="h-10 px-4 rounded-xl bg-indigo-600/10 text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
+          >
+            <BookText size={14} />
+            Open Diary
+          </button>
+          <button
+            onClick={() => router.push(`/dashboard/projects/${project._id}`)}
+            className="h-10 px-5 rounded-xl bg-slate-950 text-white font-black text-[11px] uppercase tracking-widest flex items-center gap-2 hover:bg-primary transition-colors shadow-lg shadow-slate-950/20 active:scale-95"
+          >
+            Open Hub
+            <ChevronRight size={14} />
+          </button>
         </div>
       </div>
     </motion.div>

@@ -23,8 +23,6 @@ export const createUser = createAsyncThunk(
   "userClient/createUser",
   async (payload, { rejectWithValue, getState }) => {
     try {
-      // console.log("The getSate is ",getState())
-
       const headers = getAuthHeaders(getState);
 
       const res = await api.post("/companies/create-user", payload, {
@@ -45,8 +43,6 @@ export const createUserBySuperAdmin = createAsyncThunk(
   "userClient/createUserBySuperAdmin",
   async (payload, { rejectWithValue, getState }) => {
     try {
-      // console.log("The getSate is ",getState())
-
       const headers = getAuthHeaders(getState);
 
       const res = await api.post("/companies/create-user-superadmin", payload, {
@@ -69,8 +65,6 @@ export const getUsers = createAsyncThunk(
     try {
       const headers = getAuthHeaders(getState);
       const res = await api.get("/companies/get-users", { headers });
-
-      // console.log("getSate", getState());
 
       return res.data.data;
     } catch (err) {
@@ -188,8 +182,6 @@ const userClientSlice = createSlice({
       .addCase(getUsers.fulfilled, (state, action) => {
         state.loading = false;
         const data = action.payload;
-
-        // console.log("The dataaa is ",data?.users)
 
         state.users = data?.users || [];
         state.company = data?.company || null;

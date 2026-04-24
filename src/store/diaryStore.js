@@ -81,8 +81,6 @@ export const useDiaryStore = create((set, get) => ({
   createDiary: async (projectId, payload) => {
     set({ loading: true, error: null });
     try {
-      console.log("The project Id is", projectId)
-      console.log("The payload is", payload)
       const res = await api.post(`/project-diaries/${projectId}`, payload);
       const newEntry = res.data?.projectDiary;
       set((s) => ({
