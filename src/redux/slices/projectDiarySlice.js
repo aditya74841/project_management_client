@@ -861,7 +861,6 @@ const projectDiarySlice = createSlice({
 export const { clearMessages, clearError, resetProjectDiaryState, setSelectedDiary } =
     projectDiarySlice.actions;
 
-export { getOrCreateDiaryForProject }; // Exporting the new thunk here if needed, but it's already exported at definition
 
 /* basic selectors */
 export const selectDiaries = (s) => s.projectDiary.diaries;
