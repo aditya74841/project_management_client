@@ -1,7 +1,6 @@
-// app/dashboard/users/page.js
 import { Suspense } from "react";
-import UserPageClient from "../../../components/dashboard/users/componenets/UserPageClient";
 import LoadingState from "@/components/dashboard/LoadingState";
+import UserPageClient from "@/features/users/components/UserPageClient";
 
 async function getInitialUsers() {
   try {
